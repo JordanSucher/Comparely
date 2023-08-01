@@ -1,0 +1,52 @@
+body {
+  font-family: sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+label {
+  display: block;
+}
+
+
+form div {
+  margin: 1em;
+  display: inline-block;
+}
+
+/* NAVBAR CSS */
+nav{
+  display: flex;
+  align-items: center;
+}
+nav a {
+  margin: 0 10px;
+}
+.nav-title {
+  color: whitesmoke;
+  font-family: "Helvetica Neue", sans-serif;
+  font-size: 100px;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  flex: 1;
+  transform: skew(9deg);
+}
+.nav-bar{
+  background-color: black;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left-nav{
+  display: flex;
+  align-items: center;
+}
+
+.goat-logo{
+  width: 100px;
+  border-radius: 50%;
+}
