@@ -1,18 +1,16 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import Home from "./components/Home";
-import CandyList from "./components/CandyList";
 
 const Root = () => {
   return (
     <div>
       <nav>
-        <Link to='/'>Goodie Bag</Link>
-        <Link to='/candies'>List of Candy</Link>
+          <h1>Compare.ly</h1>
+          <p>Easily keep track of your competitors.</p>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path='/candies' element={<CandyList />} />
       </Routes>
     </div>
   );

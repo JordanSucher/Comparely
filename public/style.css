@@ -1,52 +1,44 @@
-body {
-  font-family: sans-serif;
+h1, p, body{
+  margin: 0;
+  padding: 0
 }
 
-a {
-  text-decoration: none;
-}
-
-label {
-  display: block;
-}
-
-
-form div {
-  margin: 1em;
-  display: inline-block;
-}
-
-/* NAVBAR CSS */
-nav{
+form {
   display: flex;
-  align-items: center;
+  flex-direction: column;
 }
-nav a {
-  margin: 0 10px;
-}
-.nav-title {
-  color: whitesmoke;
-  font-family: "Helvetica Neue", sans-serif;
-  font-size: 100px;
-  font-weight: bold;
-  line-height: 1;
-  text-align: center;
-  flex: 1;
-  transform: skew(9deg);
-}
-.nav-bar{
-  background-color: black;
+
+form div{
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  margin-bottom: 10px;
 }
 
-.left-nav{
-  display: flex;
-  align-items: center;
+form input{
+  width: 200px;
 }
 
-.goat-logo{
-  width: 100px;
-  border-radius: 50%;
+#form-container{
+  margin: 0 auto;
+  margin-top: 40px;
+  width: 400px;
+}
+
+nav{
+  padding: 10px;
+  background-color: black;
+  color: white;
+}
+
+#your-website input{
+  margin-right: 35px;
+}
+
+i:hover{
+  cursor: pointer;
+}
+
+button{
+  margin: 5px;
+  padding: 4px;
 }
