@@ -5,7 +5,6 @@ const Home = () => {
 
    const handleSubmit = (event) => {
         event.preventDefault();
-        console.log(competitors)
     }
 
     const handleChange = (event) => {
@@ -35,7 +34,7 @@ const Home = () => {
                 <form onSubmit ={handleSubmit}>
                     <div id="your-website">
                         <label for="usersWebsite">Your website</label>
-                        <input name="usersWebsite" type="text" />
+                        <input type="url" name="usersWebsite" />
                     </div>
                   
                    {
@@ -43,7 +42,7 @@ const Home = () => {
                         return (
                             <div key={index}>
                                 <label for={"competitorsWebsite"+(index+1)}>{`Competitor ${index+1} Website`}</label>
-                                <input name={"competitorsWebsite"+(index+1)} index={index} onChange={handleChange} value={competitors[index]} type="text" />
+                                <input type="url" name={"competitorsWebsite"+(index+1)} index={index} onChange={handleChange} value={competitors[index]} />
                                 <i class="fa-solid fa-trash" index={index} onClick={handleDelete}></i>
                             </div>
                         )

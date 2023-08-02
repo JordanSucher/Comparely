@@ -42,3 +42,7 @@ button{
   margin: 5px;
   padding: 4px;
 }
+
+input:invalid{
+  border: 1px dotted red;
+}
