@@ -26,12 +26,14 @@
   "homepage": "https://github.com/JEESH-For-Breakfast/Compare#readme",
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.1",
     "morgan": "^1.10.0",
     "pg": "^8.11.2",
+    "puppeteer": "^21.0.0",
     "sequelize": "^6.32.1"
   },
   "devDependencies": {
