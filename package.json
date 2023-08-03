@@ -33,6 +33,7 @@
     "jsonwebtoken": "^9.0.1",
     "llamaindex": "^0.0.0-20230802145626",
     "morgan": "^1.10.0",
+    "openai": "^3.3.0",
     "pg": "^8.11.2",
     "puppeteer": "^21.0.0",
     "sequelize": "^6.32.1"
