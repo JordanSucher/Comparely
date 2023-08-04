@@ -2,6 +2,7 @@ const axios = require('axios')
 const { Op } = require('sequelize');
 const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
+const Sitemapper = require('sitemapper');
 const fs = require('fs')
 const { models: CompanyData } = require('../db')
 const { Configuration, OpenAIApi } = require("openai");
@@ -131,7 +132,8 @@ try {
     //Upsert the articles into the company_data_raw table and then identify which articles we haven't scraped yet
     let promises = links.map(async link => {
         await CompanyDataRaw.upsert({
-            url: link
+            url: link,
+            type: 'article'
         })
     })
 
@@ -139,6 +141,7 @@ try {
 
     let newLinks = await CompanyDataRaw.findAll({
         where: {
+            type: 'article',
             text: {
                 [Op.is]: null
             }
@@ -182,6 +185,8 @@ try {
 
     await Promise.all(promises)
 
+    return true
+
 } catch (err) {
     console.log(err)
 }
@@ -190,14 +195,74 @@ try {
 }
 
 let company = {
-    url: "https://attentivemobile.com/"
+    url: "https://zendesk.com/"
 }
 
-getArticles(company)
+// getArticles(company)
 
-const getContent = (company) => {
+const getContent = async (company) => {
+
+    try{
+
+        const sitemap = new Sitemapper();
+        let pages
+
+        await sitemap.fetch(company.url+"sitemap.xml").then(function(sites) {
+            pages = sites.sites
+        });
+
+        //upsert pages into DB
+
+        let promises = pages.map(async page => {
+            await CompanyDataRaw.upsert({
+                url: page,
+                type: 'site'
+            })
+        })
+
+        await Promise.all(promises)
+
+        //get the articles w no content
+        let newPages = await CompanyDataRaw.findAll({
+            where: {
+                type: 'site',
+                text: {
+                    [Op.is]: null
+                }
+            }
+        })
+
+        newPages = newPages.map(page => page.url)
+
+        // get all the content
+        promises = newPages.map(async page => {
+            let result = await axios.get(page)
+            let $ = cheerio.load(result.data)
+            let text = $("body").text()
+            text = await stripMetadataAndFormatting(text)
+
+            //add to DB
+            await CompanyDataRaw.upsert({
+                url: page,
+                text: text,
+                type: 'site'
+            })
+
+            //add a brief pause
+            await new Promise(resolve => setTimeout(resolve, 200))
+
+        })
+
+        await Promise.all(promises)
+
+        return true
+    } catch (err) {
+        console.log(err)
+    }
 
 }
+
+getContent(company)
 
 module.exports = {
     getTweets,
