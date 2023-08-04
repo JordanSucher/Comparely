@@ -213,6 +213,15 @@ const getContent = async (company) => {
 
         //upsert pages into DB
 
+        //do filtering
+        pages = pages
+        .filter (page => !page.includes('blog'))
+        .filter(page => !page.includes('campaign'))
+        .filter(page => !page.includes('customer'))
+        .filter(page => !page.includes('webinar'))
+        .filter(page => (page.match(/\//g) || []).length <= 5)
+
+
         let promises = pages.map(async page => {
             await CompanyDataRaw.upsert({
                 url: page,
@@ -233,6 +242,7 @@ const getContent = async (company) => {
         })
 
         newPages = newPages.map(page => page.url)
+    
 
         // get all the content
         promises = newPages.map(async page => {
