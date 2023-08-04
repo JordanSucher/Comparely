@@ -10,7 +10,7 @@ const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = re
 
 
 const configuration = new Configuration({
-    apiKey: '',
+    apiKey: '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',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -219,6 +219,7 @@ const getContent = async (company) => {
         .filter(page => !page.includes('campaign'))
         .filter(page => !page.includes('customer'))
         .filter(page => !page.includes('webinar'))
+        .filter(page => !page.includes('error'))
         .filter(page => (page.match(/\//g) || []).length <= 5)
 
 
