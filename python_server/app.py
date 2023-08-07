@@ -25,11 +25,11 @@ openai.api_key = ''
 # documents = [Document(text=t) for t in texts]
 
 
-# # make a db
-# connection_string = "postgresql://postgres:password@localhost:5432"
-# db_name = "vector_db"
-# conn = psycopg2.connect(connection_string)
-# conn.autocommit = True
+# connect to db
+connection_string = "postgresql://postgres:password@localhost:5432"
+db_name = "vector_db"
+conn = psycopg2.connect(connection_string)
+conn.autocommit = True
 
 
 # # ~ this part only needs to be done once, since it drops the db which we dont want
