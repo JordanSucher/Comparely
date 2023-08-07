@@ -8,6 +8,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import Homeski from "./components/Homeski";
 import Header from "./Header";
 import Center from "./components/Center";
+import TableOfContents from "./components/ComparisonComponents/TableOfContents";
 
 
 const root = createRoot(document.getElementById("app"));
@@ -16,8 +17,9 @@ root.render(
   <Provider store={store}>
     <Router>
       <Header />
-      <Homeski />
-      {/* <Center /> */}
+      {/* <Homeski /> */}
+      <TableOfContents />
+
     </Router>
   </Provider>
 );
