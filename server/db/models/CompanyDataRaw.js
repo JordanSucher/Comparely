@@ -2,20 +2,26 @@ const Sequelize = require('sequelize');
 const db = require('../db');
 
 const CompanyDataRaw = db.define("company_data_raw", {
-  pageTitle: Sequelize.STRING,
+  pageTitle: {
+    type: Sequelize.STRING
+  },
   url: {
     type: Sequelize.STRING,
+    unique: true,
     allowNull: false,
     validate: {
       isUrl: true,
     },
   },
-  text: Sequelize.STRING,
+  text: {
+    type: Sequelize.TEXT
+  },
   date: {
     type: Sequelize.DATE,
-    allowNull: false,
   },
-  type: Sequelize.STRING
+  type: {
+    type: Sequelize.STRING
+  }
 })
 
 module.exports = CompanyDataRaw;

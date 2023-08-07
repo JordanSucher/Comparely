@@ -36,7 +36,8 @@
     "openai": "^3.3.0",
     "pg": "^8.11.2",
     "puppeteer": "^21.0.0",
-    "sequelize": "^6.32.1"
+    "sequelize": "^6.32.1",
+    "sitemapper": "^3.2.6"
   },
   "devDependencies": {
     "@babel/core": "^7.22.9",
