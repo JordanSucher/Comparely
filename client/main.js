@@ -9,6 +9,7 @@ import Homeski from "./components/Homeski";
 import Header from "./Header";
 import Center from "./components/Center";
 import TableOfContents from "./components/ComparisonComponents/TableOfContents";
+import Comparison from "./components/ComparisonComponents/Comparison";
 
 
 const root = createRoot(document.getElementById("app"));
@@ -18,7 +19,7 @@ root.render(
     <Router>
       <Header />
       {/* <Homeski /> */}
-      <TableOfContents />
+      <Comparison />
 
     </Router>
   </Provider>
