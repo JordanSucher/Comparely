@@ -1,13 +1,8 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
-import Form from "react-bootstrap/Form";
+import { Form, Container, Stack, Row, Col, Button } from "react-bootstrap";
 import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
-import Stack from "react-bootstrap/Stack";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 
 const Homeski = () => {
   const handleSubmit = async (event) => {
