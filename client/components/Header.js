@@ -1,12 +1,12 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
-import Home from "./components/Home";
+import Home from "./test/Home";
 
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import {LinkContainer} from "react-router-bootstrap";
+import { LinkContainer } from "react-router-bootstrap";
 
 const Header = () => {
   return (
@@ -26,7 +26,7 @@ const Header = () => {
             <Nav className="me-auto"></Nav>
             <Nav>
               <Nav.Link href="/">Home</Nav.Link>
-              <Nav.Link href="#compare">Compare</Nav.Link>
+              <Nav.Link href="/compare">Compare</Nav.Link>
               <NavDropdown title="More" id="basic-nav-dropdown">
                 <NavDropdown.Item href="#account">Account</NavDropdown.Item>
                 <NavDropdown.Item href="#chatbot">Chatbot</NavDropdown.Item>
