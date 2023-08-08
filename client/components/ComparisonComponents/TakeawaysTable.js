@@ -4,6 +4,7 @@ import { Table } from "react-bootstrap";
 const TakeawaysTable = () => {
   return (
     <>
+    <h4>Takeaways</h4>
       <Table striped bordered hover>
         <thead>
           <tr>

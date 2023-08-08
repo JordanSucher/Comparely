@@ -4,7 +4,7 @@ import { Navbar, Stack, Nav, Col, Row } from "react-bootstrap";
 const TableOfContents = () => {
   return (
     <>
-        <Nav className="flex-column">
+        <Nav className="flex-column align-middle">
           <Nav.Link>Company Profile</Nav.Link>
           <Nav.Link>SWOT Analysis</Nav.Link>
           <Nav.Link>Product Profile</Nav.Link>

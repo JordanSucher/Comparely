@@ -4,12 +4,12 @@ import CompanyProfileTable from "./CompanyProfileTable";
 import SwotTable from "./SwotAnalysisTable";
 import ProductProfileTable from "./ProductProfileTable";
 import MarketApproachTable from "./MarketApproachTable";
-import { Container, Row, Col } from "react-bootstrap";
 import TakeawaysTable from "./TakeawaysTable";
+import { Container, Row, Col } from "react-bootstrap";
 
 const Comparison = () => {
   return (
-    <Container>
+    <Container fluid>
       <Row>
         <Col xs={3} className="sticky-left">
           <TableOfContents />

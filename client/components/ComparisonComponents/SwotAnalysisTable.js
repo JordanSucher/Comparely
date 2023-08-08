@@ -4,6 +4,7 @@ import { Table } from "react-bootstrap";
 const SwotTable = () => {
   return (
     <>
+    <h4>SWOT Analysis</h4>
       <Table striped bordered hover>
         <thead>
           <tr>

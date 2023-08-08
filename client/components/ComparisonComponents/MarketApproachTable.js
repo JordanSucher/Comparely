@@ -4,6 +4,7 @@ import { Table } from "react-bootstrap";
 const MarketApproachTable = () => {
   return(
     <>
+    <h4>Market Approach</h4>
       <Table striped bordered hover>
         <thead>
           <tr>
