@@ -4,7 +4,7 @@ const db = require("../db");
 const Company = db.define("company", {
   name: {
     type: Sequelize.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   url: {
     type: Sequelize.STRING,
@@ -13,6 +13,10 @@ const Company = db.define("company", {
       isUrl: true,
     },
   },
+  vector_table: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  }
 });
 
 module.exports = Company;

@@ -1,30 +1,56 @@
 const router = require('express').Router()
-// const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent } = require('./webscraper.js')
+const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
+const axios = require('axios')
+const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent } = require('./webscraper.js')
 
 router.use('/users', require('./users'))
 
 router.post('/comparisons', async (req, res, next) => {
+  const regex = /www\.(.*?)\./;
   
 
   //[google.com, yahoo.com, etc.]
   let companyURLs = req.body.companies
 
   // upsert companies into companies table
-  // how do we get company name?
-  let companies = await companies.bulkCreate(companyURLs)
+  let promises = companyURLs.map(async company => {
+    companyName = url.match(regex)
+    if (companyName && companyName[1]) {
+      companyName = companyName[1]
+    } else {
+      companyName = ""
+    }
+
+    await Company.upsert({
+      url: company,
+      name: companyName
+    })
+  })
+
+  await Promise.all(promises)
+  
+  //grab companies
+  let companies = await Company.findAll({
+    where: {
+      url: {
+        [Op.in]: companyURLs
+      }
+    }
+  })
 
 
   // trigger comparison functions:
     // web scrape a bunch of shit - Eric
     await webScrape(companies)
     
-    // trigger config of llama index based on that shit - Hunter
-    let index = await setUpLlamaIndex(companies)
+    // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
+    let companyIds = companies.map(company => company.id)
+    await axios.post('http://127.0.0.1:8080/api/comparisons', { companyIds: companies })
 
-    // do a bunch of queries
-    let results = await doQueries(index)
+    // retrieve data from company_comparison_points table
+    let results = await doQueries(companies)
 
-    //return stuff to frontend
+    //return results to frontend
     res.json (results)
 })
 
@@ -81,10 +107,33 @@ const setUpLlamaIndex = async (companies) => {
 
 }
 
-const doQueries = async (index) => {
-  // some prompt engineering bullshit here
+const doQueries = async (companies) => {
+  let result = {}
 
-  index.query("Make a comprehensive list of features that is a superset of all competitors")
+  for (let company of companies) {
+    // get features
+    let features = await CompanyComparisonPoint.findAll({
+      where: {
+        companyId: company.id,
+        key: 'features'
+      }
+    })
+
+    let swot = await CompanyComparisonPoint.findAll({
+      where: {
+        companyId: company.id,
+        key: 'swot'
+      }
+    })
+
+    result[company.id] = {
+      features: features,
+      swot: swot
+    }
+
+  }
+
+  return result
 }
 
 

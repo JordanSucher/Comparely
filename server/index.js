@@ -4,7 +4,7 @@ const app = require('./app')
 
 const { db } = require('./db')
 
-db.sync().then(() => {
+db.sync({ force: true }).then(() => {
     app.listen(PORT, () => console.log(`Eerie muffled sounds on port ${PORT}`));
 })
 
