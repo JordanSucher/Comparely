@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import Comparison from "./components/ComparisonComponents/Comparison";
 import Homeski from "./components/Homeski";
 import Loading from "./components/Loading";
-import CreateProfile from "./components/CreateProfile";
+import CreateAccountForm from "./components/Account/CreateAccountForm";
 
 const Root = () => {
   return (
@@ -15,7 +15,7 @@ const Root = () => {
         <Route path="/" element={<Homeski />} />
         <Route path="/compare" element={<Comparison />} />
       </Routes> */}
-      <CreateProfile />
+      <CreateAccountForm />
     </>
   );
 };

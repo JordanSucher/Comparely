@@ -1,10 +1,11 @@
 import React from "react";
 import {Row, Col, Form, Button, Table, Container} from "react-bootstrap";
 
-const CreateProfile = () => {
+const CreateAccountForm = () => {
   return(
     <>
     <Container>
+      <h4 className="mt-5">Create Account</h4>
       <Form>
         <Row className="mt-3">
           <Form.Group as={Col} controlId="formGridFirstName" className="mb-3">
@@ -45,4 +46,4 @@ const CreateProfile = () => {
   )
   }
 
-export default CreateProfile;
+export default CreateAccountForm;
