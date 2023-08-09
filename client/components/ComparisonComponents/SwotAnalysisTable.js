@@ -1,7 +1,7 @@
 import React from "react";
 import { Table } from "react-bootstrap";
 
-const SwotTable = () => {
+const SwotTable = ({ swot }) => {
   return (
     <>
     <h4>SWOT Analysis</h4>
