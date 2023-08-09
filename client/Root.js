@@ -15,7 +15,7 @@ const Root = () => {
         <Route path="/" element={<Homeski />} />
         <Route path="/compare" element={<Comparison />} />
       </Routes> */}
-      <CreateAccountForm />
+      <Comparison />
     </>
   );
 };
