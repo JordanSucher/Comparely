@@ -17,7 +17,7 @@ MAX_CON = 20  # Max number of connections you want to allow
 connection_string = "postgresql://postgres:password@localhost:5432"
 
 # open ai api key
-openai.api_key = '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'
+openai.api_key = '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'
 
 # connect to db
 db_name = "vector_db"
@@ -32,8 +32,8 @@ async def getIndex(id):
     """
     select_articles = """
         SELECT text 
-        FROM company_datas_raw 
-        WHERE id = %s AND type = 'site'
+        FROM company_data_raws 
+        WHERE company_id = %s AND type = 'site'
     """
 
     conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
@@ -182,6 +182,11 @@ async def compare():
     # api will receive a list of company IDs
     data = request.json
     companyIds = data['companyIds']
+
+    # transform companyIds into a simple array of integers
+    companyIds = [id['id'] for id in companyIds]
+
+
 
     for id in companyIds:
         await generateAnalysis(id)

@@ -1,14 +1,20 @@
 import React from 'react'
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
 
+    const navigate = useNavigate();
+
    const handleSubmit = async (event) => {
         event.preventDefault();
-        let comparisonData = axios.post('/api/comparisons', {
-            companies: competitors
-        } )
+        let {data} = await axios.post('/api/comparisons', {
+            companies: [...competitors,myCompany]
+        })
+        let comparisonId = data['comparisonId'];
+        console.log("We successfully did a comparison! ", comparisonId)
+        // navigate(`/comparisons/${comparisonId}`);
     }
 
     const handleChange = (event) => {
@@ -29,6 +35,7 @@ const Home = () => {
         setCompetitors(newCompetitors);
     }
 
+    const [myCompany, setMyCompany] = useState("");
     const [competitors, setCompetitors] = useState([""]);
     
 
@@ -38,7 +45,7 @@ const Home = () => {
                 <form onSubmit ={handleSubmit}>
                     <div id="your-website">
                         <label for="usersWebsite">Your website</label>
-                        <input type="url" name="usersWebsite" />
+                        <input type="url" name="usersWebsite" onChange={(e)=>setMyCompany(e.target.value)}/>
                     </div>
                   
                    {

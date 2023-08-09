@@ -1,9 +1,27 @@
 const router = require('express').Router()
-const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
+const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw, Comparison } } = require('../db')
 const axios = require('axios')
 const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent } = require('./webscraper.js')
+const { Configuration, OpenAIApi } = require("openai");
+const { Op } = require('sequelize');
+
+
+const configuration = new Configuration({
+  apiKey: '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',
+});
+
+const openai = new OpenAIApi(configuration);
+
+
 
 router.use('/users', require('./users'))
+
+router.get('/comparisons/:id', async (req, res, next) => {
+  const { id } = req.params
+  const comparison = await Comparison.findOne({ where: { id } })
+  res.json(comparison)
+})
+
 
 router.post('/comparisons', async (req, res, next) => {
   const regex = /www\.(.*?)\./;
@@ -14,7 +32,7 @@ router.post('/comparisons', async (req, res, next) => {
 
   // upsert companies into companies table
   let promises = companyURLs.map(async company => {
-    companyName = url.match(regex)
+    companyName = company.match(regex)
     if (companyName && companyName[1]) {
       companyName = companyName[1]
     } else {
@@ -38,9 +56,21 @@ router.post('/comparisons', async (req, res, next) => {
     }
   })
 
+  // create a comparison record
+  let comparison = await Comparison.create({
+    text: ""
+  })
+
+  // add companies to comparison
+  promises = companies.map(async company => {
+    await comparison.addCompany(company)
+  })
+
+  await Promise.all(promises)
+
 
   // trigger comparison functions:
-    // web scrape a bunch of shit - Eric
+    // web scrape a bunch of shit (rn this is just grabbing content from company websites)
     await webScrape(companies)
     
     // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
@@ -50,8 +80,17 @@ router.post('/comparisons', async (req, res, next) => {
     // retrieve data from company_comparison_points table
     let results = await doQueries(companies)
 
-    //return results to frontend
-    res.json (results)
+    // add results to comparison table
+    await Comparison.update({
+      text: JSON.stringify(results)
+    }, {
+      where: {
+        id: comparison.id
+      }
+    })
+
+    //return success to frontend
+    res.json ({"comparisonId": comparison.id})
 })
 
 
@@ -59,80 +98,86 @@ const webScrape = async (companies) => {
   //when provided an array of companies, do a bunch of web scraping
 
 
-const promises = companies.forEach(async company => {
-  // look for tweets
-  await getTweets(company)
+const promises = companies.map(async company => {
 
-  // get capterra reviews
-  await getCapterraReviews(company)
-  
-  // get g2 reviews
-  await getG2Reviews(company)
-
-  // look for articles on google / crunchbase?
-  await getArticles(company)
 
   // grab content from the competitor's website
-  await getContent(company)
+  return getContent(company)
+
+  
+  // // look for tweets
+  // return getTweets(company)
+
+  // // get capterra reviews
+  // return getCapterraReviews(company)
+  
+  // // get g2 reviews
+  // return getG2Reviews(company)
+
+  // // look for articles on google / crunchbase?
+  // return getArticles(company)
 
 })
 
 await Promise.all(promises) //wait until all the above promises are done
 
-// what inserting into companyData might look like
-
-  // CompanyData.create({
-  //   companyId: someVariable,
-  //   pageTitle: "test",
-  //   url: "test",
-  //   text: "test",
-  //   type: "test"
-  // })
-  
-}
-
-const setUpLlamaIndex = async (companies) => {
-  // this function is gonna need to know which documents are relevant for a given comparison
-
-  let documents = await CompanyDataRaw.findAll({
-    where: {
-      companyId: {
-        [Op.in]: companies
-      }
-    }
-  })
-
-  let index = createLlamaVectorIndexBullshit(documents)
-  return index 
-
 }
 
 const doQueries = async (companies) => {
+  //we want the result to be in this format:
+  // {features: [{company1}, {company2}],
+  //  swots: [{company1}, {company2}]}
+
+  // we also want the feature lists to be normalized (have the same feature names)
+
+
   let result = {}
+  let featuresArray = []
+  let swotsArray = []
 
+  // get features & swots
   for (let company of companies) {
-    // get features
-    let features = await CompanyComparisonPoint.findAll({
-      where: {
-        companyId: company.id,
-        key: 'features'
-      }
-    })
+    try {
+      let features = await CompanyComparisonPoint.findAll({
+        where: {
+          company_id: company.id,
+          key: 'features'
+        }
+      })
 
-    let swot = await CompanyComparisonPoint.findAll({
-      where: {
-        companyId: company.id,
-        key: 'swot'
-      }
-    })
-
-    result[company.id] = {
-      features: features,
-      swot: swot
+      let swot = await CompanyComparisonPoint.findAll({
+        where: {
+          company_id: company.id,
+          key: 'swot'
+        }
+      })
+    } catch (err) {
+      console.log(err)
     }
 
+    featuresArray.push({'companyId': company.id, 'features': features});
+    swotsArray.push({'companyId': company.id, 'swot': swot});
+
+  // eventually also get summary of tweets, summary of reviews here
   }
 
+  // now, we want to normalize the features so they have the same names, can do that w openAI
+
+  let featuresString = JSON.stringify(featuresArray)
+
+  try {
+    const chatCompletion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo-16k",
+        max_tokens: 3500,
+        messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company has the same features. The goal is to compare these companies apples-to-apples. Please reply in the same format as the provided Array with no other text.    Features Array:' + featuresString}],
+      });
+      let response = chatCompletion.data.choices[0].message.content;
+      featuresArray = JSON.parse(response)
+    } catch (err) {
+        console.log(err.response.data.error.message)
+    }
+
+  result = {'features': featuresArray, 'swots': swotsArray}
   return result
 }
 
