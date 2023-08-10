@@ -11,13 +11,14 @@ import atexit
 import asyncio
 
 
+
 # initialize db vars
 MIN_CON = 1  # Minimum number of connections you want to keep alive
 MAX_CON = 20  # Max number of connections you want to allow
 connection_string = "postgresql://postgres:password@localhost:5432"
 
 # open ai api key
-openai.api_key = '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'
+openai.api_key = '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'
 
 # connect to db
 db_name = "vector_db"
@@ -33,7 +34,7 @@ async def getIndex(id):
     select_articles = """
         SELECT text 
         FROM company_data_raws 
-        WHERE company_id = %s AND type = 'site'
+        WHERE company_id = %s AND type = 'site' AND text IS NOT NULL
     """
 
     conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
@@ -53,17 +54,24 @@ async def getIndex(id):
                 tableName, companyName = await cur.fetchone()
 
                 if not tableName:
-                    print("creating a vector table")
+                    print(f"creating a vector table for {companyName}")
                     # create one and persist the table name in the companies table
 
                     # create a documents array from raw text
                     
                     await cur.execute(select_articles, (id,))
-                    articles = [article[0] for article in await cur.fetchall()]
+                    articlesRaw = await cur.fetchall()
+                    # print ("articlesRaw", articlesRaw)
+                    articles = [article[0] for article in articlesRaw]
+                    # print ("articles", articles)
+
 
                     # prepare documents array 
+                    print(f"Starting document creation for {companyName}.")
                     documents = [Document(text=t) for t in articles]
+                    print(f"Finished document creation for {companyName}.")
 
+                    print(f"Starting vector store creation for {companyName}.")
                     # create vector store
                     url = make_url(connection_string)
                     print (url)
@@ -75,13 +83,18 @@ async def getIndex(id):
                         user=url.username,
                         table_name=f"{companyName}_index",
                     )
+                    print(f"Finished vector store creation for {companyName}.")
 
+                    print(f"Starting index creation for {companyName}.")
                     # persist vector store index to postgres
                     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-                    index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+                    index = VectorStoreIndex.from_documents(documents=documents, storage_context=storage_context, show_progress=True)
+                    print(f"Finished index creation for {companyName}.")
 
+                    print(f"Updating vector table for {companyName}.")
                     # add vector table name to companies table
                     await cur.execute("UPDATE companies SET vector_table = %s WHERE id = %s", (f"{companyName}_index", id))
+                    print(f"Finished updating vector table for {companyName}.")
 
                     return index
 

@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: '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',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -98,7 +98,7 @@ const webScrape = async (companies) => {
   //when provided an array of companies, do a bunch of web scraping
 
 
-const promises = companies.map(async company => {
+  const promises = companies.map(async company => {
 
 
   // grab content from the competitor's website
@@ -121,6 +121,8 @@ const promises = companies.map(async company => {
 
 await Promise.all(promises) //wait until all the above promises are done
 
+console.log("Finished webscraping")
+return true
 }
 
 const doQueries = async (companies) => {
@@ -151,12 +153,15 @@ const doQueries = async (companies) => {
           key: 'swot'
         }
       })
+
+      featuresArray.push({'companyId': company.id, 'features': features[0].value});
+      swotsArray.push({'companyId': company.id, 'swot': swot[0].value});
+
     } catch (err) {
       console.log(err)
     }
 
-    featuresArray.push({'companyId': company.id, 'features': features});
-    swotsArray.push({'companyId': company.id, 'swot': swot});
+
 
   // eventually also get summary of tweets, summary of reviews here
   }

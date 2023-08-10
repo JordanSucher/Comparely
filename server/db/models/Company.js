@@ -9,6 +9,7 @@ const Company = db.define("company", {
   url: {
     type: Sequelize.STRING,
     allowNull: false,
+    unique: true,
     validate: {
       isUrl: true,
     },
