@@ -1,34 +1,63 @@
-import React from "react";
-import { Container, Table } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Table, Button } from "react-bootstrap";
 
-const ComparisonTable = ({ prop }) => {
+const ComparisonTable = ({ title, headers, companies }) => {
+  const [showColumns, setShowColumns] = useState({});
+
+  const toggleColumns = (companyName) => {
+    setShowColumns((prevShowColumns) => ({
+      ...prevShowColumns,
+      [companyName]: !prevShowColumns[companyName],
+    }));
+  };
+
+  useEffect(() => {
+    const initialShowColumns = {};
+    companies.forEach((company) => {
+      initialShowColumns[company.name] = true;
+    });
+    setShowColumns(initialShowColumns)
+  }, [companies]);
+
   return (
     <>
-      <h4 className="text-center">{prop.companyProfile}</h4>
+      <h4>{title}</h4>
       <Table striped bordered hover>
         <thead>
           <tr>
             <th></th>
             {companies.map((company) => (
-              <th>{company.name}</th>
+              <th key={company.id}>
+                {company.name}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => toggleColumns(company.name)}
+                >
+                  -
+                </Button>
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>{prop.founded}</td>
-            {companies.founded.map((company) => (
-              <td>{company.foundedinfo}</td>
-            ))}
-          </tr>
-          <tr>
-            <td>{prop.companySize}</td>
-            {companies.companySize.map((company) => (
-              <td>{company.companySize}</td>
-            ))}
-          </tr>
+          {headers.map((header, columnIndex) => (
+            <tr key={header}>
+              <td>{header}</td>
+              {companies.map((company) => (
+                <td
+                  key={`${company.id}-${header}`}
+                  hidden={!showColumns[company.name]}
+                >
+                  {company[Object.keys(company)[columnIndex + 2]]}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </Table>
     </>
   );
 };
+
+export default ComparisonTable;

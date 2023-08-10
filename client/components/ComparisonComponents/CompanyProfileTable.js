@@ -2,6 +2,8 @@ import React from "react";
 import { Table } from "react-bootstrap";
 
 const CompanyProfileTable = () => {
+  
+
   return(
     <>
     <h4 id="company-profile">Company Profile</h4>
