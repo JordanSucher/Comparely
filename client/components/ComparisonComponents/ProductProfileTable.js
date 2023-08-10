@@ -4,7 +4,7 @@ import { Table } from "react-bootstrap";
 const ProductProfileTable = () => {
   return (
     <>
-    <h4>Product Profile</h4>
+    <h4 id="product-profile">Product Profile</h4>
       <Table striped bordered hover>
         <thead>
           <tr>

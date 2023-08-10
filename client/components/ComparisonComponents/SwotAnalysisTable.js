@@ -4,7 +4,7 @@ import { Table } from "react-bootstrap";
 const SwotTable = ({ swot }) => {
   return (
     <>
-    <h4>SWOT Analysis</h4>
+    <h4 id="swot-analysis">SWOT Analysis</h4>
       <Table striped bordered hover>
         <thead>
           <tr>

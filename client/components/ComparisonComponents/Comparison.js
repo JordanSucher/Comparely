@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import TableOfContents from "./TableOfContents";
 import CompanyProfileTable from "./CompanyProfileTable";
 import SwotTable from "./SwotAnalysisTable";

@@ -4,7 +4,7 @@ import { Table } from "react-bootstrap";
 const CompanyProfileTable = () => {
   return(
     <>
-    <h4>Company Profile</h4>
+    <h4 id="company-profile">Company Profile</h4>
     <Table striped bordered hover>
       <thead>
         <tr>
