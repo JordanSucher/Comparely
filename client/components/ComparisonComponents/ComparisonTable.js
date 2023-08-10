@@ -16,7 +16,7 @@ const ComparisonTable = ({ title, headers, companies }) => {
     companies.forEach((company) => {
       initialShowColumns[company.name] = true;
     });
-    setShowColumns(initialShowColumns)
+    setShowColumns(initialShowColumns);
   }, [companies]);
 
   return (
@@ -28,14 +28,16 @@ const ComparisonTable = ({ title, headers, companies }) => {
             <th></th>
             {companies.map((company) => (
               <th key={company.id}>
-                {company.name}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => toggleColumns(company.name)}
-                >
-                  -
-                </Button>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{company.name}</span>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => toggleColumns(company.name)}
+                  >
+                    Hide
+                  </Button>
+                </div>
               </th>
             ))}
           </tr>
