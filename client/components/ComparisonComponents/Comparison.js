@@ -27,7 +27,7 @@ const Comparison = () => {
         <Col xs={2}>
           <TableOfContents />
         </Col>
-        <Col>
+        <Col className="my-5 me-5">
           <CompanyProfileTable />
           <SwotTable />
           <ProductProfileTable />
