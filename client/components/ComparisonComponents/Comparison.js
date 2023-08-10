@@ -28,6 +28,11 @@ const Comparison = () => {
           <TableOfContents />
         </Col>
         <Col className="my-5 me-5">
+          <Row>
+            <h1 className="text-center mb-5">
+              Your Company VS. The World
+            </h1>
+          </Row>
           <CompanyProfileTable />
           <SwotTable />
           <ProductProfileTable />
