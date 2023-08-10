@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request
-from llama_index import SimpleDirectoryReader, StorageContext, Document, load_index_from_storage
+from llama_index import SimpleDirectoryReader, StorageContext, Document, ServiceContext, load_index_from_storage, set_global_service_context
 from llama_index.indices.vector_store import VectorStoreIndex
 from llama_index.vector_stores import PGVectorStore
+from llama_index.llms import OpenAI
 import textwrap
 import openai
 import json
@@ -12,13 +13,21 @@ import asyncio
 
 
 
+
 # initialize db vars
 MIN_CON = 1  # Minimum number of connections you want to keep alive
 MAX_CON = 20  # Max number of connections you want to allow
 connection_string = "postgresql://postgres:password@localhost:5432"
 
 # open ai api key
-openai.api_key = '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'
+openai.api_key = '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'
+
+# llm = OpenAI(model="gpt-4", temperature=0, max_tokens=8000)
+# # configure service context
+# service_context = ServiceContext.from_defaults(llm=llm)
+# set_global_service_context(service_context)
+
+
 
 # connect to db
 db_name = "vector_db"
@@ -101,21 +110,26 @@ async def getIndex(id):
                 else:
                     print("vector table already exists")
                     
-            # retrieve and rehydrate index
-                url = make_url(connection_string)
-                print (url)
+                # retrieve and rehydrate index
+                    url = make_url(connection_string)
+                    print (url)
+                    print(f"Retrieving vector store for {companyName}.")
 
-                vector_store = PGVectorStore.from_params(
-                    database=db_name,  
-                    host=url.host,   
-                    password=url.password,  
-                    port=url.port,   
-                    user=url.username,   
-                    table_name=f"{companyName}_index",
-                )
+                    vector_store = PGVectorStore.from_params(
+                        database=db_name,  
+                        host=url.host,   
+                        password=url.password,  
+                        port=url.port,   
+                        user=url.username,   
+                        table_name=f"{companyName}_index",
+                    )
 
-                index = VectorStoreIndex.from_vector_store(vector_store=vector_store)
-                return index
+                    print(f"Retrieved vector store for {companyName}.")
+
+                    print(f"Rehydrating index for {companyName}.")
+                    index = VectorStoreIndex.from_vector_store(vector_store=vector_store, show_progress=True)
+                    print(f"Finished rehydrating index for {companyName}.")
+                    return index
     
     except Exception as e:
         print(e)
@@ -152,21 +166,29 @@ async def generateAnalysis(id):
 
                 # do feature summation and persist response in the company_comparison_points table
                 query_engine = index.as_query_engine()
-                features = query_engine.query(f"What are the main features of {companyName}? What are the main use cases and benefits of each? What problems does each solve? Reply in json eg [{{'feature': feature, 'usecase': usecase, 'benefit': benefit, 'problem': problem}}].")
                 
+                print(f"Starting feature summation for {companyName}.")
+                features = query_engine.query(f"What are the main features of {companyName}? What are the main use cases and benefits of each? What problems does each solve? Reply in json eg [{{'feature': feature, 'usecase': usecase, 'benefit': benefit, 'problem': problem}}].")
+                print(f"Finished feature summation for {companyName}.")
+                
+                print(f"Starting db insert 1 for {companyName}.")
                 await cur.execute(
                 "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                 (id, "features", features.response)
                 )
-
+                print (f"Finished db insert 1 for {companyName}.")
 
                 # do SWOT analysis and persist response in the company_comparison_points table
+                print (f"Starting SWOT analysis for {companyName}.")
                 swot = query_engine.query(f"What are the main strengths, weaknesses, opportunities, and threats of {companyName}? Reply in json eg [{{'strength': strength, 'weakness': weakness, 'opportunity': opportunity, 'threat': threat}}].")
+                print(f"Finished SWOT analysis for {companyName}.")
                 
+                print(f"Starting db insert 2 for {companyName}.")
                 await cur.execute(
                     "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", 
                     (id, "swot", swot.response)
                 )
+                print(f"Finished db insert 2 for {companyName}.")
 
                 await conn.commit()
 
@@ -211,17 +233,6 @@ async def compare():
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Not Found"}), 404
-
-
-# with app.app_context():
-#     global db_pool
-#     db_pool = ThreadedConnectionPool(MIN_CON, MAX_CON, connection_string)
-#     for conn in db_pool._pool:
-#         conn.autocommit = True
-
-# @atexit.register
-# def close_pool():
-#     db_pool.closeall()
 
 
 

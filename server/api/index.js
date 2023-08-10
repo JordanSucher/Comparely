@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: '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',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -172,9 +172,9 @@ const doQueries = async (companies) => {
 
   try {
     const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
+        model: "gpt-4",
         max_tokens: 3500,
-        messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company has the same features. The goal is to compare these companies apples-to-apples. Please reply in the same format as the provided Array with no other text.    Features Array:' + featuresString}],
+        messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company is compared on the same features. Reply in this format: [{featureName, useCase, benefit, companies:[{companyId, analysis}]}].    Features Array:' + featuresString}],
       });
       let response = chatCompletion.data.choices[0].message.content;
       featuresArray = JSON.parse(response)
