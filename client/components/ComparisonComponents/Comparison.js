@@ -9,26 +9,27 @@ import { Container, Row, Col } from "react-bootstrap";
 import axios from "axios";
 
 const Comparison = () => {
-  const [data, setData] = useState([]);
+  //This is tentative functions to access DB
+  // const [data, setData] = useState([]);
 
-  const getData = async () => {
-    const { data } = await axios.get('/api/comparisons');
-    setData(data);
-  }
+  // const getData = async () => {
+  //   const { data } = await axios.get('/api/comparisons');
+  //   setData(data);
+  // }
 
-  useEffect(() => {
-    getData();
-  }, []);
+  // useEffect(() => {
+  //   getData();
+  // }, []);
 
   return (
     <Container fluid>
       <Row>
-        <Col xs={3} className="sticky-left">
+        <Col xs={2}>
           <TableOfContents />
         </Col>
         <Col>
           <CompanyProfileTable />
-          <SwotTable swot={data.swot} />
+          <SwotTable />
           <ProductProfileTable />
           <MarketApproachTable />
           <TakeawaysTable />

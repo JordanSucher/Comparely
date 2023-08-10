@@ -1,16 +1,21 @@
 import React from "react";
-import { Navbar, Stack, Nav, Col, Row } from "react-bootstrap";
+import { Navbar, Stack, Nav, Col, Row, Container } from "react-bootstrap";
 
 const TableOfContents = () => {
+  
+
+
   return (
     <>
-        <Nav className="flex-column align-middle">
-          <Nav.Link>Company Profile</Nav.Link>
-          <Nav.Link>SWOT Analysis</Nav.Link>
-          <Nav.Link>Product Profile</Nav.Link>
-          <Nav.Link>Market Approach</Nav.Link>
-          <Nav.Link>Takeaways</Nav.Link>
+    <Container  fluid className="h-100 px-0">
+        <Nav className="my-5 position-sticky top-0">
+          <Nav.Link className="my-3 text-decoration-none text-dark">Company Profile</Nav.Link>
+          <Nav.Link className="my-3 text-decoration-none text-dark">SWOT Analysis</Nav.Link>
+          <Nav.Link className="my-3 text-decoration-none text-dark">Product Profile</Nav.Link>
+          <Nav.Link className="my-3 text-decoration-none text-dark">Market Approach</Nav.Link>
+          <Nav.Link className="my-3 text-decoration-none text-dark">Takeaways</Nav.Link>
         </Nav>
+      </Container>
     </>
   );
 };

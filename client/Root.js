@@ -11,10 +11,11 @@ const Root = () => {
   return (
     <>
       <Header />
-      <Routes>
+      <Comparison />
+      {/* <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/comparisons" element={<Comparison />} />
-      </Routes>
+      </Routes> */}
     </>
   );
 };
