@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 
 
 const configuration = new Configuration({
-  apiKey: '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',
+  apiKey: '',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -165,22 +165,22 @@ const doQueries = async (companies) => {
 
   // eventually also get summary of tweets, summary of reviews here
   }
-
+  // Note - commented this out for now
   // now, we want to normalize the features so they have the same names, can do that w openAI
 
-  let featuresString = JSON.stringify(featuresArray)
+  // let featuresString = JSON.stringify(featuresArray)
 
-  try {
-    const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-4",
-        max_tokens: 3500,
-        messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company is compared on the same features. Reply in this format: [{featureName, useCase, benefit, companies:[{companyId, analysis}]}].    Features Array:' + featuresString}],
-      });
-      let response = chatCompletion.data.choices[0].message.content;
-      featuresArray = JSON.parse(response)
-    } catch (err) {
-        console.log(err.response.data.error.message)
-    }
+  // try {
+  //   const chatCompletion = await openai.createChatCompletion({
+  //       model: "gpt-4",
+  //       max_tokens: 3500,
+  //       messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company is compared on the same features. Reply in this format: [{featureName, useCase, benefit, companies:[{companyId, analysis}]}].    Features Array:' + featuresString}],
+  //     });
+  //     let response = chatCompletion.data.choices[0].message.content;
+  //     featuresArray = JSON.parse(response)
+  //   } catch (err) {
+  //       console.log(err.response.data.error.message)
+  //   }
 
   result = {'features': featuresArray, 'swots': swotsArray}
   return result

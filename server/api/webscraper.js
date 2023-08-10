@@ -11,7 +11,7 @@ const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = re
 
 
 const configuration = new Configuration({
-    apiKey: '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',
+    apiKey: '',
 });
 
 const openai = new OpenAIApi(configuration);

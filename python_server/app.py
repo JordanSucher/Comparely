@@ -3,14 +3,10 @@ from llama_index import SimpleDirectoryReader, StorageContext, Document, Service
 from llama_index.indices.vector_store import VectorStoreIndex
 from llama_index.vector_stores import PGVectorStore
 from llama_index.llms import OpenAI
-import textwrap
 import openai
-import json
 import psycopg
 from sqlalchemy import make_url
-import atexit
-import asyncio
-
+import perplexQueries
 
 
 
@@ -20,7 +16,7 @@ MAX_CON = 20  # Max number of connections you want to allow
 connection_string = "postgresql://postgres:password@localhost:5432"
 
 # open ai api key
-openai.api_key = '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'
+openai.api_key = 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 
 # llm = OpenAI(model="gpt-4", temperature=0, max_tokens=8000)
 # # configure service context
@@ -168,25 +164,29 @@ async def generateAnalysis(id):
                 query_engine = index.as_query_engine()
                 
                 print(f"Starting feature summation for {companyName}.")
-                features = query_engine.query(f"What are the main features of {companyName}? What are the main use cases and benefits of each? What problems does each solve? Reply in json eg [{{'feature': feature, 'usecase': usecase, 'benefit': benefit, 'problem': problem}}].")
+                # Note - for now, get features from perplexity
+                # features = query_engine.query(f"What are the main features of {companyName}? What are the main use cases and benefits of each? What problems does each solve? Reply in json eg [{{'feature': feature, 'usecase': usecase, 'benefit': benefit, 'problem': problem}}].")
+                features = perplexQueries.getFeaturesFromPerplexity(companyName)
                 print(f"Finished feature summation for {companyName}.")
                 
                 print(f"Starting db insert 1 for {companyName}.")
                 await cur.execute(
                 "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                (id, "features", features.response)
+                (id, "features", features)
                 )
                 print (f"Finished db insert 1 for {companyName}.")
 
                 # do SWOT analysis and persist response in the company_comparison_points table
                 print (f"Starting SWOT analysis for {companyName}.")
-                swot = query_engine.query(f"What are the main strengths, weaknesses, opportunities, and threats of {companyName}? Reply in json eg [{{'strength': strength, 'weakness': weakness, 'opportunity': opportunity, 'threat': threat}}].")
+                # Note - for now, get SWOT from perplexity
+                # swot = query_engine.query(f"What are the main strengths, weaknesses, opportunities, and threats of {companyName}? Reply in json eg [{{'strength': strength, 'weakness': weakness, 'opportunity': opportunity, 'threat': threat}}].")
+                swot = perplexQueries.getSWOTFromPerplexity(companyName)
                 print(f"Finished SWOT analysis for {companyName}.")
                 
                 print(f"Starting db insert 2 for {companyName}.")
                 await cur.execute(
                     "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", 
-                    (id, "swot", swot.response)
+                    (id, "swot", swot)
                 )
                 print(f"Finished db insert 2 for {companyName}.")
 
