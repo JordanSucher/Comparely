@@ -7,6 +7,8 @@ import openai
 import psycopg
 from sqlalchemy import make_url
 import perplexQueries
+import json
+import asyncio
 
 
 
@@ -16,7 +18,7 @@ MAX_CON = 20  # Max number of connections you want to allow
 connection_string = "postgresql://postgres:password@localhost:5432"
 
 # open ai api key
-openai.api_key = 'sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+openai.api_key = ''
 
 # llm = OpenAI(model="gpt-4", temperature=0, max_tokens=8000)
 # # configure service context
@@ -43,9 +45,6 @@ async def getIndex(id):
     """
 
     conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
-
-    
-
 
     try:
         async with conn:
@@ -136,8 +135,6 @@ async def getIndex(id):
     
 
 
-
-
 async def generateAnalysis(id):
     # get an index to query
     index = await getIndex(id)
@@ -203,18 +200,142 @@ async def generateAnalysis(id):
     return True
 
 
+async def generateAnalysis2(id):
+    # setup sql cursor
+    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+     
+
+    try:
+        async with conn:
+            async with conn.cursor() as cur:
+
+                # check if company has a feature_list already, and if so skip
+                await cur.execute("SELECT * FROM company_comparison_points WHERE company_id = %s AND key = 'feature_list'", (id,))
+                result = await cur.fetchone()
+                if result:
+                   return True
+
+
+                # get company name
+                await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
+                result = await cur.fetchone()
+                companyName = result[0]
+
+                # do feature summation and persist response in the company_comparison_points table
+                print(f"Starting feature summation for {companyName}.")
+                features = perplexQueries.getFeaturesFromPerplexity(companyName)
+                print(f"Finished feature summation for {companyName}.")
+                
+                print(f"Starting db insert 1 for {companyName}.")
+                await cur.execute(
+                "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                (id, "feature_list", features)
+                )
+                print (f"Finished db insert 1 for {companyName}.")
+
+                # do SWOT analysis and persist response in the company_comparison_points table
+                print (f"Starting SWOT analysis for {companyName}.")
+                swot = perplexQueries.getSWOTFromPerplexity(companyName)
+                print(f"Finished SWOT analysis for {companyName}.")
+                
+                print(f"Starting db insert 2 for {companyName}.")
+                await cur.execute(
+                    "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)", 
+                    (id, "swot", swot)
+                )
+                print(f"Finished db insert 2 for {companyName}.")
+
+                await conn.commit()
+
+    except Exception as e:
+        # Handle or log the error as appropriate
+        print(e)
+        await conn.rollback()
+
+    finally:
+        await conn.close()
+
+    return True
+
+async def generateComparison(companyIds):
+    # setup sql cursor
+    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+
+    try:
+        async with conn:
+            async with conn.cursor() as cur:
+                # transform companyIds
+                companyIdString = ",".join([str(id) for id in companyIds])
+
+                # get the featureLists 
+                await cur.execute(f"select value from company_comparison_points where key = 'feature_list' and company_id in ({companyIdString})")
+                rawResult = await cur.fetchall()
+                result = [x[0] for x in rawResult]
+
+                # use gpt to get a single feature list
+                # first, get a slist
+                chat_completion1 = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Combine any that are redundant, and remove company names from feature names. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}])
+
+                # print
+                print("chat_completion1", chat_completion1.choices[0].message.content)
+
+
+                # second, remove dupes.
+                chat_completion2 = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": f"remove or combine features that seem duplicative or similar.  {chat_completion1.choices[0].message.content}"}])
+
+                # print
+                print("type of chat_completion2", type(chat_completion2), chat_completion2.choices[0].message.content)
+
+                # convert to JSON
+                mergedFeatureList = json.loads(chat_completion2.choices[0].message.content)
+
+                # loop through companies and features and ask perplexity if each company has that feature. save to DB
+                for id in companyIds:
+                    # get company name
+                    await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
+                    result = await cur.fetchone()
+                    companyName = result[0]
+
+                    # loop through features and see if co has feature. save response to db.
+                    for feature in mergedFeatureList:
+                        result = perplexQueries.doesCompanyHaveFeature(companyName, feature)
+                        # insert into DB
+                        await cur.execute(
+                            "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                            (id, feature, result)
+                        )
+                        await conn.commit()
+
+                        # space these out
+                        await asyncio.sleep(1)
+
+                        # at this point, we have gotten features for each co, created a deduped list, checked each feature for each co, saved that to the DB. That should be all we need to generate the comparison table on FE.
+
+    except Exception as e:
+        # Handle or log the error as appropriate
+        print(e)
+        await conn.rollback()
+
+    finally:
+        await conn.close()
+
+    return True
+
+
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
-def do_nothing():
+async def do_nothing():
+    await generateComparison([1,2], 1)
     return jsonify({"message": "Did nothing!"}), 200
 
 
 @app.route('/api/comparisons', methods=['POST'])
 async def compare():
-    # this is where we will use LlamaIndex to generate feature lists, SWOTs, etc
+    # this is where we will generate feature lists, SWOTs, etc
 
-    # api will receive a list of company IDs
+    # api will receive a list of company IDs and a comparison ID
     data = request.json
     companyIds = data['companyIds']
 
@@ -222,9 +343,14 @@ async def compare():
     companyIds = [id['id'] for id in companyIds]
 
 
-
     for id in companyIds:
-        await generateAnalysis(id)
+        await generateAnalysis2(id)
+
+
+    await generateComparison(companyIds)
+    # now, can take what we generated and create a comparison.
+   
+    
 
     # then, respond with success
     return jsonify({"message": "Success!"}), 200

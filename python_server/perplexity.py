@@ -117,7 +117,7 @@ class Client:
             response['text'] = json.loads(response['text'])
             self._last_answer = response
 
-    def search(self, query, mode='concise', focus='internet'):
+    def search(self, query, mode='concise', focus='internet', timeout=10):
         assert mode in ['concise', 'copilot'], 'Search modes --> ["concise", "copilot"]'
         assert focus in ['internet', 'scholar', 'writing', 'wolfram', 'youtube', 'reddit', 'wikipedia'], 'Search focus modes --> ["internet", "scholar", "writing", "wolfram", "youtube", "reddit", "wikipedia"]'
         assert self.copilot > 0 if mode == 'copilot' else True, 'You have used all of your copilots'
@@ -143,7 +143,13 @@ class Client:
             }
         ]))
 
+
+
+        start_time = time.time()
         while not self._last_answer:
-            pass
+            if time.time() - start_time > timeout:
+                print(f"Timeout reached after {timeout} seconds for query: {query}")
+                return None
+
 
         return self._last_answer

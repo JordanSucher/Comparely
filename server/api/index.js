@@ -71,11 +71,13 @@ router.post('/comparisons', async (req, res, next) => {
 
   // trigger comparison functions:
     // web scrape a bunch of shit (rn this is just grabbing content from company websites)
-    await webScrape(companies)
+    // await webScrape(companies)
     
     // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
     let companyIds = companies.map(company => company.id)
     await axios.post('http://127.0.0.1:8080/api/comparisons', { companyIds: companies })
+
+    // at this point there should be a bunch of relevant data in the company comparison points table
 
     // retrieve data from company_comparison_points table
     let results = await doQueries(companies)
@@ -97,14 +99,10 @@ router.post('/comparisons', async (req, res, next) => {
 const webScrape = async (companies) => {
   //when provided an array of companies, do a bunch of web scraping
 
-
   const promises = companies.map(async company => {
-
-
   // grab content from the competitor's website
   return getContent(company)
 
-  
   // // look for tweets
   // return getTweets(company)
 
@@ -126,12 +124,9 @@ return true
 }
 
 const doQueries = async (companies) => {
-  //we want the result to be in this format:
-  // {features: [{company1}, {company2}],
-  //  swots: [{company1}, {company2}]}
+  // Get everything ready for the frontend
 
   // we also want the feature lists to be normalized (have the same feature names)
-
 
   let result = {}
   let featuresArray = []
@@ -143,7 +138,9 @@ const doQueries = async (companies) => {
       let features = await CompanyComparisonPoint.findAll({
         where: {
           company_id: company.id,
-          key: 'features'
+          key: {
+            [Op.notIn]: ['feature_list', 'swot']
+          }
         }
       })
 
@@ -154,7 +151,11 @@ const doQueries = async (companies) => {
         }
       })
 
-      featuresArray.push({'companyId': company.id, 'features': features[0].value});
+      features = features.map(feature => {
+        return {key: feature.key, value: feature.value}
+      })
+
+      featuresArray.push({'companyId': company.id, 'features': features});
       swotsArray.push({'companyId': company.id, 'swot': swot[0].value});
 
     } catch (err) {
@@ -167,18 +168,9 @@ const doQueries = async (companies) => {
   }
   // now, we want to normalize the features so they have the same names and structure the SWOTs, can do that w openAI
 
-  let featuresString = JSON.stringify(featuresArray)
   let swotsString = JSON.stringify(swotsArray)
 
   try {
-      const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-4",
-        max_tokens: 3500,
-        messages: [{role: "user", content: 'Please compare these companies on a single set of features. Every feature should have an analysis for every company. Reply in this format: [{featureName, useCase, benefit, data:[{companyId: id1, analysis}, {companyId: id2, analysis}]}].   Feature object:' + featuresString}],
-      });
-      let response = chatCompletion.data.choices[0].message.content;
-      featuresArray = JSON.parse(response)
-
       const chatCompletion2 = await openai.createChatCompletion({
         model: "gpt-4",
         max_tokens: 3500,
