@@ -4,7 +4,7 @@ const fs = require('fs')
 
 
 const configuration = new Configuration({
-    apiKey: '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',
+    apiKey: '',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -60,9 +60,9 @@ fs.writeFileSync('featureString.json', featuresString)
 
 try {
     const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
+        model: "gpt-4",
         max_tokens: 3500,
-        messages: [{role: "user", content: 'Here is an object that represents the features of N companies. Please return a modified version that standardizes the feature names so that each company has the same features. The goal is to compare these companies apples-to-apples. Please reply in the same format as the provided Array with no other text.    Features Array:' + featuresString}],
+        messages: [{role: "user", content: 'Please compare these companies on a single set of features. Every feature should have an analysis for every company. Reply in this format: [{featureName, useCase, benefit, data:[{companyId: id1, analysis}, {companyId: id2, analysis}]}].   Feature object:' + featuresString}],
     });
     let response = chatCompletion.data.choices[0].message.content;
     featuresArray = JSON.parse(response)
