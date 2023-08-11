@@ -11,6 +11,7 @@ const Root = () => {
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
+        {/* <Route path="/comparisons/:id" element={<Compare />} /> */}
       </Routes>
     </div>
   );

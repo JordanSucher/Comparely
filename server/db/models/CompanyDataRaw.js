@@ -8,10 +8,7 @@ const CompanyDataRaw = db.define("company_data_raw", {
   url: {
     type: Sequelize.STRING,
     unique: true,
-    allowNull: false,
-    validate: {
-      isUrl: true,
-    },
+    allowNull: false
   },
   text: {
     type: Sequelize.TEXT

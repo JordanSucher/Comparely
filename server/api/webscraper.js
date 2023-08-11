@@ -9,6 +9,7 @@ const { Configuration, OpenAIApi } = require("openai");
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
 
 
+
 const configuration = new Configuration({
     apiKey: '',
 });
@@ -67,7 +68,26 @@ const stripMetadataAndFormatting = (text) => {
     const chatCompletion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo-16k",
         max_tokens: 3500,
-        messages: [{role: "user", content: 'Strip out the unnecessary characters and reply with the full article and the publicationd ate and no other text. In exactly this format: {"article": article, "pubdate": mm/dd/yy}.    Article:' + input}],
+        messages: [{role: "user", content: 'Strip out the unnecessary content and reply with the full article and the publication date and no other text. In exactly this format: {"article": article, "pubdate": mm/dd/yy}.    Article:' + input}],
+      });
+      return chatCompletion.data.choices[0].message.content;
+    } catch (err) {
+        console.log(err.response.data.error.message)
+    }
+      
+}
+
+const cleanUpSitePageWithOpenAI = async (text) => {
+
+    let input = text
+    input = stripMetadataAndFormatting(text)
+    
+
+    try {
+    const chatCompletion = await openai.createChatCompletion({
+        model: "gpt-3.5-turbo-16k",
+        max_tokens: 3500,
+        messages: [{role: "user", content: 'Strip out the unnecessary content and reply with just the page text and nothing else.    Page:' + input}],
       });
       return chatCompletion.data.choices[0].message.content;
     } catch (err) {
@@ -133,7 +153,8 @@ try {
     let promises = links.map(async link => {
         await CompanyDataRaw.upsert({
             url: link,
-            type: 'article'
+            type: 'article',
+            company_id: company.id
         })
     })
 
@@ -173,12 +194,12 @@ try {
 
         text = JSON.parse(text)
 
-        //insert into DB - NOTE - need to add company ID here 
         await CompanyDataRaw.upsert({
             url: link,
             text: text.article,
             date: new Date(text.pubdate),
-            type: 'article'
+            type: 'article',
+            company_id: company.id
         })        
       
     })
@@ -226,7 +247,8 @@ const getContent = async (company) => {
         let promises = pages.map(async page => {
             await CompanyDataRaw.upsert({
                 url: page,
-                type: 'site'
+                type: 'site',
+                company_id: company.id
             })
         })
 
@@ -236,44 +258,51 @@ const getContent = async (company) => {
         let newPages = await CompanyDataRaw.findAll({
             where: {
                 type: 'site',
+                company_id: company.id,
                 text: {
                     [Op.is]: null
                 }
             }
         })
-
-        newPages = newPages.map(page => page.url)
     
 
         // get all the content
-        promises = newPages.map(async page => {
-            let result = await axios.get(page)
-            let $ = cheerio.load(result.data)
-            let text = $("body").text()
-            text = await stripMetadataAndFormatting(text)
+        for (let i = 0; i < newPages.length; i++) {
+            const page = newPages[i];
+            
+            try {
+                let result = await axios.get(page.url);
+                let $ = cheerio.load(result.data);
+                $('script, style').remove();
+                let text = $("body").text();
+                text = await stripMetadataAndFormatting(text);
+        
+                //add to DB
+                await CompanyDataRaw.upsert({
+                    id: page.id,
+                    url: page.url,
+                    text: text,
+                    type: 'site',
+                    company_id: company.id
+                });
+        
+                //add a brief pause
+                await new Promise(resolve => setTimeout(resolve, 50));
+            } catch (error) {
+                console.error(`Error fetching or processing URL: ${page.url}. Error: ${error.message}`);
+            }
+        }
 
-            //add to DB
-            await CompanyDataRaw.upsert({
-                url: page,
-                text: text,
-                type: 'site'
-            })
-
-            //add a brief pause
-            await new Promise(resolve => setTimeout(resolve, 200))
-
-        })
-
-        await Promise.all(promises)
-
+        console.log("Finished getting content for " + company.name)
         return true
+        
     } catch (err) {
         console.log(err)
     }
 
 }
 
-getContent(company)
+// getContent(company)
 
 module.exports = {
     getTweets,
