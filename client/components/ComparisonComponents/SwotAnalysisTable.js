@@ -1,48 +1,69 @@
-import React from "react";
-import { Table } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Table, Button } from "react-bootstrap";
 
-const SwotTable = ({ swot }) => {
+const SwotAnalysisTable = ({ title, companies }) => {
+  const [showColumns, setShowColumns] = useState({});
+
+  const toggleColumns = (companyId) => {
+    setShowColumns((prevShowColumns) => ({
+      ...prevShowColumns,
+      [companyId]: !prevShowColumns[companyId],
+    }));
+  };
+
+  useEffect(() => {
+    const initialShowColumns = {};
+    companies.forEach((company) => {
+      initialShowColumns[company.companyId] = true;
+    });
+    setShowColumns(initialShowColumns);
+  }, [companies]);
+
+  const headers = ["Strengths", "Weaknesses", "Opportunities", "Threats"];
+
   return (
     <>
-    <h4 id="swot-analysis">SWOT Analysis</h4>
+    <div id="swot-analysis">
+      <h4>{title}</h4>
       <Table striped bordered hover>
         <thead>
           <tr>
             <th></th>
-            <th>Your Company</th>
-            <th>Competitor #1</th>
-            <th>Competitor #2 </th>
+            {companies.map((company) => (
+              <th key={company.companyId}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{company.companyId}</span>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => toggleColumns(company.companyId)}
+                  >
+                    Hide
+                  </Button>
+                </div>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>Strengths</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Weaknesses</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Opportunities</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>Threats</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
+          {headers.map((header) => (
+            <tr key={header}>
+              <td>{header}</td>
+              {companies.map((company) => (
+                <td
+                  key={`${company.companyId}-${header}`}
+                  hidden={!showColumns[company.companyId]}
+                >
+                  {company[header.toLowerCase()]} {/* Assuming your SWOT object has properties like 'strengths', 'weaknesses', etc. */}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </Table>
+      </div>
     </>
   );
 };
 
-export default SwotTable;
+export default SwotAnalysisTable;

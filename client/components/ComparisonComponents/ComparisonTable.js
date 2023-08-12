@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 
-const ComparisonTable = ({ title, headers, companies }) => {
+const ComparisonTable = ({ title, companies }) => {
   const [showColumns, setShowColumns] = useState({});
 
   const toggleColumns = (companyName) => {
@@ -14,26 +14,29 @@ const ComparisonTable = ({ title, headers, companies }) => {
   useEffect(() => {
     const initialShowColumns = {};
     companies.forEach((company) => {
-      initialShowColumns[company.name] = true;
+      initialShowColumns[company.companyId] = true;
     });
     setShowColumns(initialShowColumns);
   }, [companies]);
 
+  const headers = companies.length > 0 ? companies[0].features.map(feature => feature.key) : [];
+
   return (
     <>
+    <div id="company-profile">
       <h4>{title}</h4>
       <Table striped bordered hover>
         <thead>
           <tr>
             <th></th>
             {companies.map((company) => (
-              <th key={company.id}>
+              <th key={company.companyId}>
                 <div className="d-flex justify-content-between align-items-center">
-                  <span>{company.name}</span>
+                  <span>{company.companyId}</span>
                   <Button
                     variant="outline-secondary"
                     size="sm"
-                    onClick={() => toggleColumns(company.name)}
+                    onClick={() => toggleColumns(company.companyId)}
                   >
                     Hide
                   </Button>
@@ -43,21 +46,22 @@ const ComparisonTable = ({ title, headers, companies }) => {
           </tr>
         </thead>
         <tbody>
-          {headers.map((header, columnIndex) => (
+          {headers.map((header) => (
             <tr key={header}>
               <td>{header}</td>
               {companies.map((company) => (
                 <td
-                  key={`${company.id}-${header}`}
-                  hidden={!showColumns[company.name]}
+                  key={`${company.companyId}-${header}`}
+                  hidden={!showColumns[company.companyId]}
                 >
-                  {company[Object.keys(company)[columnIndex + 2]]}
+                  {company.features.find(feature => feature.key === header)?.value}
                 </td>
               ))}
             </tr>
           ))}
         </tbody>
       </Table>
+      </div>
     </>
   );
 };

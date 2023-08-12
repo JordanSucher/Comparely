@@ -25,7 +25,7 @@ const TableOfContents = () => {
           </Nav.Link>
           <Nav.Link
             className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("swot-Analysis")}
+            onClick={() => handleSectionClick("swot-analysis")}
           >
             SWOT Analysis
           </Nav.Link>
