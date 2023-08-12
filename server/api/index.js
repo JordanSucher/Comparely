@@ -70,8 +70,8 @@ router.post('/comparisons', async (req, res, next) => {
 
 
   // trigger comparison functions:
-    // web scrape a bunch of shit (rn this is just grabbing content from company websites)
-    // await webScrape(companies)
+    // web scrape a bunch of shit and stick it in the DB
+    await webScrape(companies)
     
     // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
     let companyIds = companies.map(company => company.id)
@@ -131,6 +131,7 @@ const doQueries = async (companies) => {
   let result = {}
   let featuresArray = []
   let swotsArray = []
+  // maybe we want an articlesArray? 
 
   // get features & swots
   for (let company of companies) {
@@ -150,6 +151,8 @@ const doQueries = async (companies) => {
           key: 'swot'
         }
       })
+
+      // at this point we could make an articles array by pulling the articles from the DB and processing them
 
       features = features.map(feature => {
         return {key: feature.key, value: feature.value}
@@ -174,7 +177,7 @@ const doQueries = async (companies) => {
       const chatCompletion2 = await openai.createChatCompletion({
         model: "gpt-4",
         max_tokens: 3500,
-        messages: [{role: "user", content: 'Please restructure these SWOTs in this format: [{companyId, strengths, weaknesses, opportunities, threats}].   SWOT object:' + swotsString}],
+        messages: [{role: "user", content: 'Please restructure these SWOTs in this format: [{companyId, SWOT: {strengths, weaknesses, opportunities, threats}}].   SWOT object:' + swotsString}],
       });
 
       let response2 = chatCompletion2.data.choices[0].message.content;
@@ -185,6 +188,7 @@ const doQueries = async (companies) => {
         console.log(err.response.data.error.message)
     }
 
+  // This needs to change so the format of feature and swots is the same
   result = {'features': featuresArray, 'swots': swotsArray}
   return result
 }
