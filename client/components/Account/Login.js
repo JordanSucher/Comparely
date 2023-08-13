@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { authenticate } from "./authSlice";
+import { authenticate } from "../../app/store";
 import { Container, Form, Row, Col, Button } from "react-bootstrap";
 
 const Login = ({ name, displayName, setForm }) => {
