@@ -1,14 +1,14 @@
 import React from "react";
 import { Routes, Route, Link } from "react-router-dom";
 // import Home from "./components/Home";
-import Header from "../components/Header";
-import Comparison from "../components/ComparisonComponents/Comparison";
-import Home from "../components/Home";
-import Loading from "../components/Loading";
-import CreateAccountForm from "../components/Account/CreateAccountForm";
-import AccountDetails from "../components/Account/AccountDetails";
-import Login from "../components/Account/Login";
-import AuthForm from "../components/Account/AuthForm";
+import Header from "../features/navbar/Header";
+import Comparison from "../features/ComparisonComponents/Comparison";
+import Home from "../features/Home/Home";
+import Loading from "../features/Loading";
+import CreateAccountForm from "../features/Account/CreateAccountForm";
+import AccountDetails from "../features/Account/AccountDetails";
+import Login from "../features/Account/Login";
+import AuthForm from "../features/Account/AuthForm";
 
 const App = () => {
   return (
