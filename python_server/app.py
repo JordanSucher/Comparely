@@ -9,13 +9,14 @@ from sqlalchemy import make_url
 import perplexQueries
 import json
 import asyncio
-
+import os
 
 
 # initialize db vars
 MIN_CON = 1  # Minimum number of connections you want to keep alive
 MAX_CON = 20  # Max number of connections you want to allow
-connection_string = "postgresql://postgres:password@localhost:5432"
+connection_string = os.environ.get('database_url', "postgresql://postgres:password@localhost:5432")
+
 
 # open ai api key
 openai.api_key = ''
@@ -44,7 +45,7 @@ async def getIndex(id):
         WHERE company_id = %s AND type = 'site' AND text IS NOT NULL
     """
 
-    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('database_url', "postgresql://postgres:password@localhost:5432"))
 
     try:
         async with conn:
@@ -141,7 +142,7 @@ async def generateAnalysis(id):
 
 
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('database_url', "postgresql://postgres:password@localhost:5432"))
      
 
     try:
@@ -202,7 +203,7 @@ async def generateAnalysis(id):
 
 async def generateAnalysis2(id):
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('database_url', "postgresql://postgres:password@localhost:5432"))
      
 
     try:
@@ -259,7 +260,7 @@ async def generateAnalysis2(id):
 
 async def generateComparison(companyIds):
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = "postgresql://postgres:password@localhost:5432/vector_db")
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('database_url', "postgresql://postgres:password@localhost:5432"))
 
     try:
         async with conn:
