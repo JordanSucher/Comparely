@@ -148,7 +148,7 @@ const getCapterraReviews = async (company) => {
             };
             await CompanyDataRaw.upsert({
                 url: review["globalReviewId"],
-                text: json.stringify(toSave),
+                text: JSON.stringify(toSave),
                 date: new Date(review["writtenOn"]),
                 type: 'review',
                 company_id: company.id
