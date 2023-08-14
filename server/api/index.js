@@ -25,7 +25,7 @@ router.get('/comparisons/:id', async (req, res, next) => {
 
 router.post('/comparisons', async (req, res, next) => {
 
-  const regex = /www\.(.*?)\./;
+  const regex = /^(?:https?:\/\/)?(?:www\.)?(.*?)\./;
   
 
   //[google.com, yahoo.com, etc.]
