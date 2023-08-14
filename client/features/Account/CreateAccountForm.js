@@ -1,5 +1,13 @@
 import React from "react";
-import { Row, Col, Form, Button, Table, Container } from "react-bootstrap";
+import {
+  Row,
+  Col,
+  Form,
+  Button,
+  Table,
+  Container,
+  InputGroup,
+} from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { authenticate } from "../../app/store";
 
@@ -31,46 +39,82 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
 
   return (
     <>
-      <Container>
-        <h4 className="mt-5">Create Account</h4>
+      <Container className="w-75 mt-5 mb-5">
+
+        <h4 className="mt-5 mb-4 text-center">Create Account</h4>
+
         <Form onSubmit={handleSubmit} name={name}>
           <Row className="mt-3">
             <Form.Group as={Col} controlId="firstName" className="mb-3">
-              <Form.Label>First Name</Form.Label>
-              <Form.Control type="firstName" placeholder="First Name" />
+              <InputGroup>
+                <InputGroup.Text id="firstName">First Name</InputGroup.Text>
+                <Form.Control
+                  aria-label="firstName"
+                  type="firstName"
+                  name="firstName"
+                />
+              </InputGroup>
             </Form.Group>
             <Form.Group as={Col} controlId="lastName" className="mb-3">
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control type="lastName" placeholder="Last Name" />
+              <InputGroup>
+                <InputGroup.Text id="lastName">last Name</InputGroup.Text>
+                <Form.Control
+                  aria-label="lastName"
+                  type="lastName"
+                  name="lastName"
+                />
+              </InputGroup>
             </Form.Group>
           </Row>
 
           <Form.Group controlId="password" className="mb-3">
-            <Form.Label>Password</Form.Label>
-            <Form.Control type="password" placeholder="Enter password" />
+            <InputGroup>
+              <InputGroup.Text id="password">Password</InputGroup.Text>
+              <Form.Control
+                aria-label="password"
+                type="password"
+                name="password"
+              />
+            </InputGroup>
           </Form.Group>
 
           <Form.Group controlId="email" className="mb-3">
-            <Form.Label>Email</Form.Label>
-            <Form.Control type="email" placeholder="Enter email" />
+            <InputGroup>
+              <InputGroup.Text id="email">Email</InputGroup.Text>
+              <Form.Control aria-label="email" type="email" name="email" />
+            </InputGroup>
           </Form.Group>
 
           <Form.Group controlId="company" className="mb-3">
-            <Form.Label>Company</Form.Label>
-            <Form.Control type="company" placeholder="Enter company name" />
+            <InputGroup>
+              <InputGroup.Text id="company">Company</InputGroup.Text>
+              <Form.Control
+                aria-label="company"
+                type="company"
+                name="company"
+              />
+            </InputGroup>
           </Form.Group>
 
           <Form.Group controlId="companyUrl" className="mb-3">
-            <Form.Label>Company Url</Form.Label>
-            <Form.Control type="companyUrl" placeholder="Enter company Url" />
+            <InputGroup>
+              <InputGroup.Text id="companyUrl">Company Url</InputGroup.Text>
+              <Form.Control
+                aria-label="companyUrl"
+                type="companyUrl"
+                name="companyUrl"
+              />
+            </InputGroup>
           </Form.Group>
 
-          <Button variant="primary" type="submit">
-            {displayName}
-          </Button>
+          <Container className="d-flex justify-content-center mt-3">
+            <Button className="me-3" variant="primary" type="submit">
+              {displayName}
+            </Button>
+              <Button onClick={() => setForm(true)}>Returning Customer?</Button>
+          </Container>
           {/* {error & <Container>{error}</Container>} */}
         </Form>
-        <Button onClick={() => setForm(true)}>Returning Customer?</Button>
       </Container>
     </>
   );
