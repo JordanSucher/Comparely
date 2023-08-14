@@ -4,7 +4,7 @@ const router = require('express').Router()
 router.use('/users', require('./users'))
 
 router.post('/comparisons', async (req, res, next) => {
-  
+
 
   //[google.com, yahoo.com, etc.]
   let companyURLs = req.body.companies
@@ -17,7 +17,7 @@ router.post('/comparisons', async (req, res, next) => {
   // trigger comparison functions:
     // web scrape a bunch of shit - Eric
     await webScrape(companies)
-    
+
     // trigger config of llama index based on that shit - Hunter
     let index = await setUpLlamaIndex(companies)
 
@@ -39,7 +39,7 @@ const promises = companies.forEach(async company => {
 
   // get capterra reviews
   await getCapterraReviews(company)
-  
+
   // get g2 reviews
   await getG2Reviews(company)
 
@@ -62,7 +62,7 @@ await Promise.all(promises) //wait until all the above promises are done
   //   text: "test",
   //   type: "test"
   // })
-  
+
 }
 
 const setUpLlamaIndex = async (companies) => {
@@ -77,7 +77,7 @@ const setUpLlamaIndex = async (companies) => {
   })
 
   let index = createLlamaVectorIndexBullshit(documents)
-  return index 
+  return index
 
 }
 

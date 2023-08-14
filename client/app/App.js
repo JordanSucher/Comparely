@@ -9,12 +9,13 @@ import CreateAccountForm from "../features/Account/CreateAccountForm";
 import AccountDetails from "../features/Account/AccountDetails";
 import Login from "../features/Account/Login";
 import AuthForm from "../features/Account/AuthForm";
+import AppRoutes from "./AppRoutes";
 
 const App = () => {
   return (
     <>
       <Header />
-      <AuthForm />
+      <AppRoutes/>
       {/* <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/comparisons" element={<Comparison />} />
