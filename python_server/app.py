@@ -19,7 +19,7 @@ connection_string = os.environ.get('DATABASE_URL', "postgresql://postgres:passwo
 
 
 # open ai api key
-openai.api_key = ''
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 # llm = OpenAI(model="gpt-4", temperature=0, max_tokens=8000)
 # # configure service context
