@@ -2,6 +2,8 @@ import React from "react";
 import { Container, Row, Col, Card, Form } from "react-bootstrap";
 
 const AccountDetails = () => {
+
+
   return(
     <>
     <Container className="d-flex justify-content-center">

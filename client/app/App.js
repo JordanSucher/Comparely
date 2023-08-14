@@ -15,11 +15,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <AppRoutes/>
-      {/* <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/comparisons" element={<Comparison />} />
-      </Routes> */}
+      <AppRoutes />
     </>
   );
 };

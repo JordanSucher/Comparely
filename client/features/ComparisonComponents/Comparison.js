@@ -171,11 +171,6 @@ const Comparison = () => {
           </Row>
           <ComparisonTable title="Company Profile" companies={companyData.features}/>
           <SwotAnalysisTable title="Swot Analysis" companies={companyData.swots}/>
-          {/* <CompanyProfileTable />
-          <SwotTable />
-          <ProductProfileTable />
-          <MarketApproachTable />
-          <TakeawaysTable /> */}
         </Col>
       </Row>
     </Container>

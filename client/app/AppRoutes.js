@@ -23,6 +23,7 @@ const AppRoutes = () => {
   const guestRoutes = (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/signup" element={<AuthForm />}></Route>
     </Routes>
   );
 

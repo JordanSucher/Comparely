@@ -68,7 +68,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
           <Button variant="primary" type="submit">
             {displayName}
           </Button>
-          {error & <Container>{error}</Container>}
+          {/* {error & <Container>{error}</Container>} */}
         </Form>
         <Button onClick={() => setForm(true)}>Returning Customer?</Button>
       </Container>
