@@ -187,7 +187,6 @@ try {
 
     links = []
 
-  
     result = await axios.get(crunchbaseUrl,
         {
             headers: {
@@ -243,6 +242,8 @@ try {
         await new Promise(resolve => setTimeout(resolve, 2000))
 
         text = await cleanUpTextWithOpenAI(text)
+
+        // could add a summarizeWithOpenAI(text) function here?
 
         console.log(text)
 

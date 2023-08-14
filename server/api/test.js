@@ -1,7 +1,3 @@
-// const axios = require('axios');
-// const puppeteer = require('puppeteer');
-// const cheerio = require('cheerio');
-// const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
 const axios = require('axios')
 const { Op } = require('sequelize');
 const puppeteer = require('puppeteer')
