@@ -24,6 +24,7 @@ router.get('/comparisons/:id', async (req, res, next) => {
 
 
 router.post('/comparisons', async (req, res, next) => {
+
   const regex = /www\.(.*?)\./;
   
 
@@ -61,6 +62,9 @@ router.post('/comparisons', async (req, res, next) => {
     text: ""
   })
 
+  // we send the comparison ID to the frontend at this point, maybe the FE says something like "this is in progress, save this link and come back later"
+  res.status(202).json ({"comparisonId": comparison.id})
+
   // add companies to comparison
   promises = companies.map(async company => {
     await comparison.addCompany(company)
@@ -91,8 +95,8 @@ router.post('/comparisons', async (req, res, next) => {
       }
     })
 
-    //return success to frontend
-    res.json ({"comparisonId": comparison.id})
+    //at this point, send email to user to let them know comparison is ready
+
 })
 
 
