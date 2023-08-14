@@ -11,7 +11,7 @@ const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = re
 
 
 const configuration = new Configuration({
-    apiKey: '',
+    apiKey: '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',
 });
 
 const openai = new OpenAIApi(configuration);
@@ -58,43 +58,100 @@ const stripMetadataAndFormatting = (text) => {
 
 
 
-  const cleanUpTextWithOpenAI = async (text) => {
+const cleanUpTextWithOpenAI = async (text) => {
+    let input = stripMetadataAndFormatting(text);
 
-    let input = text
-    input = stripMetadataAndFormatting(text)
-    
+    const maxRetries = 10; // Maximum number of retries
+    let retryCount = 0;
 
-    try {
-    const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
-        max_tokens: 3500,
-        messages: [{role: "user", content: 'Strip out the unnecessary content and reply with the full article and the publication date and no other text. In exactly this format: {"article": article, "pubdate": mm/dd/yy}.    Article:' + input}],
-      });
-      return chatCompletion.data.choices[0].message.content;
-    } catch (err) {
-        console.log(err.response.data.error.message)
+    while (retryCount < maxRetries) {
+        try {
+            const chatCompletion = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo-16k",
+                max_tokens: 6000,
+                messages: [{ role: "user", content: 'Summarize this into 3 concise bullets, and reply with the summary and the publication date and no other text. In exactly this format: {"summary": summary, "pubdate": mm/dd/yy}.    Article:' + input }],
+            });
+            return chatCompletion.data.choices[0].message.content;
+        } catch (err) {
+            console.log(`Error on attempt ${retryCount + 1}: ${err.response.data.error.message}`);
+            retryCount++;
+
+            if (retryCount < maxRetries) {
+                console.log(`Retrying... (Attempt ${retryCount + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds before retrying
+            } else {
+                console.log(`Maximum retry attempts reached.`);
+                break;
+            }
+        }
     }
-      
-}
+
+    // Return an error message if retries are exhausted
+    return "Error: Maximum retry attempts reached.";
+};
 
 const cleanUpSitePageWithOpenAI = async (text) => {
+    let input = stripMetadataAndFormatting(text);
 
-    let input = text
-    input = stripMetadataAndFormatting(text)
-    
+    const maxRetries = 3; // Maximum number of retries
+    let retryCount = 0;
 
-    try {
-    const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k",
-        max_tokens: 3500,
-        messages: [{role: "user", content: 'Strip out the unnecessary content and reply with just the page text and nothing else.    Page:' + input}],
-      });
-      return chatCompletion.data.choices[0].message.content;
-    } catch (err) {
-        console.log(err.response.data.error.message)
+    while (retryCount < maxRetries) {
+        try {
+            const chatCompletion = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo-16k",
+                max_tokens: 3500,
+                messages: [{ role: "user", content: 'Strip out the unnecessary content and reply with just the page text and nothing else.    Page:' + input }],
+            });
+            return chatCompletion.data.choices[0].message.content;
+        } catch (err) {
+            console.log(`Error on attempt ${retryCount + 1}: ${err.response.data.error.message}`);
+            retryCount++;
+
+            if (retryCount < maxRetries) {
+                console.log(`Retrying... (Attempt ${retryCount + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
+            } else {
+                console.log(`Maximum retry attempts reached.`);
+                break;
+            }
+        }
     }
-      
-}
+
+    // Return an error message if retries are exhausted
+    return "Error: Maximum retry attempts reached.";
+};
+
+
+const summarizeWithOpenAI = async (text) => {
+    const maxRetries = 3; // Maximum number of retries
+    let retryCount = 0;
+
+    while (retryCount < maxRetries) {
+        try {
+            const chatCompletion = await openai.createChatCompletion({
+                model: "gpt-3.5-turbo-16k",
+                max_tokens: 3500,
+                messages: [{ role: "user", content: 'summarize this and return 1-3 concise bullet points and no other text. Exclude basic company info.          ' + text }],
+            });
+            return chatCompletion.data.choices[0].message.content;
+        } catch (err) {
+            console.log(`Error on attempt ${retryCount + 1}: ${err.response.data.error.message}`);
+            retryCount++;
+
+            if (retryCount < maxRetries) {
+                console.log(`Retrying... (Attempt ${retryCount + 1})`);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
+            } else {
+                console.log(`Maximum retry attempts reached.`);
+                break;
+            }
+        }
+    }
+
+    // Return an error message if retries are exhausted
+    return "Error: Maximum retry attempts reached.";
+};
 
 
 
@@ -236,22 +293,17 @@ try {
             }
         })
         $ = cheerio.load(result.data)
+        $('script, style').remove();
         let text = $("body").text()
-
-        //add a 2s delay
-        await new Promise(resolve => setTimeout(resolve, 2000))
-
         text = await cleanUpTextWithOpenAI(text)
-
-        // could add a summarizeWithOpenAI(text) function here?
-
-        console.log(text)
-
         text = JSON.parse(text)
+        summary = text.summary
+
+        let title = $('title').text()
 
         await CompanyDataRaw.upsert({
             url: link,
-            text: text.article,
+            text: JSON.stringify({title: title, summary: summary}),
             date: new Date(text.pubdate),
             type: 'article',
             company_id: company.id
@@ -271,10 +323,11 @@ try {
 }
 
 let company = {
-    url: "https://zendesk.com/"
+    url: "https://zendesk.com/",
+    id: 1
 }
 
-// getArticles(company)
+getArticles(company)
 
 const getContent = async (company) => {
 

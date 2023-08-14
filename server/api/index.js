@@ -135,6 +135,7 @@ const doQueries = async (companies) => {
   let result = {}
   let featuresArray = []
   let swotsArray = []
+  let articlesArray = []
   // maybe we want an articlesArray? 
 
   // get features & swots
@@ -156,7 +157,17 @@ const doQueries = async (companies) => {
         }
       })
 
-      // at this point we could make an articles array by pulling the articles from the DB and processing them
+      // at this point we can make an articles array by pulling the articles from the DB
+      let articles = await CompanyDataRaw.findAll({
+        where: {
+          type: 'article',
+          company_id: company.id
+        }
+      })
+
+      articles = articles.map(article => {
+        return {summary: JSON.parse(article.text).summary, title: JSON.parse(article.text).title, url: article.url}
+      })
 
       features = features.map(feature => {
         return {key: feature.key, value: feature.value}
@@ -164,6 +175,7 @@ const doQueries = async (companies) => {
 
       featuresArray.push({'companyId': company.id, 'features': features});
       swotsArray.push({'companyId': company.id, 'swot': swot[0].value});
+      articlesArray.push({'companyId': company.id, 'articles': articles});
 
     } catch (err) {
       console.log(err)
@@ -193,7 +205,7 @@ const doQueries = async (companies) => {
     }
 
   // This needs to change so the format of feature and swots is the same
-  result = {'features': featuresArray, 'swots': swotsArray}
+  result = {'features': featuresArray, 'swots': swotsArray, 'articles': articlesArray}
   return result
 }
 
