@@ -1,6 +1,16 @@
-const axios = require('axios');
-const puppeteer = require('puppeteer');
-const cheerio = require('cheerio');
+// const axios = require('axios');
+// const puppeteer = require('puppeteer');
+// const cheerio = require('cheerio');
+// const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
+const axios = require('axios')
+const { Op } = require('sequelize');
+const puppeteer = require('puppeteer')
+const cheerio = require('cheerio')
+const Sitemapper = require('sitemapper');
+const fs = require('fs')
+const { models: CompanyData } = require('../db')
+const { Configuration, OpenAIApi } = require("openai");
+const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
 
 let company = {url: "https://www.attentivemobile.com"}
 
@@ -49,7 +59,7 @@ const getCapterraReviews = async (company) => {
             };
             await CompanyDataRaw.upsert({
                 url: review["globalReviewId"],
-                text: json.stringify(toSave),
+                text: JSON.stringify(toSave),
                 date: new Date(review["writtenOn"]),
                 type: 'review',
                 company_id: company.id
