@@ -1,5 +1,7 @@
 import perplexity
 import time
+import json
+
 
 # perplexity_cli = perplexity.Client(perplexity_headers, perplexity_cookies)
 # perplexity_cli.create_account(emailnator_headers, emailnator_cookies) # Creates a new gmail, so your 5 copilots will be renewed. You can pass this one if you are not going to use "copilot" mode
@@ -13,7 +15,9 @@ import time
 
 def getFeaturesFromPerplexity(companyName, PPheaders, PPcookies):
     try: 
-        perplexity_cli = perplexity.Client(PPheaders, PPcookies)
+        headerObj = json.loads(PPheaders)
+        cookieObj = json.loads(PPcookies)
+        perplexity_cli = perplexity.Client(headerObj, cookieObj)
         result = perplexity_cli.search(f'Please create a detailed list of the features that {companyName} offers', mode='concise', focus='internet')
         return result["text"]["answer"]
     except Exception as e:
@@ -21,7 +25,9 @@ def getFeaturesFromPerplexity(companyName, PPheaders, PPcookies):
 
 def getSWOTFromPerplexity(companyName, PPheaders, PPcookies):
     try: 
-        perplexity_cli = perplexity.Client(PPheaders, PPcookies)
+        headerObj = json.loads(PPheaders)
+        cookieObj = json.loads(PPcookies)
+        perplexity_cli = perplexity.Client(headerObj, cookieObj)
         result = perplexity_cli.search(f'Please create a SWOT analysis of this software company: {companyName}.', mode='concise', focus='internet')
         return result["text"]["answer"]
     except Exception as e:
@@ -42,7 +48,9 @@ def doesCompanyHaveFeature(companyName, featureName, PPheaders, PPcookies):
     for attempt in range(MAX_RETRIES):
 
         try:
-            perplexity_cli = perplexity.Client(PPheaders, PPcookies)
+            headerObj = json.loads(PPheaders)
+            cookieObj = json.loads(PPcookies)
+            perplexity_cli = perplexity.Client(headerObj, cookieObj)
             print("starting search for ", companyName, featureName)
             result = perplexity_cli.search(f'Does {companyName} offer a {featureName} feature? Reply with a summary.', mode='concise', focus='internet')
             if result is None:
