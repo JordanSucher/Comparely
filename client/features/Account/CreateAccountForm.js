@@ -4,16 +4,18 @@ import {
   Col,
   Form,
   Button,
-  Table,
   Container,
   InputGroup,
 } from "react-bootstrap";
 import { useSelector, useDispatch } from "react-redux";
 import { authenticate } from "../../app/store";
+import { useNavigate } from "react-router-dom";
 
 const CreateAccountForm = ({ name, displayName, setForm }) => {
   const { error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -36,7 +38,8 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
         openApiKey,
         method: formName,
       })
-    );
+    ),
+    navigate('/');
   };
 
   return (

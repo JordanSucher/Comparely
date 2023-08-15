@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { authenticate } from "../../app/store";
 import { Container, Form, Row, Col, Button, InputGroup } from "react-bootstrap";
@@ -6,13 +7,15 @@ import { Container, Form, Row, Col, Button, InputGroup } from "react-bootstrap";
 const Login = ({ name, displayName, setForm }) => {
   const { error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const formName = e.target.name;
     const email = e.target.email.value;
     const password = e.target.password.value;
-    dispatch(authenticate({ email, password, method: formName }));
+    dispatch(authenticate({ email, password, method: formName }),  navigate('/'));
   };
 
   return (
