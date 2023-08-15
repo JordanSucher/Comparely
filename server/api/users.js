@@ -24,7 +24,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:id", async (req, res, next) => {
   try {
     const user = await User.findByPk(req.params.id, {
-      attributes: ["id", "email", "firstName", "lastName"],
+      attributes: ["id", "email", "firstName", "lastName", "companyName", "companyUrl", "openApiKey" ],
     });
 
     res.json(user);

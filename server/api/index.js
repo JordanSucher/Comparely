@@ -25,6 +25,7 @@ router.get('/comparisons/:id', async (req, res, next) => {
 
 router.post('/comparisons', async (req, res, next) => {
 
+
   const regex = /^(?:https?:\/\/)?(?:www\.)?(.*?)\./;
   
 
@@ -127,6 +128,7 @@ const webScrape = async (companies) => {
 
 await Promise.all(promises) //wait until all the above promises are done
 
+
 console.log("Finished webscraping")
 return true
 }
@@ -184,7 +186,6 @@ const doQueries = async (companies) => {
     } catch (err) {
       console.log(err)
     }
-
 
 
   // eventually also get summary of tweets, summary of reviews here
