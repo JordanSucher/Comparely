@@ -43,7 +43,7 @@ const AccountDetails = () => {
                 <Form.Check
                   type="switch"
                   id="custom-switch"
-                  label="Weely Email Comparison Updates"
+                  label="Weekly Email Comparison Updates"
                 />
               </Form>
             </Row>

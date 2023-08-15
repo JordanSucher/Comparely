@@ -35,7 +35,7 @@ const Home = () => {
   const [competitors, setCompetitors] = useState([""]);
   return (
     <>
-      <Container className="text-center p-3">
+      <Container className="text-center p-3 mt-5">
         <h1>Compare.ly</h1>
         <p>Easily keep track of your competitors.</p>
       </Container>
