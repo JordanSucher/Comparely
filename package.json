@@ -1,5 +1,5 @@
 {
-  "name": "compare",
+  "name": "vector_db",
   "version": "1.0.0",
   "description": "Competitive SaaS",
   "main": "index.js",

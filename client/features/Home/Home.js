@@ -9,6 +9,7 @@ const Home = () => {
   const navigate = useNavigate();
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log([...competitors, myCompany]);
     let { data } = await axios.post("/api/comparisons", {
       companies: [...competitors, myCompany],
     });
@@ -53,6 +54,7 @@ const Home = () => {
                 name="usersWebsite"
                 placeholder="Enter your website"
                 className="w-75"
+                onChange={(e)=>setMyCompany(e.target.value)}
               />
             </Row>
           </Form.Group>
