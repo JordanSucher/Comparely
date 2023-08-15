@@ -25,81 +25,87 @@ router.get('/comparisons/:id', async (req, res, next) => {
 
 router.post('/comparisons', async (req, res, next) => {
 
-  const regex = /^(?:https?:\/\/)?(?:www\.)?(.*?)\./;
-  
 
-  //[google.com, yahoo.com, etc.]
-  let companyURLs = req.body.companies
+  try {
 
-  // upsert companies into companies table
-  let promises = companyURLs.map(async company => {
-    companyName = company.match(regex)
-    if (companyName && companyName[1]) {
-      companyName = companyName[1]
-    } else {
-      companyName = ""
-    }
-
-    await Company.upsert({
-      url: company,
-      name: companyName
-    })
-  })
-
-  await Promise.all(promises)
-  
-  //grab companies
-  let companies = await Company.findAll({
-    where: {
-      url: {
-        [Op.in]: companyURLs
-      }
-    }
-  })
-
-  // create a comparison record
-  let comparison = await Comparison.create({
-    text: ""
-  })
-
-  // we send the comparison ID to the frontend at this point, maybe the FE says something like "this is in progress, save this link and come back later"
-  res.status(202).json ({"comparisonId": comparison.id})
-
-  // add companies to comparison
-  promises = companies.map(async company => {
-    await comparison.addCompany(company)
-  })
-
-  await Promise.all(promises)
-
-  
-
-  // trigger comparison functions:
-    // web scrape a bunch of shit and stick it in the DB
-    await webScrape(companies)
-
-    //get perplexity headers / cookies
-    let {PPheaders, PPcookies} = await getPPheaders()
+    const regex = /^(?:https?:\/\/)?(?:www\.)?(.*?)\./;
     
-    // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
-    let companyIds = companies.map(company => company.id)
-    await axios.post('http://127.0.0.1:8080/api/comparisons', { companyIds: companies, PPheaders: PPheaders, PPcookies: PPcookies})
 
-    // at this point there should be a bunch of relevant data in the company comparison points table
+    //[google.com, yahoo.com, etc.]
+    let companyURLs = req.body.companies
 
-    // retrieve data from company_comparison_points table
-    let results = await doQueries(companies)
+    // upsert companies into companies table
+    let promises = companyURLs.map(async company => {
+      companyName = company.match(regex)
+      if (companyName && companyName[1]) {
+        companyName = companyName[1]
+      } else {
+        companyName = ""
+      }
 
-    // add results to comparison table
-    await Comparison.update({
-      text: JSON.stringify(results)
-    }, {
+      await Company.upsert({
+        url: company,
+        name: companyName
+      })
+    })
+
+    await Promise.all(promises)
+    
+    //grab companies
+    let companies = await Company.findAll({
       where: {
-        id: comparison.id
+        url: {
+          [Op.in]: companyURLs
+        }
       }
     })
 
-    //at this point, send email to user to let them know comparison is ready
+    // create a comparison record
+    let comparison = await Comparison.create({
+      text: ""
+    })
+
+    // we send the comparison ID to the frontend at this point, maybe the FE says something like "this is in progress, save this link and come back later"
+    res.status(202).json ({"comparisonId": comparison.id})
+
+    // add companies to comparison
+    promises = companies.map(async company => {
+      await comparison.addCompany(company)
+    })
+
+    await Promise.all(promises)
+
+    
+
+    // trigger comparison functions:
+      // web scrape a bunch of shit and stick it in the DB
+      await webScrape(companies)
+
+      //get perplexity headers / cookies
+      let {PPheaders, PPcookies} = await getPPheaders()
+      
+      // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
+      let companyIds = companies.map(company => company.id)
+      await axios.post('http://127.0.0.1:8080/api/py/comparisons', { companyIds: companies, PPheaders: PPheaders, PPcookies: PPcookies})
+
+      // at this point there should be a bunch of relevant data in the company comparison points table
+
+      // retrieve data from company_comparison_points table
+      let results = await doQueries(companies)
+
+      // add results to comparison table
+      await Comparison.update({
+        text: JSON.stringify(results)
+      }, {
+        where: {
+          id: comparison.id
+        }
+      })
+
+      //at this point, send email to user to let them know comparison is ready
+    } catch (err) {
+      next(err)
+    }
 
 })
 
