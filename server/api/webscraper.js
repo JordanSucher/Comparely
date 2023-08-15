@@ -322,12 +322,6 @@ try {
 
 }
 
-let company = {
-    url: "https://zendesk.com/",
-    id: 1
-}
-
-getArticles(company)
 
 const getContent = async (company) => {
 
