@@ -422,7 +422,9 @@ const getPPheaders = async () => {
     });
   
     await page.goto('https://www.perplexity.ai/');
+    await page.waitForSelector(".ml-md > button");
     await page.click(".ml-md > button");
+    await page.waitForSelector(".max-w-sm input");
     await page.click(".max-w-sm input");
     await page.type(".max-w-sm input", 'a@a.com', {delay: 100});
     await page.click('div.border-t.mt-md button');
