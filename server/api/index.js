@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 
 
 const configuration = new Configuration({
-  apiKey: process.env.OPEN_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
@@ -102,6 +102,7 @@ router.post('/comparisons', async (req, res, next) => {
       })
 
       //at this point, send email to user to let them know comparison is ready
+      console.log("Completed comparison #" + comparison.id)
     } catch (err) {
       next(err)
     }

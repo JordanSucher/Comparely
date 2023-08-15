@@ -10,7 +10,11 @@ import perplexQueries
 import json
 import asyncio
 import os
+from dotenv import load_dotenv
 
+
+# Load environment variables from .env file
+load_dotenv()
 
 # initialize db vars
 MIN_CON = 1  # Minimum number of connections you want to keep alive
@@ -19,7 +23,11 @@ connection_string = os.environ.get('DATABASE_URL', "postgresql://postgres:passwo
 
 
 # open ai api key
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+api_key = os.environ.get('OPENAI_API_KEY')
+if not api_key:
+    raise ValueError("OPENAI_API_KEY is not set in the environment variables")
+openai.api_key = api_key
+
 
 # llm = OpenAI(model="gpt-4", temperature=0, max_tokens=8000)
 # # configure service context
