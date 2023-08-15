@@ -5,7 +5,7 @@ const {
 
 
 const seed = async () => {
-  
+
   const users = await Promise.all([
     User.create({
       firstName: "cody",
@@ -26,13 +26,15 @@ const seed = async () => {
       password: "123",
     }),
   ]);
-  
-  
+
+
   return {
     users: {
       cody: users[0],
       murphy: users[1],
     },
   };
-  
+
 }
+
+module.exports = seed;

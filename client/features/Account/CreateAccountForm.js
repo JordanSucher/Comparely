@@ -22,7 +22,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
     const lastName = e.target.lastName.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
-    const company = e.target.company.value;
+    const companyName = e.target.companyName.value;
     const companyUrl = e.target.companyUrl.value;
     dispatch(
       authenticate({
@@ -30,7 +30,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
         lastName,
         email,
         password,
-        company,
+        companyName,
         companyUrl,
         method: formName,
       })
@@ -85,13 +85,13 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
             </InputGroup>
           </Form.Group>
 
-          <Form.Group controlId="company" className="mb-3">
+          <Form.Group controlId="companyName" className="mb-3">
             <InputGroup>
-              <InputGroup.Text id="company">Company</InputGroup.Text>
+              <InputGroup.Text id="companyName">Company</InputGroup.Text>
               <Form.Control
-                aria-label="company"
-                type="company"
-                name="company"
+                aria-label="companyName"
+                type="companyName"
+                name="companyName"
               />
             </InputGroup>
           </Form.Group>
@@ -108,7 +108,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
           </Form.Group>
 
           <Container className="d-flex justify-content-center mt-3">
-            <Button className="me-3" variant="primary" type="submit">
+            <Button className="me-3" variant="success" type="submit">
               {displayName}
             </Button>
               <Button onClick={() => setForm(true)}>Returning Customer?</Button>
