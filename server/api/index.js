@@ -1,7 +1,7 @@
 const router = require('express').Router()
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw, Comparison } } = require('../db')
 const axios = require('axios')
-const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent } = require('./webscraper.js')
+const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent, getPPheaders } = require('./webscraper.js')
 const { Configuration, OpenAIApi } = require("openai");
 const { Op } = require('sequelize');
 
@@ -72,14 +72,18 @@ router.post('/comparisons', async (req, res, next) => {
 
   await Promise.all(promises)
 
+  
 
   // trigger comparison functions:
     // web scrape a bunch of shit and stick it in the DB
     await webScrape(companies)
+
+    //get perplexity headers / cookies
+    let {PPheaders, PPcookies} = await getPPheaders()
     
     // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
     let companyIds = companies.map(company => company.id)
-    await axios.post('http://127.0.0.1:8080/api/comparisons', { companyIds: companies })
+    await axios.post('http://127.0.0.1:8080/api/comparisons', { companyIds: companies, PPheaders: PPheaders, PPcookies: PPcookies})
 
     // at this point there should be a bunch of relevant data in the company comparison points table
 
