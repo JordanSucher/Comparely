@@ -8,7 +8,7 @@ const AccountDetails = () => {
   return (
     <>
       <Container className="d-flex justify-content-center">
-        <Card className="w-50">
+        <Card className="w-50 m-5 py-5 p-2">
           <Card.Title className="text-center">Account Details</Card.Title>
 
           <Card.Body>
