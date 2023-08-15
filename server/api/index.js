@@ -203,7 +203,7 @@ const doQueries = async (companies) => {
       const chatCompletion2 = await openai.createChatCompletion({
         model: "gpt-4",
         max_tokens: 3500,
-        messages: [{role: "user", content: 'Please restructure these SWOTs in this format: [{companyId, SWOT: {strengths, weaknesses, opportunities, threats}}].   SWOT object:' + swotsString}],
+        messages: [{role: "user", content: 'Please restructure these SWOTs in this format: [{companyId, SWOT: [{strengths}, {weaknesses}, {opportunities}, {threats}]}].   SWOT object:' + swotsString}],
       });
 
       let response2 = chatCompletion2.data.choices[0].message.content;
