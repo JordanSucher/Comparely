@@ -1,4 +1,4 @@
-h1, p, body{
+/* h1, p, body{
   margin: 0;
   padding: 0
 }
@@ -45,4 +45,4 @@ button{
 
 input:invalid{
   border: 1px dotted red;
-}
+} */
