@@ -201,7 +201,7 @@ async def generateAnalysis(id):
     return True
 
 
-async def generateAnalysis2(id):
+async def generateAnalysis2(id, PPheaders, PPcookies):
     # setup sql cursor
     conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
      
@@ -224,7 +224,7 @@ async def generateAnalysis2(id):
 
                 # do feature summation and persist response in the company_comparison_points table
                 print(f"Starting feature summation for {companyName}.")
-                features = perplexQueries.getFeaturesFromPerplexity(companyName)
+                features = perplexQueries.getFeaturesFromPerplexity(companyName, PPheaders, PPcookies)
                 print(f"Finished feature summation for {companyName}.")
                 
                 print(f"Starting db insert 1 for {companyName}.")
@@ -236,7 +236,7 @@ async def generateAnalysis2(id):
 
                 # do SWOT analysis and persist response in the company_comparison_points table
                 print (f"Starting SWOT analysis for {companyName}.")
-                swot = perplexQueries.getSWOTFromPerplexity(companyName)
+                swot = perplexQueries.getSWOTFromPerplexity(companyName, PPheaders, PPcookies)
                 print(f"Finished SWOT analysis for {companyName}.")
                 
                 print(f"Starting db insert 2 for {companyName}.")
@@ -258,7 +258,7 @@ async def generateAnalysis2(id):
 
     return True
 
-async def generateComparison(companyIds):
+async def generateComparison(companyIds, PPheaders, PPcookies):
     # setup sql cursor
     conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
 
@@ -299,7 +299,7 @@ async def generateComparison(companyIds):
 
                     # loop through features and see if co has feature. save response to db.
                     for feature in mergedFeatureList:
-                        result = perplexQueries.doesCompanyHaveFeature(companyName, feature)
+                        result = perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
                         # insert into DB
                         await cur.execute(
                             "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
@@ -332,23 +332,26 @@ async def do_nothing():
     return jsonify({"message": "Did nothing!"}), 200
 
 
-@app.route('/api/comparisons', methods=['POST'])
+@app.route('/api/py/comparisons', methods=['POST'])
 async def compare():
     # this is where we will generate feature lists, SWOTs, etc
 
     # api will receive a list of company IDs and a comparison ID
     data = request.json
     companyIds = data['companyIds']
+    PPheaders = data['PPheaders']
+    PPcookies = data['PPcookies']
+
 
     # transform companyIds into a simple array of integers
     companyIds = [id['id'] for id in companyIds]
 
 
     for id in companyIds:
-        await generateAnalysis2(id)
+        await generateAnalysis2(id, PPheaders, PPcookies)
 
 
-    await generateComparison(companyIds)
+    await generateComparison(companyIds, PPheaders, PPcookies)
     # now, can take what we generated and create a comparison.
    
     
