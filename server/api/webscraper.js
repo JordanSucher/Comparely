@@ -435,8 +435,8 @@ const getPPheaders = async () => {
         PPcookiesObj[cookie.name] = cookie.value
     })
 
-    console.log("PPCookies", PPcookiesObj)
-    console.log("PPHeaders", PPheaders)
+    // console.log("PPCookies", PPcookiesObj)
+    // console.log("PPHeaders", PPheaders)
 
     return {PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookiesObj)}
   }

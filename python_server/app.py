@@ -15,7 +15,7 @@ import os
 # initialize db vars
 MIN_CON = 1  # Minimum number of connections you want to keep alive
 MAX_CON = 20  # Max number of connections you want to allow
-connection_string = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432")
+connection_string = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db")
 
 
 # open ai api key
@@ -45,7 +45,7 @@ async def getIndex(id):
         WHERE company_id = %s AND type = 'site' AND text IS NOT NULL
     """
 
-    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
 
     try:
         async with conn:
@@ -142,7 +142,7 @@ async def generateAnalysis(id):
 
 
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
      
 
     try:
@@ -203,7 +203,7 @@ async def generateAnalysis(id):
 
 async def generateAnalysis2(id, PPheaders, PPcookies):
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
      
 
     try:
@@ -260,7 +260,7 @@ async def generateAnalysis2(id, PPheaders, PPcookies):
 
 async def generateComparison(companyIds, PPheaders, PPcookies):
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432"))
+    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
 
     try:
         async with conn:
@@ -328,7 +328,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 async def do_nothing():
-    await generateComparison([1,2], 1)
+    # await generateComparison([1,2], 1)
     return jsonify({"message": "Did nothing!"}), 200
 
 
