@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
 const Sitemapper = require('sitemapper');
 const fs = require('fs')
+const { v4: uuidv4 } = require('uuid');
 const { models: CompanyData } = require('../db')
 const { Configuration, OpenAIApi } = require("openai");
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
@@ -219,7 +220,92 @@ const getCapterraReviews = async (company) => {
     }
 
 const getG2Reviews = (company) => {
+    // Launch puppeteer-stealth
+    puppeteer.launch().then(async browser => {
+        try{
 
+            // Create a new page
+            const page = await browser.newPage();
+            // Set page view
+            await page.setViewport({ width: 1280, height: 720 });
+        
+                //identify the g2 URL for the company
+                let result = await axios.get("https://www.google.com/search?q=" + company.url + " g2")
+                let $ = cheerio.load(result.data)
+                let links = []
+                $("a").each((index, element) => {
+                    links.push(element.attribs.href)
+                })
+                links = links.filter(link => link.includes("g2.com"))
+            
+                let gtwoUrl = links[0].split('?q=')[1].split('&')[0]
+        
+        
+        
+            // Navigate to the website
+            await page.goto(gtwoUrl);
+        
+            // Wait for page to load
+            await page.waitForSelector('div#reviews');
+        
+            const reviews = await page.evaluate(() => {
+                // Get all divs with the class "paper" inside the nested-ajax-loading section
+                const reviewCards = document.querySelectorAll('div#reviews .nested-ajax-loading .paper');
+        
+                // Extract the required data from each card
+                const reviewData = [];
+                reviewCards.forEach((card) => {
+                // Rating extraction (same as before)
+                const ratingDiv = card.querySelector('.stars');
+                let rating = '';
+                if (ratingDiv && ratingDiv.className.includes('stars-')) {
+                    rating = ratingDiv.className.split('stars-')[1];
+                }
+        
+                // Content extraction
+                const reviewBodyDiv = card.querySelector('[itemprop="reviewBody"]');
+                let content = '';
+                if (reviewBodyDiv) {
+                    reviewBodyDiv.querySelectorAll('.spht').forEach(span => span.remove());
+                    content = reviewBodyDiv.innerText.replace(/\n/g, ' ').trim();
+                }
+        
+                // Date extraction
+                let date = '';
+                const dateSpan = card.querySelector('.time-stamp .x-current-review-date');
+                if (dateSpan) {
+                    const metaTag = dateSpan.querySelector('meta');
+                    const timeTag = dateSpan.querySelector('time');
+                    if (metaTag) {
+                    date = metaTag.getAttribute('content');
+                    } else if (timeTag) {
+                    date = timeTag.getAttribute('datetime');
+                    }
+                }
+                const id = uuidv4();
+                reviewData.push({ id, rating, content, date });
+                });
+        
+                return reviewData;
+            });
+        
+            await CompanyDataRaw.upsert({
+                url: reviews.id,
+                text: {
+                    review: reviews.content,
+                    rating: reviews.rating,
+                    },
+                date: reviews.date,
+                type: 'review',
+                company_id: company.id
+            })  
+        
+            // Close the browser
+            await browser.close();
+        } catch(err){
+            console.log(err)
+        }
+    });
 }
 
 const getArticles = async (company) => {
