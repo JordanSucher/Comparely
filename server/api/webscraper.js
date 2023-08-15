@@ -421,6 +421,10 @@ const getPPheaders = async () => {
       }
     });
   
+    await page.setViewport({
+        width: 1200,
+        height: 1900,
+      });  
     await page.goto('https://www.perplexity.ai/');
     await page.waitForSelector(".ml-md > button");
     await page.click(".ml-md > button");
