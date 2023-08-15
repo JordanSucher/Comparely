@@ -24,16 +24,11 @@ const seed = async () => {
       lastName: "ju",
       email: "ej@hackme.com",
       password: "123",
+      companyName: "Eston's Eucolyptus",
+      companyUrl: "Essieseucos.com",
+      openApiKey: "4206969420woof"
     }),
   ]);
-
-
-  return {
-    users: {
-      cody: users[0],
-      murphy: users[1],
-    },
-  };
 
 }
 

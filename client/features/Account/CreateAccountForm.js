@@ -24,6 +24,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
     const password = e.target.password.value;
     const companyName = e.target.companyName.value;
     const companyUrl = e.target.companyUrl.value;
+    const openApiKey = e.target.openApiKey.value;
     dispatch(
       authenticate({
         firstName,
@@ -32,6 +33,7 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
         password,
         companyName,
         companyUrl,
+        openApiKey,
         method: formName,
       })
     );
@@ -103,6 +105,17 @@ const CreateAccountForm = ({ name, displayName, setForm }) => {
                 aria-label="companyUrl"
                 type="companyUrl"
                 name="companyUrl"
+              />
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group controlId="openApiKey" className="mb-3">
+            <InputGroup>
+              <InputGroup.Text id="openApiKey">Open Api Key:</InputGroup.Text>
+              <Form.Control
+                aria-label="openApiKey"
+                type="openApiKey"
+                name="openApiKey"
               />
             </InputGroup>
           </Form.Group>
