@@ -11,3 +11,6 @@ npm-debug.log
 
 # OSX
 .DS_Store
+
+#python
+env
