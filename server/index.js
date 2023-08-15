@@ -4,6 +4,6 @@ const app = require('./app');
 const seed = require('../script/seed');
 
 db.sync().then(() => {
-  seed();
+  // seed();
   app.listen(PORT, () => console.log(`Eerie muffled sounds on port ${PORT}`));
 })
