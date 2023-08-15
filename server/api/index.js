@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 
 
 const configuration = new Configuration({
-  apiKey: '',
+  apiKey: process.env.OPEN_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);

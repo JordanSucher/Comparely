@@ -46,6 +46,7 @@ soupsieve==2.4.1
 SQLAlchemy==2.0.19
 tenacity==8.2.2
 tiktoken==0.4.0
+psycopg==3.1.10
 tqdm==4.65.0
 typing-inspect==0.9.0
 typing_extensions==4.7.1
@@ -55,3 +56,4 @@ virtualenv==20.24.2
 Werkzeug==2.3.6
 yarl==1.9.2
 zipp==3.16.2
+websocket-client == 1.6.1
