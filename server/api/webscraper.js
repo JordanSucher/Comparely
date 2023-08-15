@@ -409,7 +409,7 @@ const getPPheaders = async () => {
     let PPcookies
     let PPheaders
 
-    const browser = await puppeteer.launch({headless: false});
+    const browser = await puppeteer.launch({headless: "new"});
     const page = await browser.newPage();
     
     // attach to the 'request' event to log all network requests
