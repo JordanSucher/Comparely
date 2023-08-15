@@ -35,7 +35,7 @@ const Header = () => {
             <Nav>
               <Nav.Link href="/compare">Compare</Nav.Link>
               <NavDropdown title="More" id="basic-nav-dropdown">
-                <NavDropdown.Item href="/login">Account</NavDropdown.Item>
+                <NavDropdown.Item href="/account">Account</NavDropdown.Item>
                 <NavDropdown.Item disabled href="#chatbot">Chatbot</NavDropdown.Item>
               </NavDropdown>
             </Nav>

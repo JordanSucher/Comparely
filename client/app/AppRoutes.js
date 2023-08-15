@@ -5,6 +5,7 @@ import AuthForm from "../features/Account/AuthForm";
 import { me } from "./store";
 import { Container } from "react-bootstrap";
 import Home from "../features/Home/Home";
+import AccountDetails from "../features/Account/AccountDetails";
 
 const AppRoutes = () => {
   const isLoggedIn = useSelector((state) => !!state.auth.me.id);
@@ -17,6 +18,7 @@ const AppRoutes = () => {
   const loggedInRoutes = (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/account" element={<AccountDetails/>} />
     </Routes>
   );
 
