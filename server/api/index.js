@@ -82,9 +82,7 @@ router.post('/comparisons', async (req, res, next) => {
       await webScrape(companies)
 
       //get perplexity headers / cookies
-      // let {PPheaders, PPcookies} = await getPPheaders()
-      let PPheaders = {}
-      let PPcookies = {}
+      let {PPheaders, PPcookies} = await getPPheaders()
 
 
       
