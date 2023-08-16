@@ -21,22 +21,22 @@ const openai = new OpenAIApi(configuration);
 const stripMetadataAndFormatting = (text) => {
     // Remove JSON and metadata-like structures
     text = text.replace(/\{[^}]*\}/g, '');
-  
+
     // Remove URLs
     text = text.replace(/http\S+|www\S+/g, '');
-  
+
     // Remove image URLs
     text = text.replace(/\burl\s*:\s*"(.*?)"/g, '');
-  
+
     // Remove HTML tags
     text = text.replace(/<.*?>/g, '');
 
     // Remove basic JavaScript lines
     text = text.replace(/if \(.*\)\s*{\s*.*\s*}\s*else.*/g, '');
-    
+
     // Remove URLs or File Paths
     text = text.replace(/http:\/\/[^\s]+|\.\w{2,4}/g, '');
-    
+
     // Remove JSON-like Metadata
     text = text.replace(/"\w+":\s*"[^"]*"/g, '');
 
@@ -45,13 +45,13 @@ const stripMetadataAndFormatting = (text) => {
 
     // Remove Twitter-Related Metadata
     text = text.replace(/twitter_.*:.*,/g, '');
-  
+
     // Remove extra spaces and line breaks
     text = text.replace(/\s+/g, ' ');
-  
+
     // Remove leading and trailing spaces
     text = text.trim();
-    
+
     return text;
 }
 
@@ -169,9 +169,9 @@ const getCapterraReviews = async (company) => {
             links.push(element.attribs.href)
         })
         links = links.filter(link => link.includes("capterra.com"))
-    
+
         let capterraProductId = links[0].split('?q=')[1].slice(27, 33)
-    
+
         let productResults = await axios.get("https://www.capterra.com/spotlight/rest/reviews?apiVersion=2&productId=" + capterraProductId + "&from=0&sort=mostRecent&size=100",{
             headers: {
                 "accept": "*/*",
@@ -188,7 +188,7 @@ const getCapterraReviews = async (company) => {
                 "Referrer-Policy": "origin-when-cross-origin"
               }
         })
-    
+
         console.log(productResults.data)
         productResults.data.hits.map(async review => {
             let toSave = {
@@ -209,7 +209,7 @@ const getCapterraReviews = async (company) => {
                 date: new Date(review["writtenOn"]),
                 type: 'review',
                 company_id: company.id
-            })      
+            })
         })
     }
     catch(err){
@@ -226,8 +226,8 @@ const getArticles = async (company) => {
 
 try {
 
-    //get articles from crunchbase. 
-    
+    //get articles from crunchbase.
+
     //identify the crunchbase URL for the company
     let result = await axios.get("https://www.google.com/search?q=" + company.url + " crunchbase")
     let $ = cheerio.load(result.data)
@@ -251,14 +251,14 @@ try {
                 'Referer': 'https://www.google.com'
         }
     })
-  
+
 
     $ = cheerio.load(result.data)
 
     $(".activity-url-title").each((index, element) => {
         links.push(element.attribs.href)
     })
-    
+
     //Upsert the articles into the company_data_raw table and then identify which articles we haven't scraped yet
     let promises = links.map(async link => {
         await CompanyDataRaw.upsert({
@@ -284,7 +284,7 @@ try {
     //now we can get the articles.
     promises = newLinks.map(async link => {
         //for each link, go to the page and grab the whole body and title and stick in DB
-    
+
         let result = await axios.get(link,
             {
                 headers: {
@@ -307,8 +307,8 @@ try {
             date: new Date(text.pubdate),
             type: 'article',
             company_id: company.id
-        })        
-      
+        })
+
     })
 
     await Promise.all(promises)
@@ -366,19 +366,19 @@ const getContent = async (company) => {
                 }
             }
         })
-    
+
 
         // get all the content
         for (let i = 0; i < newPages.length; i++) {
             const page = newPages[i];
-            
+
             try {
                 let result = await axios.get(page.url);
                 let $ = cheerio.load(result.data);
                 $('script, style').remove();
                 let text = $("body").text();
                 text = await stripMetadataAndFormatting(text);
-        
+
                 //add to DB
                 await CompanyDataRaw.upsert({
                     id: page.id,
@@ -387,7 +387,7 @@ const getContent = async (company) => {
                     type: 'site',
                     company_id: company.id
                 });
-        
+
                 //add a brief pause
                 await new Promise(resolve => setTimeout(resolve, 50));
             } catch (error) {
@@ -397,7 +397,7 @@ const getContent = async (company) => {
 
         console.log("Finished getting content for " + company.name)
         return true
-        
+
     } catch (err) {
         console.log(err)
     }
@@ -411,7 +411,7 @@ const getPPheaders = async () => {
 
     const browser = await puppeteer.launch({headless: "new"});
     const page = await browser.newPage();
-    
+
     // attach to the 'request' event to log all network requests
     page.on('request', async request => {
       let url = request.url()
@@ -420,7 +420,7 @@ const getPPheaders = async () => {
         PPcookies = await page.cookies()
       }
     });
-  
+
     await page.goto('https://www.perplexity.ai/');
     await page.click(".ml-md > button");
     await page.click(".max-w-sm input");
@@ -431,6 +431,7 @@ const getPPheaders = async () => {
     await browser.close();
 
     let PPcookiesObj = {}
+    console.log(PPcookies)
     PPcookies.forEach(cookie => {
         PPcookiesObj[cookie.name] = cookie.value
     })
@@ -448,5 +449,5 @@ module.exports = {
     getArticles,
     getContent,
     getPPheaders
-    
+
 }
