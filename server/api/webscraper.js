@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
 const Sitemapper = require('sitemapper');
 const fs = require('fs')
+const { v4: uuidv4 } = require('uuid');
 const { models: CompanyData } = require('../db')
 const { Configuration, OpenAIApi } = require("openai");
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
@@ -219,7 +220,92 @@ const getCapterraReviews = async (company) => {
     }
 
 const getG2Reviews = (company) => {
+    // Launch puppeteer-stealth
+    puppeteer.launch().then(async browser => {
+        try{
 
+            // Create a new page
+            const page = await browser.newPage();
+            // Set page view
+            await page.setViewport({ width: 1280, height: 720 });
+        
+                //identify the g2 URL for the company
+                let result = await axios.get("https://www.google.com/search?q=" + company.url + " g2")
+                let $ = cheerio.load(result.data)
+                let links = []
+                $("a").each((index, element) => {
+                    links.push(element.attribs.href)
+                })
+                links = links.filter(link => link.includes("g2.com"))
+            
+                let gtwoUrl = links[0].split('?q=')[1].split('&')[0]
+        
+        
+        
+            // Navigate to the website
+            await page.goto(gtwoUrl);
+        
+            // Wait for page to load
+            await page.waitForSelector('div#reviews');
+        
+            const reviews = await page.evaluate(() => {
+                // Get all divs with the class "paper" inside the nested-ajax-loading section
+                const reviewCards = document.querySelectorAll('div#reviews .nested-ajax-loading .paper');
+        
+                // Extract the required data from each card
+                const reviewData = [];
+                reviewCards.forEach((card) => {
+                // Rating extraction (same as before)
+                const ratingDiv = card.querySelector('.stars');
+                let rating = '';
+                if (ratingDiv && ratingDiv.className.includes('stars-')) {
+                    rating = ratingDiv.className.split('stars-')[1];
+                }
+        
+                // Content extraction
+                const reviewBodyDiv = card.querySelector('[itemprop="reviewBody"]');
+                let content = '';
+                if (reviewBodyDiv) {
+                    reviewBodyDiv.querySelectorAll('.spht').forEach(span => span.remove());
+                    content = reviewBodyDiv.innerText.replace(/\n/g, ' ').trim();
+                }
+        
+                // Date extraction
+                let date = '';
+                const dateSpan = card.querySelector('.time-stamp .x-current-review-date');
+                if (dateSpan) {
+                    const metaTag = dateSpan.querySelector('meta');
+                    const timeTag = dateSpan.querySelector('time');
+                    if (metaTag) {
+                    date = metaTag.getAttribute('content');
+                    } else if (timeTag) {
+                    date = timeTag.getAttribute('datetime');
+                    }
+                }
+                const id = uuidv4();
+                reviewData.push({ id, rating, content, date });
+                });
+        
+                return reviewData;
+            });
+        
+            await CompanyDataRaw.upsert({
+                url: reviews.id,
+                text: {
+                    review: reviews.content,
+                    rating: reviews.rating,
+                    },
+                date: reviews.date,
+                type: 'review',
+                company_id: company.id
+            })  
+        
+            // Close the browser
+            await browser.close();
+        } catch(err){
+            console.log(err)
+        }
+    });
 }
 
 const getArticles = async (company) => {
@@ -406,40 +492,87 @@ const getContent = async (company) => {
 
 const getPPheaders = async () => {
 
-    let PPcookies
-    let PPheaders
+    let PPcookies = {
+        '_ga': 'GA1.1.779141588.1691778150',
+        'next-auth.csrf-token': 'cb59506ca36ac465b726a37d35ccfdc962d70688b11b6a75eb0e5773f0a5c810%7Cfd83ee9e92e74fb0a8815cc6886fb668e8318dbc967ef6ea4aa15922f1c2fba9',
+        '__Secure-next-auth.callback-url': 'https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F',
+        'cf_clearance': '6mQu_.CYG17jrgFUx79kszj6hXRmSV.4wxHsMcqemyE-1692046020-0-1-61c17541.45a6b9ca.36c02aa1-160.0.0',
+        'g_state': '{"i_p":1692148302484,"i_l":1}',
+        'mp_6f4de78898d87a1c8d7b7c5bd8b97049_mixpanel': '%7B%22distinct_id%22%3A%20%22189e5d5ec11e2c-0e6b65b82ad6a8-1a525634-1ce26a-189e5d5ec122689%22%2C%22%24device_id%22%3A%20%22189e5d5ec11e2c-0e6b65b82ad6a8-1a525634-1ce26a-189e5d5ec122689%22%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%7D',
+        '_ga_SH9PRBQG23': 'GS1.1.1692212045.6.0.1692212045.0.0.0',
+        '__cflb': '02DiuDyvFMmK5p9jVbWbam6CcSLCt41haFJWWCY7n8TGG',
+        'AWSALB': 'vJYsqaXG1RBy2oSLvcvH8gUZgiX0VFjFWV0Gw1l0+NlbJq8Hv29JJnxOUSLW7TuPuLi7VLcxzMJsqzoIfJImmxBXYeXCoE1PRjMOaF/pvlqv2UA9T3XWD8WUUgYD',
+        'AWSALBCORS': 'vJYsqaXG1RBy2oSLvcvH8gUZgiX0VFjFWV0Gw1l0+NlbJq8Hv29JJnxOUSLW7TuPuLi7VLcxzMJsqzoIfJImmxBXYeXCoE1PRjMOaF/pvlqv2UA9T3XWD8WUUgYD',
+    }
 
-    const browser = await puppeteer.launch({headless: "new"});
-    const page = await browser.newPage();
+    let PPheaders = {'authority': 'www.perplexity.ai',
+    'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    'baggage': 'sentry-environment=production,sentry-release=XcoeFcVkihoD9mDh22VUl,sentry-public_key=bb45aa7ca2dc43b6a7b6518e7c91e13d,sentry-trace_id=5a58342f6a534caf9b22c73f48cf64b2',
+    'content-type': 'application/x-www-form-urlencoded',
+    'cookie': '_ga=GA1.1.779141588.1691778150; next-auth.csrf-token=cb59506ca36ac465b726a37d35ccfdc962d70688b11b6a75eb0e5773f0a5c810%7Cfd83ee9e92e74fb0a8815cc6886fb668e8318dbc967ef6ea4aa15922f1c2fba9; __Secure-next-auth.callback-url=https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F; cf_clearance=6mQu_.CYG17jrgFUx79kszj6hXRmSV.4wxHsMcqemyE-1692046020-0-1-61c17541.45a6b9ca.36c02aa1-160.0.0; g_state={"i_p":1692148302484,"i_l":1}; mp_6f4de78898d87a1c8d7b7c5bd8b97049_mixpanel=%7B%22distinct_id%22%3A%20%22189e5d5ec11e2c-0e6b65b82ad6a8-1a525634-1ce26a-189e5d5ec122689%22%2C%22%24device_id%22%3A%20%22189e5d5ec11e2c-0e6b65b82ad6a8-1a525634-1ce26a-189e5d5ec122689%22%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%7D; _ga_SH9PRBQG23=GS1.1.1692212045.6.0.1692212045.0.0.0; __cflb=02DiuDyvFMmK5p9jVbWbam6CcSLCt41haFJWWCY7n8TGG; AWSALB=vJYsqaXG1RBy2oSLvcvH8gUZgiX0VFjFWV0Gw1l0+NlbJq8Hv29JJnxOUSLW7TuPuLi7VLcxzMJsqzoIfJImmxBXYeXCoE1PRjMOaF/pvlqv2UA9T3XWD8WUUgYD; AWSALBCORS=vJYsqaXG1RBy2oSLvcvH8gUZgiX0VFjFWV0Gw1l0+NlbJq8Hv29JJnxOUSLW7TuPuLi7VLcxzMJsqzoIfJImmxBXYeXCoE1PRjMOaF/pvlqv2UA9T3XWD8WUUgYD',
+    'origin': 'https://www.perplexity.ai',
+    'referer': 'https://www.perplexity.ai/',
+    'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    'sentry-trace': '5a58342f6a534caf9b22c73f48cf64b2-9de99a25ada13ca9-0',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+}
+    let browser
 
-    // attach to the 'request' event to log all network requests
-    page.on('request', async request => {
-      let url = request.url()
-      if (url.includes('/api/auth/signin/email')) {
-        PPheaders = request.headers()
-        PPcookies = await page.cookies()
-      }
-    });
+    // // const browser = await puppeteer.launch({headless: "new"});
+    // if (process.env.BROWSERLESS_TOKEN) {
+    //     console.log ("Using Browserless")
+    //     browser = await puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
+    // } else {
+    //     console.log("Using puppeteer default browser")
+    //     browser = await puppeteer.launch({ headless: "new" }); // you might want to replace "new" with true or false based on your needs.
+    // }
+    
+    // browser = await puppeteer.launch({ headless: "new", args: [
+    //     '--proxy-server=http=143.244.182.101:80',
+    //   ]});
 
-    await page.goto('https://www.perplexity.ai/');
-    await page.click(".ml-md > button");
-    await page.click(".max-w-sm input");
-    await page.type(".max-w-sm input", 'a@a.com', {delay: 100});
-    await page.click('div.border-t.mt-md button');
-    // add a short sleep
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await browser.close();
+    
+    // const page = await browser.newPage();
+    
+    // // attach to the 'request' event to log all network requests
+    // page.on('request', async request => {
+    //   let url = request.url()
+    //   if (url.includes('/api/auth/signin/email')) {
+    //     PPheaders = request.headers()
+    //     PPcookies = await page.cookies()
+    //   }
+    // });
+  
+    // await page.setViewport({
+    //     width: 1200,
+    //     height: 1900,
+    //   });  
+    // await page.goto('https://www.perplexity.ai/');
+    // await page.waitForSelector(".ml-md > button");
+    // await page.click(".ml-md > button");
+    // await page.waitForSelector(".max-w-sm input");
+    // await page.click(".max-w-sm input");
+    // await page.type(".max-w-sm input", 'a@a.com', {delay: 100});
+    // await page.click('div.border-t.mt-md button');
+    // // add a short sleep
+    // await new Promise(resolve => setTimeout(resolve, 3000));
+    // await browser.close();
 
-    let PPcookiesObj = {}
-    console.log(PPcookies)
-    PPcookies.forEach(cookie => {
-        PPcookiesObj[cookie.name] = cookie.value
-    })
+    // let PPcookiesObj = {}
+    // PPcookies.forEach(cookie => {
+    //     PPcookiesObj[cookie.name] = cookie.value
+    // })
 
     // console.log("PPCookies", PPcookiesObj)
     // console.log("PPHeaders", PPheaders)
 
-    return {PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookiesObj)}
+    return {PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookies)}
   }
 
 module.exports = {
