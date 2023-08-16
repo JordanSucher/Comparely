@@ -32,6 +32,7 @@ router.post('/comparisons', async (req, res, next) => {
 
     //[google.com, yahoo.com, etc.]
     let companyURLs = req.body.companies
+    let emailAddress = req.body.emailAddress
 
     // upsert companies into companies table
     let promises = companyURLs.map(async company => {
@@ -81,7 +82,11 @@ router.post('/comparisons', async (req, res, next) => {
       await webScrape(companies)
 
       //get perplexity headers / cookies
-      let {PPheaders, PPcookies} = await getPPheaders()
+      // let {PPheaders, PPcookies} = await getPPheaders()
+      let PPheaders = {}
+      let PPcookies = {}
+
+
       
       // hit python server with company IDs. Python server will do analysis w AI and insert rows into DB.
       let companyIds = companies.map(company => company.id)
@@ -103,6 +108,40 @@ router.post('/comparisons', async (req, res, next) => {
 
       //at this point, send email to user to let them know comparison is ready
       console.log("Completed comparison #" + comparison.id)
+
+      await axios.post("https://api.mailjet.com/v3.1/send", {
+          "SandboxMode": false,
+          "Messages": [
+              {
+                  "From": {
+                      "Email": "comparebot@altmails.com",
+                      "Name": "Comparebot"
+                  },
+                  "Sender": {
+                      "Email": "comparebot@altmails.com",
+                      "Name": "Comparebot"
+                  },
+                  "To": [
+                      {
+                          "Email": emailAddress,
+                          "Name": emailAddress
+                      }
+                  ],
+                  "ReplyTo": {
+                      "Email": "comparebot@altmails.com",
+                      "Name": "Comparebot"
+                  },
+                  "Subject": "Your comparison is ready!",
+                  "HTMLPart": "<h3>Welcome to <a href=\"https://comparebot2.onrender.com/\">Comparebot!</a></h3><br />Your comparison is ready, click <a href=\"https://comparebot2.onrender.com/comparisons/" + comparison.id + "\">here</a> to view."
+              }
+          ]
+      }, {
+        auth : {
+          username: process.env.MAILJET_KEY,
+          password: process.env.MAILJET_SECRET
+        }
+      } )
+
     } catch (err) {
       next(err)
     }

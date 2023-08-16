@@ -11,7 +11,7 @@ const getPPheaders = async () => {
   // const browser = await puppeteer.launch({headless: "new"});
   console.log ("Using Browserless")
   // browser = await puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?stealth&token=' + "f49421ea-655b-4359-91bf-c108c917ec89" + "&headless=false" });
-  browser = await puppeteer.launch({ headless: "new", args: [
+  browser = await puppeteer.launch({ headless: false, args: [
     '--proxy-server=http=143.244.182.101:80',
   ]});
 
@@ -33,7 +33,7 @@ const getPPheaders = async () => {
     });  
 
 
-  await page.setUserAgent(randomUA.getRandom())
+  // await page.setUserAgent(randomUA.getRandom())
   
   await page.goto('https://www.perplexity.ai/');
     // await page.goto('https://google.com/');
