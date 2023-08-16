@@ -494,12 +494,12 @@ const getPPheaders = async () => {
 
     let PPcookies
     let PPheaders
-
+    let browser
     // const browser = await puppeteer.launch({headless: "new"});
     if (process.env.BROWSERLESS_TOKEN) {
-      const browser = puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
+        browser = puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
     } else {
-      const browser = puppeteer.launch({ headless: "new" });
+        browser = puppeteer.launch({ headless: "new" });
     }
     
     const page = await browser.newPage();
