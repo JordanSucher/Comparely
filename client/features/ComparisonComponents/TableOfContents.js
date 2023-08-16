@@ -15,40 +15,38 @@ const TableOfContents = () => {
 
   return (
     <>
-      <Container fluid className="h-100 px-0">
-        <Nav className="my-5 position-sticky top-0">
-          <Nav.Link
-            className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("company-profile")}
-          >
-            Company Profile
-          </Nav.Link>
-          <Nav.Link
-            className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("swot-analysis")}
-          >
-            SWOT Analysis
-          </Nav.Link>
-          <Nav.Link
-            className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("product-profile")}
-          >
-            Product Profile
-          </Nav.Link>
-          <Nav.Link
-            className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("market-approach")}
-          >
-            Market Approach
-          </Nav.Link>
-          <Nav.Link
-             className="my-3 text-decoration-none text-dark"
-            onClick={() => handleSectionClick("takeaways")}
-          >
-            Takeaways
-          </Nav.Link>
-        </Nav>
-      </Container>
+      <Nav className="d-flex flex-column">
+        <Nav.Link
+          className="my-4 text-decoration-none text-dark"
+          onClick={() => handleSectionClick("company-profile")}
+        >
+          Company Profile
+        </Nav.Link>
+        <Nav.Link
+          className="my-4 text-decoration-none text-dark"
+          onClick={() => handleSectionClick("swot-analysis")}
+        >
+          SWOT Analysis
+        </Nav.Link>
+        <Nav.Link
+          className="my-4 text-decoration-none text-dark"
+          onClick={() => handleSectionClick("product-profile")}
+        >
+          Product Profile
+        </Nav.Link>
+        <Nav.Link
+          className="my-4 text-decoration-none text-dark"
+          onClick={() => handleSectionClick("market-approach")}
+        >
+          Market Approach
+        </Nav.Link>
+        <Nav.Link
+          className="my-4 text-decoration-none text-dark"
+          onClick={() => handleSectionClick("takeaways")}
+        >
+          Takeaways
+        </Nav.Link>
+      </Nav>
     </>
   );
 };
