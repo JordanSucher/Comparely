@@ -4,7 +4,7 @@ const axios = require('axios')
 const { getTweets, getCapterraReviews, getG2Reviews, getArticles, getContent, getPPheaders } = require('./webscraper.js')
 const { Configuration, OpenAIApi } = require("openai");
 const { Op } = require('sequelize');
-
+require('dotenv').config();
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -121,8 +121,8 @@ router.post('/comparisons', async (req, res, next) => {
                   },
                   "To": [
                       {
-                          "Email": emailAddress,
-                          "Name": emailAddress
+                          "Email": "jsucher@gmail.com",
+                          "Name": "jsucher@gmail.com"
                       }
                   ],
                   "ReplyTo": {
