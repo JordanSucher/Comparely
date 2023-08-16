@@ -411,8 +411,11 @@ const getPPheaders = async () => {
     let browser
     // const browser = await puppeteer.launch({headless: "new"});
     if (process.env.BROWSERLESS_TOKEN) {
-        browser = puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
+        console.log ("Using Browserless")
+        puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
+        browser = puppeteer.launch()
     } else {
+        console.log("Using puppeteer default browser")
         browser = puppeteer.launch({ headless: "new" });
     }
     
