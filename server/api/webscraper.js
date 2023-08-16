@@ -409,15 +409,20 @@ const getPPheaders = async () => {
     let PPcookies
     let PPheaders
     let browser
-    // const browser = await puppeteer.launch({headless: "new"});
-    if (process.env.BROWSERLESS_TOKEN) {
-        console.log ("Using Browserless")
-        browser = await puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
-    } else {
-        console.log("Using puppeteer default browser")
-        browser = await puppeteer.launch({ headless: "new" }); // you might want to replace "new" with true or false based on your needs.
-    }
+
+    // // const browser = await puppeteer.launch({headless: "new"});
+    // if (process.env.BROWSERLESS_TOKEN) {
+    //     console.log ("Using Browserless")
+    //     browser = await puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
+    // } else {
+    //     console.log("Using puppeteer default browser")
+    //     browser = await puppeteer.launch({ headless: "new" }); // you might want to replace "new" with true or false based on your needs.
+    // }
     
+    browser = await puppeteer.launch({ headless: "new", args: [
+        '--proxy-server=http=143.244.182.101:80',
+      ]});
+
     
     const page = await browser.newPage();
     
