@@ -8,7 +8,6 @@ import { CaretRight } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
 
 const Comparison = () => {
-
   //This is tentative functions to access DB
   const [data, setData] = useState([]);
   const [show, setShow] = useState(false);
@@ -19,18 +18,19 @@ const Comparison = () => {
   let { companyId } = useParams();
 
   const getData = async () => {
-    try{
-    const { data } = await axios.get(`/api/comparisons/${companyId}`);
-    setData(data);
-    }catch(error){
+    try {
+      const { data } = await axios.get(`/api/comparisons/${companyId}`);
+      setData(JSON.parse(data.text));
+      console.log(data);
+    } catch (error) {
       console.log(`Error fetching data:`, error);
     }
-  }
+  };
 
-useEffect(() => {
-  getData();
-}, []);
-
+  useEffect(() => {
+    getData();
+  }, []);
+  console.log(data);
   return (
     <Container fluid>
       <Offcanvas show={show} onHide={handleClose}>
@@ -57,14 +57,11 @@ useEffect(() => {
       </Row>
 
       <Row className="mx-5">
-        <ComparisonTable
-          title="Company Profile"
-          companies={data.features}
-        />
-        <SwotAnalysisTable
+        <ComparisonTable title="Company Profile" companies={data.features} />
+        {/*<SwotAnalysisTable
           title="Swot Analysis"
           companies={data.swots}
-        />
+        /> */}
       </Row>
     </Container>
   );
