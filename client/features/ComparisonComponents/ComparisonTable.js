@@ -19,7 +19,7 @@ const ComparisonTable = ({ title, companies }) => {
     setShowColumns(initialShowColumns);
   }, [companies]);
 
-  const headers = companies.length > 0 ? companies[0].features.map(feature => feature.key) : [];
+  const headers = companies.features.length > 0 ? companies[0].features.map(feature => feature.key) : [];
 
   return (
     <>
