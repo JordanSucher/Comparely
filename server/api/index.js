@@ -12,7 +12,8 @@ const {
   getPPheaders,
 } = require("./webscraper.js");
 const { Configuration, OpenAIApi } = require("openai");
-const { Op } = require("sequelize");
+const { Op } = require('sequelize');
+require('dotenv').config();
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -128,8 +129,8 @@ router.post("/comparisons", async (req, res, next) => {
             },
             To: [
               {
-                Email: 'estizzle@gmail.com',
-                Name: 'Eston',
+                Email: emailAddress,
+                Name: emailAddress,
               },
             ],
             ReplyTo: {
