@@ -22,7 +22,6 @@ const Comparison = () => {
       console.log("comparisonId", comparisonId);
       const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
       if(data.text) setData(JSON.parse(data.text));
-      console.log(data);
     } catch (error) {
       console.log(`Error fetching data:`, error);
     }
@@ -51,6 +50,7 @@ const Comparison = () => {
   }, []);
 
   console.log(data);
+  
   return (
     <Container fluid>
       <Offcanvas show={show} onHide={handleClose}>

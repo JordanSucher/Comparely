@@ -32,6 +32,12 @@ const sseClients = new Map();
 
 router.use("/users", require("./users"));
 
+router.get("/companies/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const company = await Company.findOne({ where: { id } });
+  res.json(company);
+})
+
 router.get("/comparisons/:id", async (req, res, next) => {
   const { id } = req.params;
   const comparison = await Comparison.findOne({ where: { id } });
