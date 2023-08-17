@@ -162,7 +162,7 @@ const getTweets = (company) => {
 }
 
 const getCapterraReviews = async (company) => {
-    try{
+    try {
         let result = await axios.get("https://www.google.com/search?q=" + company.url + "capterra")
         let $ = cheerio.load(result.data)
         let links = []
@@ -173,7 +173,7 @@ const getCapterraReviews = async (company) => {
 
         let capterraProductId = links[0].split('?q=')[1].slice(27, 33)
 
-        let productResults = await axios.get("https://www.capterra.com/spotlight/rest/reviews?apiVersion=2&productId=" + capterraProductId + "&from=0&sort=mostRecent&size=100",{
+        let productResults = await axios.get("https://www.capterra.com/spotlight/rest/reviews?apiVersion=2&productId=" + capterraProductId + "&from=0&sort=mostRecent&size=100", {
             headers: {
                 "accept": "*/*",
                 "accept-language": "en-US,en;q=0.9",
@@ -187,7 +187,7 @@ const getCapterraReviews = async (company) => {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
                 "Referer": "https://www.capterra.com/p/179576/Attentive/reviews/",
                 "Referrer-Policy": "origin-when-cross-origin"
-              }
+            }
         })
 
         console.log(productResults.data)
@@ -213,96 +213,106 @@ const getCapterraReviews = async (company) => {
             })
         })
     }
-    catch(err){
+    catch (err) {
         console.log(err)
     }
 
-    }
+}
 
 const getG2Reviews = (company) => {
     // Launch puppeteer-stealth
     puppeteer.launch().then(async browser => {
-        try{
+        try {
 
             // Create a new page
             const page = await browser.newPage();
             // Set page view
             await page.setViewport({ width: 1280, height: 720 });
-        
-                //identify the g2 URL for the company
-                let result = await axios.get("https://www.google.com/search?q=" + company.url + " g2")
-                let $ = cheerio.load(result.data)
-                let links = []
-                $("a").each((index, element) => {
-                    links.push(element.attribs.href)
-                })
-                links = links.filter(link => link.includes("g2.com"))
-            
-                let gtwoUrl = links[0].split('?q=')[1].split('&')[0]
-        
-        
-        
+
+            //identify the g2 URL for the company
+            let result = await axios.get("https://www.google.com/search?q=" + company.url + " g2")
+            let $ = cheerio.load(result.data)
+            let links = []
+            $("a").each((index, element) => {
+                links.push(element.attribs.href)
+            })
+            links = links.filter(link => link.includes("g2.com"))
+
+            let gtwoUrl = links[0].split('?q=')[1].split('&')[0]
+            console.log(gtwoUrl);
+
+
+
             // Navigate to the website
             await page.goto(gtwoUrl);
-        
+
             // Wait for page to load
             await page.waitForSelector('div#reviews');
-        
+
             const reviews = await page.evaluate(() => {
                 // Get all divs with the class "paper" inside the nested-ajax-loading section
                 const reviewCards = document.querySelectorAll('div#reviews .nested-ajax-loading .paper');
-        
+
                 // Extract the required data from each card
                 const reviewData = [];
                 reviewCards.forEach((card) => {
-                // Rating extraction (same as before)
-                const ratingDiv = card.querySelector('.stars');
-                let rating = '';
-                if (ratingDiv && ratingDiv.className.includes('stars-')) {
-                    rating = ratingDiv.className.split('stars-')[1];
-                }
-        
-                // Content extraction
-                const reviewBodyDiv = card.querySelector('[itemprop="reviewBody"]');
-                let content = '';
-                if (reviewBodyDiv) {
-                    reviewBodyDiv.querySelectorAll('.spht').forEach(span => span.remove());
-                    content = reviewBodyDiv.innerText.replace(/\n/g, ' ').trim();
-                }
-        
-                // Date extraction
-                let date = '';
-                const dateSpan = card.querySelector('.time-stamp .x-current-review-date');
-                if (dateSpan) {
-                    const metaTag = dateSpan.querySelector('meta');
-                    const timeTag = dateSpan.querySelector('time');
-                    if (metaTag) {
-                    date = metaTag.getAttribute('content');
-                    } else if (timeTag) {
-                    date = timeTag.getAttribute('datetime');
+                    // Rating extraction (same as before)
+                    const ratingDiv = card.querySelector('.stars');
+                    let rating = '';
+                    if (ratingDiv && ratingDiv.className.includes('stars-')) {
+                        rating = ratingDiv.className.split('stars-')[1];
                     }
-                }
-                const id = uuidv4();
-                reviewData.push({ id, rating, content, date });
+
+                    // Content extraction
+                    const reviewBodyDiv = card.querySelector('[itemprop="reviewBody"]');
+                    let content = '';
+                    if (reviewBodyDiv) {
+                        reviewBodyDiv.querySelectorAll('.spht').forEach(span => span.remove());
+                        content = reviewBodyDiv.innerText.replace(/\n/g, ' ').trim();
+                    }
+
+                    // Date extraction
+                    let date = '';
+                    const dateSpan = card.querySelector('.time-stamp .x-current-review-date');
+                    if (dateSpan) {
+                        const metaTag = dateSpan.querySelector('meta');
+                        const timeTag = dateSpan.querySelector('time');
+                        if (metaTag) {
+                            date = metaTag.getAttribute('content');
+                        } else if (timeTag) {
+                            date = timeTag.getAttribute('datetime');
+                        }
+                    }
+
+                    reviewData.push({ rating, content, date });
                 });
-        
+
                 return reviewData;
             });
-        
-            await CompanyDataRaw.upsert({
-                url: reviews.id,
-                text: {
-                    review: reviews.content,
-                    rating: reviews.rating,
+
+            // Now you can add the unique IDs outside of the browser context
+            const reviewsWithIds = reviews.map((review) => {
+                return {
+                    id: uuidv4(),
+                    ...review
+                };
+            });
+            for (const review of reviewsWithIds) {
+                await CompanyDataRaw.upsert({
+                    url: review.id,
+                    text: {
+                        review: review.content,
+                        rating: review.rating,
                     },
-                date: reviews.date,
-                type: 'review',
-                company_id: company.id
-            })  
-        
+                    date: review.date,
+                    type: 'review',
+                    company_id: company.id
+                })
+            }
+
             // Close the browser
             await browser.close();
-        } catch(err){
+        } catch (err) {
             console.log(err)
         }
     });
@@ -311,7 +321,7 @@ const getG2Reviews = (company) => {
 const getArticles = async (company) => {
     try {
         let links = await scrapeCrunchbaseForLinks(company);
-        
+
         await upsertLinksToDatabase(links, company.id);
 
         let newLinks = await getNewLinksFromDatabase();
@@ -333,16 +343,16 @@ const scrapeCrunchbaseForLinks = async (company) => {
             links.push(element.attribs.href);
         });
         links = links.filter(link => link.includes("crunchbase.com"));
-        
+
         let crunchbaseUrl = links[0].split('?q=')[1].split('&')[0] + "/signals_and_news/timeline";
-        
+
         result = await axios.get(crunchbaseUrl, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 'Referer': 'https://www.google.com'
             }
         });
-        
+
         $ = cheerio.load(result.data);
         links = [];
         $(".activity-url-title").each((index, element) => {
@@ -412,7 +422,7 @@ const scrapeArticles = async (newLinks, companyId) => {
 
             await CompanyDataRaw.upsert({
                 url: link,
-                text: JSON.stringify({title: title, summary: summary}),
+                text: JSON.stringify({ title: title, summary: summary }),
                 date: new Date(text.pubdate),
                 type: 'article',
                 company_id: companyId
@@ -427,12 +437,12 @@ const scrapeArticles = async (newLinks, companyId) => {
 
 const getContent = async (company) => {
 
-    try{
+    try {
 
         const sitemap = new Sitemapper();
         let pages
 
-        await sitemap.fetch(company.url+"sitemap.xml").then(function(sites) {
+        await sitemap.fetch(company.url + "sitemap.xml").then(function (sites) {
             pages = sites.sites
         });
 
@@ -440,12 +450,12 @@ const getContent = async (company) => {
 
         //do filtering
         pages = pages
-        .filter (page => !page.includes('blog'))
-        .filter(page => !page.includes('campaign'))
-        .filter(page => !page.includes('customer'))
-        .filter(page => !page.includes('webinar'))
-        .filter(page => !page.includes('error'))
-        .filter(page => (page.match(/\//g) || []).length <= 5)
+            .filter(page => !page.includes('blog'))
+            .filter(page => !page.includes('campaign'))
+            .filter(page => !page.includes('customer'))
+            .filter(page => !page.includes('webinar'))
+            .filter(page => !page.includes('error'))
+            .filter(page => (page.match(/\//g) || []).length <= 5)
 
 
         let promises = pages.map(async page => {
@@ -539,6 +549,7 @@ const getPPheaders = async () => {
     'sentry-trace': '6272ebd3e8134cfdbcab3922382cf133-a235ccd46430881f-0',
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
 }
+
     let browser
 
     // // const browser = await puppeteer.launch({headless: "new"});
@@ -549,14 +560,14 @@ const getPPheaders = async () => {
     //     console.log("Using puppeteer default browser")
     //     browser = await puppeteer.launch({ headless: "new" }); // you might want to replace "new" with true or false based on your needs.
     // }
-    
+
     // browser = await puppeteer.launch({ headless: "new", args: [
     //     '--proxy-server=http=143.244.182.101:80',
     //   ]});
 
-    
+
     // const page = await browser.newPage();
-    
+
     // // attach to the 'request' event to log all network requests
     // page.on('request', async request => {
     //   let url = request.url()
@@ -565,11 +576,11 @@ const getPPheaders = async () => {
     //     PPcookies = await page.cookies()
     //   }
     // });
-  
+
     // await page.setViewport({
     //     width: 1200,
     //     height: 1900,
-    //   });  
+    //   });
     // await page.goto('https://www.perplexity.ai/');
     // await page.waitForSelector(".ml-md > button");
     // await page.click(".ml-md > button");
@@ -589,8 +600,8 @@ const getPPheaders = async () => {
     // console.log("PPCookies", PPcookiesObj)
     // console.log("PPHeaders", PPheaders)
 
-    return {PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookies)}
-  }
+    return { PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookies) }
+}
 
 module.exports = {
     getTweets,
