@@ -268,8 +268,8 @@ async def generateAnalysis2(id, PPheaders, PPcookies):
 
 async def generateComparison(companyIds, PPheaders, PPcookies):
     # setup sql cursor
-    conn = await psycopg.AsyncConnection.connect(conninfo = os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
-
+    conn = await psycopg.AsyncConnection.connect(conninfo=os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
+    
     try:
         async with conn:
             async with conn.cursor() as cur:
@@ -282,48 +282,52 @@ async def generateComparison(companyIds, PPheaders, PPcookies):
                 result = [x[0] for x in rawResult]
 
                 # use gpt to get a single feature list
-                # first, get a slist
-                chat_completion1 = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Combine any that are redundant, and remove company names from feature names. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}])
+                chat_completion1 = openai.ChatCompletion.create(
+                    model="gpt-4", 
+                    messages=[
+                        {"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Combine any that are redundant, and remove company names from feature names. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}
+                    ]
+                )
 
-                # print
-                print("chat_completion1", chat_completion1.choices[0].message.content)
-
-
-                # second, remove dupes.
-                chat_completion2 = openai.ChatCompletion.create(model="gpt-4", messages=[{"role": "user", "content": f"remove or combine features that seem duplicative or similar.  {chat_completion1.choices[0].message.content}"}])
-
-                # print
-                print("type of chat_completion2", type(chat_completion2), chat_completion2.choices[0].message.content)
+                # second, remove dupes
+                chat_completion2 = openai.ChatCompletion.create(
+                    model="gpt-4", 
+                    messages=[
+                        {"role": "user", "content": f"remove or combine features that seem duplicative or similar.  {chat_completion1.choices[0].message.content}"}
+                    ]
+                )
 
                 # convert to JSON
                 mergedFeatureList = json.loads(chat_completion2.choices[0].message.content)
 
-                # loop through companies and features and ask perplexity if each company has that feature. save to DB
-                for id in companyIds:
-                    # get company name
-                    await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
-                    result = await cur.fetchone()
-                    companyName = result[0]
+                # Create a list to store all the data for batch insert
+                insert_data = []
 
-                    # loop through features and see if co has feature. save response to db.
-                    for feature in mergedFeatureList:
+                # loop through companies and features and ask perplexity if each company has that feature
+                async def process_company_feature(id, feature):
+                    try:
+                        await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
+                        result = await cur.fetchone()
+                        companyName = result[0]
                         result = perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
-                        # insert into DB
-                        await cur.execute(
-                            "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
-                            (id, feature, result)
-                        )
-                        await conn.commit()
+                        insert_data.append((id, feature, result))
+                    except Exception as e:
+                        print(f"Error processing company {id} and feature {feature}:", e)
 
-                        # space these out
-                        await asyncio.sleep(1)
+                tasks = [process_company_feature(id, feature) for id in companyIds for feature in mergedFeatureList]
 
-                        # at this point, we have gotten features for each co, created a deduped list, checked each feature for each co, saved that to the DB. That should be all we need to generate the comparison table on FE.
+                # Run tasks in parallel
+                await asyncio.gather(*tasks)
 
+                # Batch insert data into the database
+                await cur.executemany(
+                    "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                    insert_data
+                )
+                await conn.commit()  # Commit the transaction
+                
     except Exception as e:
-        # Handle or log the error as appropriate
-        print(e)
-        await conn.rollback()
+        print("Error in generateComparison:", e)
 
     finally:
         await conn.close()
