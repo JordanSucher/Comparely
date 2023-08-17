@@ -314,6 +314,7 @@ const getG2Reviews = (company) => {
             await browser.close();
         } catch (err) {
             console.log(err)
+            await browser.close();
         }
     });
 }
