@@ -223,9 +223,22 @@ router.post("/comparisons", async (req, res, next) => {
       },
     });
 
+    let initComparisonObj = {
+      features: [],
+      swots: [],
+      articles: [],
+    }
+
+    companies.forEach((company) => {
+      initComparisonObj.features.push({
+        companyId: company.id,
+        features: [],
+      })
+    })
+
     // create a comparison record
     let comparison = await Comparison.create({
-      text: "",
+      text: JSON.stringify(initComparisonObj),
     });
 
     // we send the comparison ID to the frontend at this point, maybe the FE says something like "this is in progress, save this link and come back later"
@@ -255,9 +268,6 @@ router.post("/comparisons", async (req, res, next) => {
     await Promise.all(promises);
 
     // trigger comparison functions:
-    // web scrape a bunch of shit and stick it in the DB
-    await webScrape(companies);
-    sendSSEUpdate(comparison.id, { progress: 'Web scraping completed' });
 
     //get perplexity headers / cookies
     let { PPheaders, PPcookies } = await getPPheaders();
@@ -270,6 +280,11 @@ router.post("/comparisons", async (req, res, next) => {
       PPcookies: PPcookies,
       comparisonId: comparison.id,
     });
+
+
+    // web scrape a bunch of shit and stick it in the DB
+    await webScrape(companies);
+    sendSSEUpdate(comparison.id, { progress: 'Web scraping completed' });
 
     // at this point there should be a bunch of relevant data in the company comparison points table
 

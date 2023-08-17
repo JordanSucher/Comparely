@@ -405,6 +405,7 @@ const scrapeArticles = async (newLinks, companyId) => {
             text = JSON.parse(text);
             let summary = text.summary;
             let title = $('title').text();
+            console.log("text", text)
 
             await CompanyDataRaw.upsert({
                 url: link,
