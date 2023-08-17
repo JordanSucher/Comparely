@@ -11,6 +11,8 @@ const Comparison = () => {
   //This is tentative functions to access DB
   const [data, setData] = useState([]);
   const [show, setShow] = useState(false);
+  const [doTypingEffect, setDoTypingEffect] = useState(false);
+
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -37,6 +39,7 @@ const Comparison = () => {
       if (sseData.progress) {
         // Log the progress & refresh data
         console.log(sseData.progress);
+        setDoTypingEffect(true);
         getData();
       }
     };
@@ -77,7 +80,7 @@ const Comparison = () => {
       </Row>
 
       <Row className="mx-5">
-        <ComparisonTable title="Company Profile" companies={data.features} />
+        <ComparisonTable title="Company Profile" companies={data.features} doTypingEffect={doTypingEffect} />
         {/*<SwotAnalysisTable
           title="Swot Analysis"
           companies={data.swots}
