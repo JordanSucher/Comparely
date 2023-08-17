@@ -74,6 +74,17 @@ function toTitleCase(str) {
 }
 }
 
+const getFirstThreeSentences = (text) => {
+  // Split by sentences
+  if(text) {
+    const sentences = text.match(/[^.!?]+[.!?]/g)
+    return sentences?.slice(0, 3).join(' ') || '';
+  };
+  
+  // Take the first three
+  
+};
+
   return (
     <>
       <div id="company-profile">
@@ -109,8 +120,8 @@ function toTitleCase(str) {
                     hidden={!showColumns[company.companyId]}
                   >
                     {
-                      company.features.find((feature) => feature.key === header)
-                        ?.value
+                      getFirstThreeSentences(company.features.find((feature) => feature.key === header)
+                        ?.value)
                     }
                   </td>
                 ))}
