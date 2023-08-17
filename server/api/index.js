@@ -249,6 +249,7 @@ router.post("/comparisons", async (req, res, next) => {
     // add companies to comparison
     promises = companies.map(async (company) => {
       await comparison.addCompany(company);
+      return true
     });
 
     await Promise.all(promises);
@@ -339,7 +340,7 @@ const webScrape = async (companies) => {
 
   const promises = companies.map(async (company) => {
     // grab content from the competitor's website
-    return getContent(company);
+    await getContent(company);
 
     // // look for tweets
     // return getTweets(company)
@@ -350,11 +351,14 @@ const webScrape = async (companies) => {
     // // get g2 reviews
     // return getG2Reviews(company)
 
-    // // look for articles on google / crunchbase?
-    // return getArticles(company)
+    // // look for articles on crunchbase?
+    await getArticles(company)
+
+    return true
+
   });
 
-  await Promise.all(promises); //wait until all the above promises are done
+  await Promise.all(promises).catch(err => console.error("Error in web scraping:", err));
 
   console.log("Finished webscraping");
   return true;
