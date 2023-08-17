@@ -349,6 +349,9 @@ const scrapeCrunchbaseForLinks = async (company) => {
             links.push(element.attribs.href);
         });
 
+        // just return the most recent 5
+        links = links.slice(0, 5)
+
         return links;
     } catch (err) {
         console.error("Error scraping Crunchbase:", err);
