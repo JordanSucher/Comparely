@@ -3,7 +3,7 @@ import { Table, Button } from "react-bootstrap";
 
 const ComparisonTable = ({ title, companies }) => {
   const [showColumns, setShowColumns] = useState({});
-  let headers;
+  const [headers, setHeaders] = useState([]);
 
   const toggleColumns = (companyName) => {
     setShowColumns((prevShowColumns) => ({
@@ -14,10 +14,9 @@ const ComparisonTable = ({ title, companies }) => {
 
   useEffect(() => {
     const initialShowColumns = {};
-    let headers = [];
 
     if (companies && companies[0] && companies[0].features) {
-      headers = companies[0].features.map((feature) => feature.key);
+      setHeaders(companies[0].features.map((feature) => feature.key));
     }
 
     if (companies) {
@@ -53,6 +52,7 @@ const ComparisonTable = ({ title, companies }) => {
               ))}
             </tr>
           </thead>
+
           <tbody>
             {headers && headers.map((header) => (
               <tr key={header}>
@@ -71,6 +71,8 @@ const ComparisonTable = ({ title, companies }) => {
               </tr>
             ))}
           </tbody>
+
+
         </Table>
       </div>
     </>

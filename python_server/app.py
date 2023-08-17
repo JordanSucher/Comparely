@@ -11,6 +11,7 @@ import json
 import asyncio
 import os
 from dotenv import load_dotenv
+import requests
 
 
 # Load environment variables from .env file
@@ -266,7 +267,7 @@ async def generateAnalysis2(id, PPheaders, PPcookies):
 
     return True
 
-async def generateComparison(companyIds, PPheaders, PPcookies):
+async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
     # setup sql cursor
     conn = await psycopg.AsyncConnection.connect(conninfo=os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
     
@@ -299,6 +300,16 @@ async def generateComparison(companyIds, PPheaders, PPcookies):
 
                 # convert to JSON
                 mergedFeatureList = json.loads(chat_completion2.choices[0].message.content)
+                featureListObj = {
+                    "features": mergedFeatureList,
+                    "comparisonId": comparisonId
+                }
+
+                # send feature list to JS server
+                response = requests.post("http://127.0.0.1:42069/api/receive-data", json=featureListObj)
+                if response.status_code != 200:
+                    print (f"Error sending data to JS server: {response.status_code}")
+                
 
                 # Create a list to store all the data for batch insert
                 insert_data = []
@@ -310,6 +321,17 @@ async def generateComparison(companyIds, PPheaders, PPcookies):
                         result = await cur.fetchone()
                         companyName = result[0]
                         result = perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+
+                        data_to_send = {
+                            "companyId": id,
+                            "comparisonId": comparisonId,
+                            "feature": feature,
+                            "result": result
+                        }
+
+                        response = requests.post("http://127.0.0.1:42069/api/receive-data", json=data_to_send)
+
+
                         insert_data.append((id, feature, result))
                     except Exception as e:
                         print(f"Error processing company {id} and feature {feature}:", e)
@@ -353,6 +375,7 @@ async def compare():
     companyIds = data['companyIds']
     PPheaders = data['PPheaders']
     PPcookies = data['PPcookies']
+    comparisonId = data['comparisonId']
 
 
     # transform companyIds into a simple array of integers
@@ -363,7 +386,7 @@ async def compare():
         await generateAnalysis2(id, PPheaders, PPcookies)
 
 
-    await generateComparison(companyIds, PPheaders, PPcookies)
+    await generateComparison(companyIds, PPheaders, PPcookies, comparisonId)
     # now, can take what we generated and create a comparison.
    
     
