@@ -30,7 +30,7 @@ const Home = () => {
   const handleDelete = (event) => {
     let index = parseInt(event.target.getAttribute("index"));
     let newCompetitors = [...competitors];
-    console.log("newCompetitors", newCompetitors);
+
     newCompetitors = newCompetitors.filter((competitor, i) => {
       return i !== index;
     });

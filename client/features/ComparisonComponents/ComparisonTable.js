@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import axios from "axios";
+import TypingEffectCell from "./TypingEffectCell";
 
-const ComparisonTable = ({ title, companies }) => {
+const ComparisonTable = ({ title, companies, doTypingEffect }) => {
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
@@ -74,6 +75,17 @@ function toTitleCase(str) {
 }
 }
 
+const getFirstThreeSentences = (text) => {
+  // Split by sentences
+  if(text) {
+    const sentences = text.match(/[^.!?]+[.!?]/g)
+    return sentences?.slice(0, 3).join(' ') || '';
+  };
+  
+  // Take the first three
+  
+};
+
   return (
     <>
       <div id="company-profile">
@@ -104,15 +116,13 @@ function toTitleCase(str) {
               <tr key={header}>
                 <td>{header}</td>
                 {companies && companies.map((company) => (
-                  <td
-                    key={`${company.companyId}-${header}`}
-                    hidden={!showColumns[company.companyId]}
-                  >
-                    {
-                      company.features.find((feature) => feature.key === header)
-                        ?.value
-                    }
-                  </td>
+                          <TypingEffectCell
+                          key={`${company.companyId}-${header}`}
+                          hidden={!showColumns[company.companyId]}
+                          doTypingEffect={doTypingEffect}
+                          fullText={getFirstThreeSentences(company.features.find((feature) => feature.key === header)?.value)}
+                        />
+                
                 ))}
               </tr>
             ))}
