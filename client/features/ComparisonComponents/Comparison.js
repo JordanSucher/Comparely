@@ -21,7 +21,7 @@ const Comparison = () => {
     try {
       console.log("comparisonId", comparisonId);
       const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
-      setData(JSON.parse(data.text));
+      if(data.text) setData(JSON.parse(data.text));
       console.log(data);
     } catch (error) {
       console.log(`Error fetching data:`, error);
