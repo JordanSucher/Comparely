@@ -19,7 +19,7 @@ const AppRoutes = () => {
   const loggedInRoutes = (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/compare/:companyId" element={<Comparison />} />
+      <Route path="/compare/:comparisonId" element={<Comparison />} />
       <Route path="/account" element={<AccountDetails/>} />
     </Routes>
   );
@@ -27,7 +27,7 @@ const AppRoutes = () => {
   const guestRoutes = (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/compare/:companyId" element={<Comparison />} />
+      <Route path="/compare/:comparisonId" element={<Comparison />} />
       <Route path="/create-account" element={<AuthForm />} />
     </Routes>
   );

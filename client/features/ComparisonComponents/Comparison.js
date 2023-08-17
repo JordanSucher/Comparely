@@ -15,22 +15,42 @@ const Comparison = () => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  let { companyId } = useParams();
+  let { comparisonId } = useParams();
 
   const getData = async () => {
     try {
-      const { data } = await axios.get(`/api/comparisons/${companyId}`);
-      setData(JSON.parse(data.text));
-      console.log(data);
+      console.log("comparisonId", comparisonId);
+      const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
+      if(data.text) setData(JSON.parse(data.text));
     } catch (error) {
       console.log(`Error fetching data:`, error);
     }
   };
 
   useEffect(() => {
+    // Initialize SSE connection
+    const evtSource = new EventSource(`/api/comparisons/${comparisonId}/progress`);
+      
+    evtSource.onmessage = function(event) {
+      const sseData = JSON.parse(event.data);
+      console.log(sseData);
+      if (sseData.progress) {
+        // Log the progress & refresh data
+        console.log(sseData.progress);
+        getData();
+      }
+    };
+  
+    evtSource.onerror = function(err) {
+      console.error("EventSource failed:", err);
+      evtSource.close();
+    };
+
     getData();
   }, []);
+
   console.log(data);
+  
   return (
     <Container fluid>
       <Offcanvas show={show} onHide={handleClose}>

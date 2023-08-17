@@ -10,12 +10,16 @@ const Home = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log([...competitors, myCompany]);
-    let { data } = await axios.post("/api/comparisons", {
+    await axios.post("/api/comparisons", {
       companies: [...competitors, myCompany],
+    }).then((res) => {
+      let data = res.data;
+      let comparisonId = data["comparisonId"];
+      
+      navigate(`/compare/${comparisonId}`);
     });
-    let comparisonId = data["comparisonId"];
-    console.log("We successfully did a comparison! ", comparisonId);
-    // navigate(`/comparisons/${comparisonId}`);
+    
+    
   };
   const handleChange = (event) => {
     let index = parseInt(event.target.getAttribute("index"));

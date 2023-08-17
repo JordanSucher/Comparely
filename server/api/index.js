@@ -1,8 +1,11 @@
 const router = require("express").Router();
+
 const {
   models: { User, Company, CompanyComparisonPoint, CompanyDataRaw, Comparison },
 } = require("../db");
+
 const axios = require("axios");
+
 const {
   getTweets,
   getCapterraReviews,
@@ -11,8 +14,11 @@ const {
   getContent,
   getPPheaders,
 } = require("./webscraper.js");
+
 const { Configuration, OpenAIApi } = require("openai");
+
 const { Op } = require('sequelize');
+
 require('dotenv').config();
 
 const configuration = new Configuration({
@@ -21,7 +27,16 @@ const configuration = new Configuration({
 
 const openai = new OpenAIApi(configuration);
 
+const sseClients = new Map();
+
+
 router.use("/users", require("./users"));
+
+router.get("/companies/:id", async (req, res, next) => {
+  const { id } = req.params;
+  const company = await Company.findOne({ where: { id } });
+  res.json(company);
+})
 
 router.get("/comparisons/:id", async (req, res, next) => {
   const { id } = req.params;
@@ -29,13 +44,158 @@ router.get("/comparisons/:id", async (req, res, next) => {
   res.json(comparison);
 });
 
+
+// DATA STREAMING STUFF
+
+router.get("/comparisons/:comparisonId/progress", (req, res) => {
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  
+  // Add this client to the sseClients map
+  console.log("Adding SSE client for ID", req.params.comparisonId);
+  sseClients.set(String(req.params.comparisonId), res);
+
+
+  // Handle client disconnect
+  req.on("close", () => {
+    console.log("Removing SSE client for ID", req.params.comparisonId);
+    sseClients.delete(String(req.params.comparisonId));
+  });
+});
+
+
+router.post("/receive-data", async (req, res, next) => {
+  res.send("Received data");
+  console.log ("Received data from python server: ", req.body);
+
+  let data = req.body
+  let features = data.features
+  let comparisonId = data.comparisonId
+
+  let featureName = data.feature
+  let result = data.result 
+  let companyId = data.companyId
+
+  if (features && Array.isArray(features)) {
+    // it is the feature list
+
+    // update the comparison in the DB
+    // create a comparison object placeholder
+    let comparisonObj = {
+      features: [],
+      swots: [],
+      articles: [],
+    }
+
+    //get companies
+    let companies = await Company.findAll({
+      include: {
+        model: Comparison,
+        where: {
+          id: comparisonId
+        }
+      }
+    })
+
+    // loop through companies and add placeholder values for features
+    companies.forEach((company) => {
+      let companyFeatureObj = {
+        companyId: company.id,
+        features: [],
+      }
+      features.forEach((feature) => {
+        companyFeatureObj.features.push({
+          key: feature,
+          value: null,
+        })
+      })
+      comparisonObj.features.push(companyFeatureObj);
+    })
+
+    await Comparison.update({
+      text: JSON.stringify(comparisonObj),
+    }, {
+      where: {
+        id: comparisonId
+      }
+    })
+
+
+    let clientRes = sseClients.get(String(comparisonId));
+   
+      if (clientRes) {
+          console.log(`Sending message: ${JSON.stringify(features)} to ID ${comparisonId}`);
+          clientRes.write(`data: {"progress": ${JSON.stringify(JSON.stringify(features))}}\n\n`);
+        } else {
+          console.log(`No client found for ID ${comparisonId}`);
+      }
+  }
+
+  if (featureName && result) {
+    // it is a feature and result
+    // update the comparison in the DB
+
+    // first, get comparison
+    let comparison = await Comparison.findOne({
+      where: {
+        id: comparisonId
+      }
+    })
+
+    let text = comparison.text;
+    let comparisonObj = JSON.parse(text)
+
+    // update comparisonObj by adding result
+    comparisonObj.features.forEach(feature => {
+      if (feature.companyId === companyId) {
+        feature.features.forEach(feature => {
+          if (feature.key === featureName) {
+            feature.value = result
+          }
+        }) 
+      }
+    })
+
+    // update comparison
+    await Comparison.update({
+      text: JSON.stringify(comparisonObj),
+    }, {
+      where: {
+        id: comparisonId
+    }
+    })
+
+    // trigger SSE to refresh data
+    let clientRes = sseClients.get(String(comparisonId));
+   
+      if (clientRes) {
+          console.log(`Sending message to ID ${comparisonId}`);
+          clientRes.write(`data: {"progress": "Received ${featureName} for ${companyId}"}\n\n`);
+        } else {
+          console.log(`No client found for ID ${comparisonId}`);
+      }
+
+  }
+
+
+
+
+})
+
+
+
+// END DATA STREAMING STUFF
+
 router.post("/comparisons", async (req, res, next) => {
   try {
     const regex = /^(?:https?:\/\/)?(?:www\.)?(.*?)\./;
 
     //[google.com, yahoo.com, etc.]
     let companyURLs = req.body.companies;
-    let emailAddress = req.body.emailAddress;
+    let emailAddress = req.body.emailAddress ? req.body.emailAddress : "jsucher@gmail.com";
 
     // upsert companies into companies table
     let promises = companyURLs.map(async (company) => {
@@ -63,24 +223,51 @@ router.post("/comparisons", async (req, res, next) => {
       },
     });
 
+    let initComparisonObj = {
+      features: [],
+      swots: [],
+      articles: [],
+    }
+
+    companies.forEach((company) => {
+      initComparisonObj.features.push({
+        companyId: company.id,
+        features: [],
+      })
+    })
+
     // create a comparison record
     let comparison = await Comparison.create({
-      text: "",
+      text: JSON.stringify(initComparisonObj),
     });
 
     // we send the comparison ID to the frontend at this point, maybe the FE says something like "this is in progress, save this link and come back later"
     res.status(202).json({ comparisonId: comparison.id });
 
+    // fn for sending server-side events to client
+    const sendSSEUpdate = (id, message) => {
+      console.log(`Attempting to send SSE message for ID ${id}`);
+      
+      const clientRes = sseClients.get(String(id));
+
+      
+      if (clientRes) {
+          console.log(`Sending message: ${JSON.stringify(message)} to ID ${id}`);
+          clientRes.write(`data: ${JSON.stringify(message)}\n\n`);
+      } else {
+          console.log(`No client found for ID ${id}`);
+      }
+  };
+
     // add companies to comparison
     promises = companies.map(async (company) => {
       await comparison.addCompany(company);
+      return true
     });
 
     await Promise.all(promises);
 
     // trigger comparison functions:
-    // web scrape a bunch of shit and stick it in the DB
-    await webScrape(companies);
 
     //get perplexity headers / cookies
     let { PPheaders, PPcookies } = await getPPheaders();
@@ -91,7 +278,13 @@ router.post("/comparisons", async (req, res, next) => {
       companyIds: companies,
       PPheaders: PPheaders,
       PPcookies: PPcookies,
+      comparisonId: comparison.id,
     });
+
+
+    // web scrape a bunch of shit and stick it in the DB
+    await webScrape(companies);
+    sendSSEUpdate(comparison.id, { progress: 'Web scraping completed' });
 
     // at this point there should be a bunch of relevant data in the company comparison points table
 
@@ -162,7 +355,7 @@ const webScrape = async (companies) => {
 
   const promises = companies.map(async (company) => {
     // grab content from the competitor's website
-    return getContent(company);
+    await getContent(company);
 
     // // look for tweets
     // return getTweets(company)
@@ -173,11 +366,14 @@ const webScrape = async (companies) => {
     // // get g2 reviews
     // return getG2Reviews(company)
 
-    // // look for articles on google / crunchbase?
-    // return getArticles(company)
+    // // look for articles on crunchbase?
+    await getArticles(company)
+
+    return true
+
   });
 
-  await Promise.all(promises); //wait until all the above promises are done
+  await Promise.all(promises).catch(err => console.error("Error in web scraping:", err));
 
   console.log("Finished webscraping");
   return true;

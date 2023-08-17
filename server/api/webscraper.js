@@ -12,7 +12,7 @@ const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = re
 
 
 const configuration = new Configuration({
-    apiKey: process.env.OPEN_API_KEY,
+    apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
@@ -82,7 +82,7 @@ const cleanUpTextWithOpenAI = async (text) => {
                 await new Promise(resolve => setTimeout(resolve, 30000)); // Wait for 30 seconds before retrying
             } else {
                 console.log(`Maximum retry attempts reached.`);
-                break;
+                return ""
             }
         }
     }
@@ -145,7 +145,7 @@ const summarizeWithOpenAI = async (text) => {
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds before retrying
             } else {
                 console.log(`Maximum retry attempts reached.`);
-                break;
+                return "";
             }
         }
     }
@@ -309,105 +309,121 @@ const getG2Reviews = (company) => {
 }
 
 const getArticles = async (company) => {
+    try {
+        let links = await scrapeCrunchbaseForLinks(company);
+        
+        await upsertLinksToDatabase(links, company.id);
 
-try {
+        let newLinks = await getNewLinksFromDatabase();
 
-    //get articles from crunchbase.
+        await scrapeArticles(newLinks, company.id);
 
-    //identify the crunchbase URL for the company
-    let result = await axios.get("https://www.google.com/search?q=" + company.url + " crunchbase")
-    let $ = cheerio.load(result.data)
-    let links = []
-    $("a").each((index, element) => {
-        links.push(element.attribs.href)
-    })
-    links = links.filter(link => link.includes("crunchbase.com"))
+        return true;
+    } catch (err) {
+        console.error("An error occurred in getArticles:", err);
+    }
+}
 
-    let crunchbaseUrl = links[0].split('?q=')[1].split('&')[0] + "/signals_and_news/timeline"
-
-
-    //get the article links
-
-    links = []
-
-    result = await axios.get(crunchbaseUrl,
-        {
+const scrapeCrunchbaseForLinks = async (company) => {
+    try {
+        let result = await axios.get("https://www.google.com/search?q=" + company.url + " crunchbase");
+        let $ = cheerio.load(result.data);
+        let links = [];
+        $("a").each((index, element) => {
+            links.push(element.attribs.href);
+        });
+        links = links.filter(link => link.includes("crunchbase.com"));
+        
+        let crunchbaseUrl = links[0].split('?q=')[1].split('&')[0] + "/signals_and_news/timeline";
+        
+        result = await axios.get(crunchbaseUrl, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 'Referer': 'https://www.google.com'
-        }
-    })
-
-
-    $ = cheerio.load(result.data)
-
-    $(".activity-url-title").each((index, element) => {
-        links.push(element.attribs.href)
-    })
-
-    //Upsert the articles into the company_data_raw table and then identify which articles we haven't scraped yet
-    let promises = links.map(async link => {
-        await CompanyDataRaw.upsert({
-            url: link,
-            type: 'article',
-            company_id: company.id
-        })
-    })
-
-    await Promise.all(promises)
-
-    let newLinks = await CompanyDataRaw.findAll({
-        where: {
-            type: 'article',
-            text: {
-                [Op.is]: null
             }
+        });
+        
+        $ = cheerio.load(result.data);
+        links = [];
+        $(".activity-url-title").each((index, element) => {
+            links.push(element.attribs.href);
+        });
+
+        // just return the most recent 5
+        links = links.slice(0, 5)
+
+        return links;
+    } catch (err) {
+        console.error("Error scraping Crunchbase:", err);
+        return [];
+    }
+}
+
+const upsertLinksToDatabase = async (links, companyId) => {
+    let promises = links.map(async link => {
+        try {
+            await CompanyDataRaw.upsert({
+                url: link,
+                type: 'article',
+                company_id: companyId
+            });
+        } catch (err) {
+            console.error(`Error upserting link ${link}:`, err);
         }
-    })
+    });
+    await Promise.all(promises);
+}
 
-    newLinks = newLinks.map(link => link.url)
+const getNewLinksFromDatabase = async () => {
+    try {
+        let newLinks = await CompanyDataRaw.findAll({
+            where: {
+                type: 'article',
+                text: {
+                    [Op.is]: null
+                }
+            }
+        });
+        return newLinks.map(link => link.url);
+    } catch (err) {
+        console.error("Error getting new links from database:", err);
+        return [];
+    }
+}
 
-    //now we can get the articles.
-    promises = newLinks.map(async link => {
-        //for each link, go to the page and grab the whole body and title and stick in DB
-
-        let result = await axios.get(link,
-            {
+const scrapeArticles = async (newLinks, companyId) => {
+    let promises = newLinks.map(async link => {
+        try {
+            let result = await axios.get(link, {
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                     'Referer': 'https://www.google.com'
-            }
-        })
-        $ = cheerio.load(result.data)
-        $('script, style').remove();
-        let text = $("body").text()
-        text = await cleanUpTextWithOpenAI(text)
-        text = JSON.parse(text)
-        summary = text.summary
+                }
+            });
 
-        let title = $('title').text()
+            let $ = cheerio.load(result.data);
+            $('script, style').remove();
+            let text = $("body").text();
+            text = await cleanUpTextWithOpenAI(text);
+            text = JSON.parse(text);
+            let summary = text.summary;
+            let title = $('title').text();
+            console.log("text", text)
 
-        await CompanyDataRaw.upsert({
-            url: link,
-            text: JSON.stringify({title: title, summary: summary}),
-            date: new Date(text.pubdate),
-            type: 'article',
-            company_id: company.id
-        })
+            await CompanyDataRaw.upsert({
+                url: link,
+                text: JSON.stringify({title: title, summary: summary}),
+                date: new Date(text.pubdate),
+                type: 'article',
+                company_id: companyId
+            });
+        } catch (err) {
+            console.error(`Error scraping article ${link}:`, err);
+        }
+    });
 
-    })
-
-    await Promise.all(promises)
-
-    return true
-
-} catch (err) {
-    console.log(err)
+    await Promise.all(promises);
 }
-
-
-}
-
 
 const getContent = async (company) => {
 
