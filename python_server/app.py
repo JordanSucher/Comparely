@@ -173,7 +173,7 @@ async def generateAnalysis(id):
                 print(f"Starting feature summation for {companyName}.")
                 # Note - for now, get features from perplexity
                 # features = query_engine.query(f"What are the main features of {companyName}? What are the main use cases and benefits of each? What problems does each solve? Reply in json eg [{{'feature': feature, 'usecase': usecase, 'benefit': benefit, 'problem': problem}}].")
-                features = perplexQueries.getFeaturesFromPerplexity(companyName)
+                features = await perplexQueries.getFeaturesFromPerplexity(companyName)
                 print(f"Finished feature summation for {companyName}.")
                 
                 print(f"Starting db insert 1 for {companyName}.")
@@ -187,7 +187,7 @@ async def generateAnalysis(id):
                 print (f"Starting SWOT analysis for {companyName}.")
                 # Note - for now, get SWOT from perplexity
                 # swot = query_engine.query(f"What are the main strengths, weaknesses, opportunities, and threats of {companyName}? Reply in json eg [{{'strength': strength, 'weakness': weakness, 'opportunity': opportunity, 'threat': threat}}].")
-                swot = perplexQueries.getSWOTFromPerplexity(companyName)
+                swot = await perplexQueries.getSWOTFromPerplexity(companyName)
                 print(f"Finished SWOT analysis for {companyName}.")
                 
                 print(f"Starting db insert 2 for {companyName}.")
@@ -355,7 +355,6 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
         await conn.close()
 
     return True
-
 
 
 app = Flask(__name__)
