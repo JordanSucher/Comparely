@@ -388,7 +388,7 @@ const doQueries = async (companies) => {
   let featuresArray = [];
   let swotsArray = [];
   let articlesArray = [];
-  // maybe we want an articlesArray?
+  // maybe we want a reviews array?
 
   // get features & swots
   for (let company of companies) {
@@ -442,20 +442,6 @@ const doQueries = async (companies) => {
 
   let swotsString = JSON.stringify(swotsArray);
 
-  // try {
-  //     const chatCompletion2 = await openai.createChatCompletion({
-  //       model: "gpt-4",
-  //       max_tokens: 3500,
-  //       messages: [{role: "user", content: 'Please restructure these SWOTs in this format: [{companyId, SWOT: [{strengths}, {weaknesses}, {opportunities}, {threats}]}].   SWOT object:' + swotsString}],
-  //     });
-
-  //     let response2 = chatCompletion2.data.choices[0].message.content;
-  //     swotsArray = JSON.parse(response2)
-
-  //   } catch (err) {
-  //       console.log(err.response.data.error.message)
-  //   }
-
   async function fetchChatCompletionWithRetry() {
     const maxRetries = 3;
     const retryDelay = 1000; // in milliseconds
@@ -504,14 +490,18 @@ const doQueries = async (companies) => {
       console.error("Error while fetching SWOTs:", error);
     });
 
-  // This needs to change so the format of feature and swots is the same
+    
   result = {
     features: featuresArray,
     swots: swotsArray,
     articles: articlesArray,
   };
+
   return result;
 };
+
+
+
 
 router.use((req, res, next) => {
   const error = new Error("Not Found");
