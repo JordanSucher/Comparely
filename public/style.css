@@ -137,6 +137,18 @@ tr td:first-of-type{
   color: white !important
 }
 
+#hidden-companies{
+  margin-bottom: 20px;
+}
+
+#hidden-companies button{
+  margin: 5px;
+}
+
+#hidden-companies-header{
+  margin-bottom: 10px;
+}
+
 /* End table styling */
 
 

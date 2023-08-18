@@ -11,10 +11,13 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
-    setShowColumns((prevShowColumns) => ({
-      ...prevShowColumns,
-      [companyName]: !prevShowColumns[companyName],
-    }));
+    if(Object.values(showColumns).filter(v=>v==true).length > 1 || !showColumns[companyName]) {
+      setShowColumns({
+        ...showColumns,
+        [companyName]: !showColumns[companyName],
+      });
+    }
+    
   };
 
   useEffect(() => {
@@ -99,13 +102,35 @@ const getFirstTwoSentences = (text) => {
 
   return (
     <>
+
+      <div id="hidden-companies">
+        { Object.values(showColumns).includes(false) ? 
+           <h4 id="hidden-companies-header">Hidden Companies</h4> : ""
+        }
+
+        {companies && companies.map((company) => {
+          if(showColumns[company.companyId]) {
+            return ""
+          } else {
+            return (
+              <Button onClick={()=>toggleColumns(company.companyId)}>
+                Unhide {companyNames[company.companyId]}
+              </Button>
+            )
+          }
+          
+          })}
+      </div>
+
       <div id="company-profile">
         <h4>{title}</h4>
         <Table striped bordered hover>
           <thead>
             <tr>
               <th ></th>
-              {companies && companies.map((company) => (
+              {companies && companies.map((company) => {
+                if (showColumns[company.companyId]) {
+                return (
                 <th key={company.companyId} style={{ width: calculatedWidth }}>
                   <div className="d-flex justify-content-center align-items-center">
                     <span>{toTitleCase(companyNames[company.companyId])}</span>
@@ -118,7 +143,13 @@ const getFirstTwoSentences = (text) => {
                     </Button>
                   </div>
                 </th>
-              ))}
+              )}
+
+              else {
+                return ""
+              }
+              
+              })}
             </tr>
           </thead>
 
