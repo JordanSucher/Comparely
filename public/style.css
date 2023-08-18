@@ -2,6 +2,10 @@
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
+[id] { /* This will apply to any element with an ID, adjust as necessary for your use case */
+  scroll-margin-top: 80px; /* Adjust to the height of your header */
+}
+
 body{
   padding-top: 80px;
   background-color: rgb(227, 137, 137) !important;
@@ -24,7 +28,8 @@ body{
   padding: 0;
 }
 
-#expand-button svg{
+#expand-button *{
+  font-size: 30px;
   height: 20px;
   width: 20px;
 }
@@ -50,6 +55,10 @@ body{
   font-weight: 800;
 }
 
+.navbar i{
+  color: black;
+}
+
 .fa-magnifying-glass{
   font-size: 20px;
   margin-right: 10px;
@@ -59,9 +68,9 @@ body{
 /* Landing Page Styling */
 
 #landing-page-top {
-  width: 60%;
+  width: 70%;
   margin: 0 auto;
-  margin-top: 150px;
+  margin-top: 180px;
 }
 
 #landing-page-top button{
@@ -78,12 +87,14 @@ body{
 
 #landing-page-top h1{
   font-size: 70px;
-  margin-bottom: 20px;
+  line-height: 65px;
+  margin-bottom: 30px;
 }
 
 
 #landing-page-top h3{
   font-size: 24px;
+  line-height: 20px;
 }
 
 /* End LP */
