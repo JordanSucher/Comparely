@@ -8,6 +8,7 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
   const [companyNames, setCompanyNames] = useState({});
+  const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
     setShowColumns((prevShowColumns) => ({
@@ -33,6 +34,14 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
 
     setShowColumns(initialShowColumns);
     setCompanyIds(tempCompanyIds);
+
+    if (companies) {
+      let calculatedWidth = `${100 / (companies.length || 1)}%`
+      setCalculatedWidth(calculatedWidth);
+      console.log(calculatedWidth);
+    }
+    
+
   }, [companies]);
 
   useEffect(() => {
@@ -75,11 +84,13 @@ function toTitleCase(str) {
 }
 }
 
-const getFirstThreeSentences = (text) => {
-  // Split by sentences
+const getFirstTwoSentences = (text) => {
+  // Split by sentences and grab first 2
+  // also, strip the source citing
   if(text) {
-    const sentences = text.match(/[^.!?]+[.!?]/g)
-    return sentences?.slice(0, 3).join(' ') || '';
+    let strippedText = text.replace(/\[\d+\]/g, '');
+    const sentences = strippedText.match(/[^.!?]+[.!?]/g)
+    return sentences?.slice(0, 2).join(' ') || '';
   };
   
   // Take the first three
@@ -95,7 +106,7 @@ const getFirstThreeSentences = (text) => {
             <tr>
               <th></th>
               {companies && companies.map((company) => (
-                <th key={company.companyId}>
+                <th key={company.companyId} style={{ width: calculatedWidth }}>
                   <div className="d-flex justify-content-between align-items-center">
                     <span>{toTitleCase(companyNames[company.companyId])}</span>
                     <Button
@@ -120,7 +131,7 @@ const getFirstThreeSentences = (text) => {
                           key={`${company.companyId}-${header}`}
                           hidden={!showColumns[company.companyId]}
                           doTypingEffect={doTypingEffect}
-                          fullText={getFirstThreeSentences(company.features.find((feature) => feature.key === header)?.value)}
+                          fullText={getFirstTwoSentences(company.features.find((feature) => feature.key === header)?.value)}
                         />
                 
                 ))}

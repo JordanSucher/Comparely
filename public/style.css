@@ -1,5 +1,56 @@
+*{
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+body{
+  padding-top: 40px;
+}
+
 .container{
   font-size: 12px;
+  max-width: 2000px !important;
+}
+
+#expand-button{
+  position: fixed;
+  left: 15px;
+  height: 40px;
+  width: 40px;
+  top: 80px;
+  border-radius: 50px;
+  margin: 0;
+  padding: 0;
+}
+
+#expand-button svg{
+  height: 20px;
+  width: 20px;
+}
+
+#expand-button:hover{
+  background-color: #d3d3d3;
+  color: black
+}
+
+#contents-slider{
+  width: 240px;
+  padding-right:10px;
+}
+
+.navbar{
+  position: fixed !important;
+  width: 100%;
+  top: 0;
+  left:0;
+  background-color: rgb(255, 178, 178) !important;
+  padding: 10px !important;
+  font-size: 25px !important;
+  font-weight: 800;
+}
+
+.fa-magnifying-glass{
+  font-size: 20px;
+  margin-right: 10px;
 }
 
 /* h1, p, body{

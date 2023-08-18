@@ -11,7 +11,7 @@ const Home = () => {
     event.preventDefault();
     console.log([...competitors, myCompany]);
     await axios.post("/api/comparisons", {
-      companies: [...competitors, myCompany],
+      companies: [myCompany, ...competitors],
     }).then((res) => {
       let data = res.data;
       let comparisonId = data["comparisonId"];
@@ -65,7 +65,7 @@ const Home = () => {
 
           {/*  competitor form Group */}
           <Form.Group>
-            <Form.Label>Who are your competitor's?</Form.Label>
+            <Form.Label>Who are your competitors?</Form.Label>
             {competitors.map((row, index) => {
               return (
                 <Form.Group key={index} className="mb-3">

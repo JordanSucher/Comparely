@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Navbar, Stack, Nav, Col, Row, Container } from "react-bootstrap";
 
-const TableOfContents = () => {
+const TableOfContents = ({handleClose}) => {
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -11,6 +11,7 @@ const TableOfContents = () => {
 
   const handleSectionClick = (sectionId) => {
     scrollToSection(sectionId);
+    handleClose();
   };
 
   return (
