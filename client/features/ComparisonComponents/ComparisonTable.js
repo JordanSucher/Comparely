@@ -36,7 +36,7 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
     setCompanyIds(tempCompanyIds);
 
     if (companies) {
-      let calculatedWidth = `${100 / (companies.length || 1)}%`
+      let calculatedWidth = `${80 / (companies.length || 1)}%`
       setCalculatedWidth(calculatedWidth);
       console.log(calculatedWidth);
     }
@@ -90,7 +90,7 @@ const getFirstTwoSentences = (text) => {
   if(text) {
     let strippedText = text.replace(/\[\d+\]/g, '');
     const sentences = strippedText.match(/[^.!?]+[.!?]/g)
-    return sentences?.slice(0, 2).join(' ') || '';
+    return sentences?.slice(0, 1).join(' ') || '';
   };
   
   // Take the first three
@@ -104,7 +104,7 @@ const getFirstTwoSentences = (text) => {
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th></th>
+              <th ></th>
               {companies && companies.map((company) => (
                 <th key={company.companyId} style={{ width: calculatedWidth }}>
                   <div className="d-flex justify-content-between align-items-center">

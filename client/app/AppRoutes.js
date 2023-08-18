@@ -5,6 +5,7 @@ import AuthForm from "../features/Account/AuthForm";
 import { me } from "./store";
 import { Container } from "react-bootstrap";
 import Home from "../features/Home/Home";
+import LandingPage from "../features/Home/LandingPage"
 import AccountDetails from "../features/Account/AccountDetails";
 import Comparison from "../features/ComparisonComponents/Comparison";
 
@@ -18,7 +19,8 @@ const AppRoutes = () => {
 
   const loggedInRoutes = (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/compare" element = {<Home/>} />
       <Route path="/compare/:comparisonId" element={<Comparison />} />
       <Route path="/account" element={<AccountDetails/>} />
     </Routes>
@@ -26,7 +28,8 @@ const AppRoutes = () => {
 
   const guestRoutes = (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/compare" element = {<Home/>} />
       <Route path="/compare/:comparisonId" element={<Comparison />} />
       <Route path="/create-account" element={<AuthForm />} />
     </Routes>
