@@ -107,7 +107,7 @@ const getFirstTwoSentences = (text) => {
               <th ></th>
               {companies && companies.map((company) => (
                 <th key={company.companyId} style={{ width: calculatedWidth }}>
-                  <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex justify-content-center align-items-center">
                     <span>{toTitleCase(companyNames[company.companyId])}</span>
                     <Button
                       variant="outline-secondary"

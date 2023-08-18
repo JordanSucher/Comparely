@@ -9,7 +9,7 @@ body{
 }
 
 .container{
-  font-size: 12px;
+  font-size: 14px;
   max-width: 2000px !important;
 }
 
@@ -55,9 +55,6 @@ body{
   margin-right: 10px;
 }
 
-th:first-of-type {
-  width: 20% !important
-}
 
 /* Landing Page Styling */
 
@@ -90,6 +87,57 @@ th:first-of-type {
 }
 
 /* End LP */
+
+/* Table styling */
+
+
+table{
+  border-collapse: separate !important;
+  border-spacing: 5px !important;
+}
+
+table, thead, tbody, tr, th, td{
+  border-radius: 15px;
+  border: none !important
+}
+
+th:first-of-type {
+  width: 20% !important;
+  background-color: transparent !important;
+}
+
+
+th, td{
+  /* margin: 5px !important; */
+  padding: 8px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+
+
+th button{
+  margin-left: 10px;
+}
+
+th{
+  background-color: rgb(67, 67, 67) !important;
+  color: white !important;
+}
+
+td{
+  background-color: rgb(48, 48, 196) !important;
+  color: white !important
+}
+
+tr td:first-of-type{
+  font-weight: 800;
+  font-size: 14px;
+  background-color: rgb(67, 67, 67) !important;
+  color: white !important
+}
+
+/* End table styling */
 
 
 /* h1, p, body{
