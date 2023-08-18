@@ -53,6 +53,10 @@ body{
   margin-right: 10px;
 }
 
+th:first-of-type {
+  width: 20% !important
+}
+
 /* h1, p, body{
   margin: 0;
   padding: 0
