@@ -11,7 +11,7 @@ const Home = () => {
     event.preventDefault();
     console.log([...competitors, myCompany]);
     await axios.post("/api/comparisons", {
-      companies: [...competitors, myCompany],
+      companies: [myCompany, ...competitors],
     }).then((res) => {
       let data = res.data;
       let comparisonId = data["comparisonId"];
