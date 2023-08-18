@@ -3,11 +3,11 @@ import { Table, Button } from "react-bootstrap";
 import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
 
-const ComparisonTable = ({ title, companies, doTypingEffect }) => {
+const ComparisonTable = ({ title, companies, companyNames, doTypingEffect }) => {
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
-  const [companyNames, setCompanyNames] = useState({});
+  // const [companyNames, setCompanyNames] = useState({});
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
@@ -44,37 +44,37 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
 
   }, [companies]);
 
-  useEffect(() => {
-    // Create an async function
-    const fetchCompanyNames = async () => {
-        // Create an array to store all promises
-        const promises = companyIds.map(async companyId => {
-            if (!companyNames[companyId]) {
-                const { data } = await axios.get("/api/companies/" + companyId);
-                return { id: companyId, name: data.name };
-            }
-            return null;  // If the company name already exists, return null
-        });
+//   useEffect(() => {
+//     // Create an async function
+//     const fetchCompanyNames = async () => {
+//         // Create an array to store all promises
+//         const promises = companyIds.map(async companyId => {
+//             if (!companyNames[companyId]) {
+//                 const { data } = await axios.get("/api/companies/" + companyId);
+//                 return { id: companyId, name: data.name };
+//             }
+//             return null;  // If the company name already exists, return null
+//         });
 
-        // Resolve all promises
-        const results = await Promise.all(promises);
+//         // Resolve all promises
+//         const results = await Promise.all(promises);
 
-        // Create a new object based on the previous companyNames and the fetched results
-        const newCompanyNames = { ...companyNames };
-        results.forEach(result => {
-            if (result) { // Check if the result isn't null
-                newCompanyNames[result.id] = result.name;
-            }
-        });
+//         // Create a new object based on the previous companyNames and the fetched results
+//         const newCompanyNames = { ...companyNames };
+//         results.forEach(result => {
+//             if (result) { // Check if the result isn't null
+//                 newCompanyNames[result.id] = result.name;
+//             }
+//         });
 
-        // Update the state
-        setCompanyNames(newCompanyNames);
-    };
+//         // Update the state
+//         setCompanyNames(newCompanyNames);
+//     };
 
-    // Call the async function
-    fetchCompanyNames();
+//     // Call the async function
+//     fetchCompanyNames();
 
-}, [companyIds]);
+// }, [companyIds]);
 
 function toTitleCase(str) {
   if (str) {
@@ -108,7 +108,7 @@ const getFirstTwoSentences = (text) => {
               {companies && companies.map((company) => (
                 <th key={company.companyId} style={{ width: calculatedWidth }}>
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{toTitleCase(companyNames[company.companyId])}</span>
+                    <span>{(companyNames[company.companyId])}</span>
                     <Button
                       variant="outline-secondary"
                       size="sm"

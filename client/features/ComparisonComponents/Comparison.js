@@ -78,7 +78,7 @@ const Comparison = () => {
       results.forEach((result) => {
         if (result) {
           // Check if the result isn't null
-          newCompanyNames[result.id] = result.name;
+          newCompanyNames[result.id] = toTitleCase(result.name);
         }
       });
 
@@ -88,7 +88,10 @@ const Comparison = () => {
     };
 
     // Call the async function
-    fetchCompanyNames();
+    if (data.features) {
+      fetchCompanyNames();
+    }
+
   }, [data.features]);
 
   function toTitleCase(str) {
@@ -99,11 +102,8 @@ const Comparison = () => {
   }
   }
 
-  const title = Object.values(companyNames)
-    .map(companyName => toTitleCase(companyName))
-    .join(" v ");
+  const title = Object.values(companyNames).join(" v ");
   console.log(title)
-
 
   return (
     <Container fluid>
@@ -135,6 +135,7 @@ const Comparison = () => {
       <Row className="mx-5">
         <ComparisonTable
           title="Company Profile"
+          companyNames={companyNames}
           companies={data.features}
           doTypingEffect={doTypingEffect}
         />
