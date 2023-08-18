@@ -56,28 +56,28 @@ const Comparison = () => {
   
   return (
     <Container fluid>
-      <Offcanvas show={show} onHide={handleClose}>
+      <Offcanvas id="contents-slider" show={show} onHide={handleClose}>
         <Offcanvas.Header className="mt-5" closeButton>
           <Offcanvas.Title>Table Sections</Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          <TableOfContents />
+          <TableOfContents handleClose={handleClose} />
         </Offcanvas.Body>
       </Offcanvas>
 
       <Row className="my-5">
         <h1 className="text-center">Your Company VS. The World</h1>
       </Row>
-      <Row className="sticky-top d-inline-flex">
         <Button
           className="border-0"
+          id="expand-button"
           variant="outline-dark"
-          size="sm"
+          size="md"
           onClick={handleShow}
+          onMouseOver={handleShow}
         >
           <CaretRight size={20} />
         </Button>
-      </Row>
 
       <Row className="mx-5">
         <ComparisonTable title="Company Profile" companies={data.features} doTypingEffect={doTypingEffect} />
