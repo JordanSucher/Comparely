@@ -65,7 +65,7 @@ const Home = () => {
 
           {/*  competitor form Group */}
           <Form.Group>
-            <Form.Label>Who are your competitor's?</Form.Label>
+            <Form.Label>Who are your competitors?</Form.Label>
             {competitors.map((row, index) => {
               return (
                 <Form.Group key={index} className="mb-3">

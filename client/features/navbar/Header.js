@@ -26,7 +26,7 @@ const Header = () => {
   }, []);
 
   const loggedInHeader = (
-    <Navbar expand="lg" bg="light" data-bs-theme="light">
+    <Navbar expand="lg" >
       <Container>
         <img
           src="/mag_glass_logo.png"
@@ -58,15 +58,9 @@ const Header = () => {
   );
 
   const guestHeader = (
-    <Navbar expand="lg" bg="light" data-bs-theme="light">
+    <Navbar expand="lg" >
       <Container>
-        <img
-          src="/mag_glass_logo.png"
-          width="30"
-          height="30"
-          className="d-inline-block align-top"
-          alt="magnifying glass logo"
-        />
+      <i class="fa-solid fa-magnifying-glass"></i>
         <Navbar.Brand href="/">Compare.ly</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
