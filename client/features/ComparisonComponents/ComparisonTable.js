@@ -40,7 +40,7 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
       setCalculatedWidth(calculatedWidth);
       console.log(calculatedWidth);
     }
-    
+
 
   }, [companies]);
 
@@ -92,9 +92,9 @@ const getFirstTwoSentences = (text) => {
     const sentences = strippedText.match(/[^.!?]+[.!?]/g)
     return sentences?.slice(0, 2).join(' ') || '';
   };
-  
+
   // Take the first three
-  
+
 };
 
   return (
@@ -133,7 +133,7 @@ const getFirstTwoSentences = (text) => {
                           doTypingEffect={doTypingEffect}
                           fullText={getFirstTwoSentences(company.features.find((feature) => feature.key === header)?.value)}
                         />
-                
+
                 ))}
               </tr>
             ))}
