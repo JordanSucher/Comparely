@@ -3,7 +3,9 @@
 }
 
 body{
-  padding-top: 40px;
+  padding-top: 80px;
+  background-color: rgb(227, 137, 137) !important;
+  color: white !important
 }
 
 .container{
@@ -42,7 +44,7 @@ body{
   width: 100%;
   top: 0;
   left:0;
-  background-color: rgb(255, 178, 178) !important;
+  background-color: white !important;
   padding: 10px !important;
   font-size: 25px !important;
   font-weight: 800;
@@ -56,6 +58,39 @@ body{
 th:first-of-type {
   width: 20% !important
 }
+
+/* Landing Page Styling */
+
+#landing-page-top {
+  width: 60%;
+  margin: 0 auto;
+  margin-top: 150px;
+}
+
+#landing-page-top button{
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  border-radius: 10px;
+  padding: 5px 20px 5px 20px;
+  background-color: black;
+  border: none
+
+}
+
+#landing-page-top h1{
+  font-size: 70px;
+  margin-bottom: 20px;
+}
+
+
+#landing-page-top h3{
+  font-size: 24px;
+}
+
+/* End LP */
+
 
 /* h1, p, body{
   margin: 0;
