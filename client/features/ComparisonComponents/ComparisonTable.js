@@ -44,38 +44,6 @@ const ComparisonTable = ({ title, companies, companyNames, doTypingEffect }) => 
 
   }, [companies]);
 
-//   useEffect(() => {
-//     // Create an async function
-//     const fetchCompanyNames = async () => {
-//         // Create an array to store all promises
-//         const promises = companyIds.map(async companyId => {
-//             if (!companyNames[companyId]) {
-//                 const { data } = await axios.get("/api/companies/" + companyId);
-//                 return { id: companyId, name: data.name };
-//             }
-//             return null;  // If the company name already exists, return null
-//         });
-
-//         // Resolve all promises
-//         const results = await Promise.all(promises);
-
-//         // Create a new object based on the previous companyNames and the fetched results
-//         const newCompanyNames = { ...companyNames };
-//         results.forEach(result => {
-//             if (result) { // Check if the result isn't null
-//                 newCompanyNames[result.id] = result.name;
-//             }
-//         });
-
-//         // Update the state
-//         setCompanyNames(newCompanyNames);
-//     };
-
-//     // Call the async function
-//     fetchCompanyNames();
-
-// }, [companyIds]);
-
 function toTitleCase(str) {
   if (str) {
   return str.split(' ').map(function (word) {
