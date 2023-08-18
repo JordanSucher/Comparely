@@ -12,6 +12,9 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import requests
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor(max_workers=1)
 
 
 # Load environment variables from .env file
@@ -314,13 +317,18 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 # Create a list to store all the data for batch insert
                 insert_data = []
 
+                def process_perplexity_query(companyName, feature, PPheaders, PPcookies):
+                    return perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+
                 # loop through companies and features and ask perplexity if each company has that feature
                 async def process_company_feature(id, feature):
                     try:
                         await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
                         result = await cur.fetchone()
                         companyName = result[0]
-                        result = perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+                        
+                        loop = asyncio.get_event_loop()
+                        result = await loop.run_in_executor(executor, process_perplexity_query, companyName, feature, PPheaders, PPcookies)
 
                         data_to_send = {
                             "companyId": id,
@@ -330,16 +338,25 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                         }
 
                         response = requests.post("http://127.0.0.1:42069/api/receive-data", json=data_to_send)
+                        return (id, feature, result)
 
-
-                        insert_data.append((id, feature, result))
                     except Exception as e:
                         print(f"Error processing company {id} and feature {feature}:", e)
 
-                tasks = [process_company_feature(id, feature) for id in companyIds for feature in mergedFeatureList]
 
-                # Run tasks in parallel
-                await asyncio.gather(*tasks)
+                
+                tasks = [asyncio.create_task(process_company_feature(id, feature)) for id in companyIds for feature in mergedFeatureList]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                insert_data = [r for r in results if r]
+
+
+
+                # def worker(company_id, feature):
+                #     return process_company_feature(company_id, feature)
+                
+                # with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                #     futures = [executor.submit(worker, company_id, feature) for company_id in companyIds for feature in mergedFeatureList]
+                #     results = [f.result() for f in futures]
 
                 # Batch insert data into the database
                 await cur.executemany(
