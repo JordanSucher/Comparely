@@ -1,7 +1,9 @@
 const axios = require('axios')
 const { Op } = require('sequelize');
-const puppeteer = require('puppeteer')
 const cheerio = require('cheerio')
+const puppeteer = require("puppeteer-extra"); 
+const pluginStealth = require("puppeteer-extra-plugin-stealth"); 
+const hash = require('hash-it');
 const Sitemapper = require('sitemapper');
 const fs = require('fs')
 const { v4: uuidv4 } = require('uuid');
@@ -9,7 +11,7 @@ const { models: CompanyData } = require('../db')
 const { Configuration, OpenAIApi } = require("openai");
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
 
-
+puppeteer.use(pluginStealth()); 
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
@@ -290,20 +292,13 @@ const getG2Reviews = (company) => {
                 return reviewData;
             });
 
-            // Now you can add the unique IDs outside of the browser context
-            const reviewsWithIds = reviews.map((review) => {
-                return {
-                    id: uuidv4(),
-                    ...review
-                };
-            });
-            for (const review of reviewsWithIds) {
+            for (const review of reviews) {
                 await CompanyDataRaw.upsert({
-                    url: review.id,
-                    text: {
+                    url: hash.default(review.content),
+                    text: JSON.stringify({
                         review: review.content,
                         rating: review.rating,
-                    },
+                    }),
                     date: review.date,
                     type: 'review',
                     company_id: company.id
