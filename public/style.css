@@ -102,6 +102,24 @@ body{
 /* Table styling */
 
 
+
+.table-header{
+  display: inline;
+  margin-right: 6px;
+}
+
+.copy-icon{
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.copy-icon:hover{
+  color: lightgray;
+  cursor: pointer;
+}
+
+
+
 table{
   border-collapse: separate !important;
   border-spacing: 5px !important;
@@ -137,8 +155,9 @@ th{
 }
 
 td{
-  background-color: rgb(48, 48, 196) !important;
-  color: white !important
+  background-color: rgba(188, 119, 208, 0.986) !important;
+  color: white !important;
+  border: 0.5px solid black !important;
 }
 
 tr td:first-of-type{
@@ -154,11 +173,31 @@ tr td:first-of-type{
 
 #hidden-companies button{
   margin: 5px;
+  background-color: rgb(67, 67, 67);
 }
 
 #hidden-companies-header{
   margin-bottom: 10px;
 }
+
+.hidden-co-icon{
+  height: 50px !important;
+  width: 50px !important;
+  border-radius: 50px !important;
+}
+
+.hidden-co-remove{
+  position: relative;
+  bottom: 15px;
+  left: 57px;
+}
+
+.hidden-company:hover{
+  cursor: pointer;
+  height: fit-content;
+  width: fit-content;
+}
+
 
 /* End table styling */
 

@@ -28,13 +28,7 @@ const Header = () => {
   const loggedInHeader = (
     <Navbar expand="lg" >
       <Container>
-        <img
-          src="/mag_glass_logo.png"
-          width="30"
-          height="30"
-          className="d-inline-block align-top"
-          alt="magnifying glass logo"
-        />
+      <i class="fa-solid fa-magnifying-glass"></i>
         <Navbar.Brand href="/">Compare.ly</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -43,9 +37,6 @@ const Header = () => {
             <Nav.Link href="/compare">Compare</Nav.Link>
             <NavDropdown title="More" id="basic-nav-dropdown">
               <NavDropdown.Item href="/account">Account</NavDropdown.Item>
-              <NavDropdown.Item disabled href="#chatbot">
-                Chatbot
-              </NavDropdown.Item>
               <Dropdown.Divider />
                 <NavDropdown.Item onClick={logoutAndRedirectHome}>
                   Log Out
@@ -68,9 +59,6 @@ const Header = () => {
           <Nav>
             <Nav.Link href="/compare">Compare</Nav.Link>
             <Nav.Link href="/create-account">Create Account</Nav.Link>
-            <Nav.Link disabled href="#chatbot">
-              Chatbot
-            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
