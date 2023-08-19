@@ -3,7 +3,13 @@ import { Table, Button } from "react-bootstrap";
 import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
 
-const ComparisonTable = ({ title, companies, companyNames, doTypingEffect }) => {
+const ComparisonTable = ({
+  title,
+  companies,
+  companyNames,
+  doTypingEffect,
+  swots,
+}) => {
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
@@ -36,79 +42,150 @@ const ComparisonTable = ({ title, companies, companyNames, doTypingEffect }) => 
     setCompanyIds(tempCompanyIds);
 
     if (companies) {
-      let calculatedWidth = `${100 / (companies.length || 1)}%`
+      let calculatedWidth = `${100 / (companies.length || 1)}%`;
       setCalculatedWidth(calculatedWidth);
       console.log(calculatedWidth);
     }
-
-
   }, [companies]);
 
-function toTitleCase(str) {
-  if (str) {
-  return str.split(' ').map(function (word) {
-    return (word.charAt(0).toUpperCase() + word.slice(1));
-  }).join(' ');
-}
-}
+  function toTitleCase(str) {
+    if (str) {
+      return str
+        .split(" ")
+        .map(function (word) {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(" ");
+    }
+  }
 
-const getFirstTwoSentences = (text) => {
-  // Split by sentences and grab first 2
-  // also, strip the source citing
-  if(text) {
-    let strippedText = text.replace(/\[\d+\]/g, '');
-    const sentences = strippedText.match(/[^.!?]+[.!?]/g)
-    return sentences?.slice(0, 2).join(' ') || '';
+  const getFirstTwoSentences = (text) => {
+    // Split by sentences and grab first 2
+    // also, strip the source citing
+    if (text) {
+      let strippedText = text.replace(/\[\d+\]/g, "");
+      const sentences = strippedText.match(/[^.!?]+[.!?]/g);
+      return sentences?.slice(0, 2).join(" ") || "";
+    }
+
+    // Take the first three
   };
 
-  // Take the first three
+  let swotTable = null;
 
-};
-
-  return (
-    <>
-      <div id="company-profile">
-        <h4>{title}</h4>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th></th>
-              {companies && companies.map((company) => (
-                <th key={company.companyId} style={{ width: calculatedWidth }}>
+  if (swots) {
+    swotTable = (
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th></th>
+            {swots &&
+              swots.map((swot) => (
+                <th key={swot.companyId} style={{ width: calculatedWidth }}>
                   <div className="d-flex justify-content-between align-items-center">
-                    <span>{(companyNames[company.companyId])}</span>
+                    <span>{companyNames[swot.companyId]}</span>
                     <Button
                       variant="outline-secondary"
                       size="sm"
-                      onClick={() => toggleColumns(company.companyId)}
+                      onClick={() => toggleColumns(swot.companyId)}
                     >
                       Hide
                     </Button>
                   </div>
                 </th>
               ))}
-            </tr>
-          </thead>
+          </tr>
+        </thead>
 
-          <tbody>
-            {headers && headers.map((header) => (
+        <tbody>
+          <>
+            {headers &&
+              headers.map((header) => (
+                <tr key={header}>
+                  <td>{header}</td>
+                  {swots &&
+                    swots.map((swot) => {
+                      console.log("Mapping swot:", swot);
+                      const swotItem = swot.swot.find(
+                        (item) => item.key === header
+                      );
+                      console.log("Mapped swotItem:", swotItem);
+
+                      return (
+                        <TypingEffectCell
+                          key={`${swot.companyId}-${header}`}
+                          hidden={!showColumns[swot.companyId]}
+                          doTypingEffect={doTypingEffect}
+                          fullText={getFirstTwoSentences(swotItem?.value)}
+                        />
+                      );
+                    })}
+                </tr>
+              ))}
+          </>
+        </tbody>
+      </Table>
+    );
+  }
+
+  let companyProfile = (
+    <Table striped bordered hover>
+      <thead>
+        <tr>
+          <th></th>
+          {companies &&
+            companies.map((company) => (
+              <th key={company.companyId} style={{ width: calculatedWidth }}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{companyNames[company.companyId]}</span>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => toggleColumns(company.companyId)}
+                  >
+                    Hide
+                  </Button>
+                </div>
+              </th>
+            ))}
+        </tr>
+      </thead>
+
+      <tbody>
+        <>
+          {headers &&
+            headers.map((header) => (
               <tr key={header}>
                 <td>{header}</td>
-                {companies && companies.map((company) => (
-                          <TypingEffectCell
-                          key={`${company.companyId}-${header}`}
-                          hidden={!showColumns[company.companyId]}
-                          doTypingEffect={doTypingEffect}
-                          fullText={getFirstTwoSentences(company.features.find((feature) => feature.key === header)?.value)}
-                        />
-
-                ))}
+                {companies &&
+                  companies.map((company) => (
+                    <TypingEffectCell
+                      key={`${company.companyId}-${header}`}
+                      hidden={!showColumns[company.companyId]}
+                      doTypingEffect={doTypingEffect}
+                      fullText={getFirstTwoSentences(
+                        company.features.find(
+                          (feature) => feature.key === header
+                        )?.value
+                      )}
+                    />
+                  ))}
               </tr>
             ))}
-          </tbody>
+        </>
+      </tbody>
+    </Table>
+  );
 
+  console.log("COMPARISON TABLE SWOTS:", swots);
+  console.log("swotTable:", swotTable);
 
-        </Table>
+  return (
+    <>
+      <div id="company-profile">
+        <h4>{title}</h4>
+        {title === "Company Profile" ? companyProfile : null}
+        {title === "Swot Analysis" ? swotTable : null}
       </div>
     </>
   );

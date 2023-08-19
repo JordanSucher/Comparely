@@ -15,6 +15,7 @@ const Comparison = () => {
 
   const [companyIds, setCompanyIds] = useState([]);
   const [companyNames, setCompanyNames] = useState({});
+  const [swotsData, setSwotsData] = useState({});
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -94,6 +95,22 @@ const Comparison = () => {
 
   }, [data.features]);
 
+  // SEPERATE CALL FOR SWOT DATA
+  // useEffect(() => {
+  //   const fetchSwotsData = async () => {
+  //     try{
+  //       const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
+  //       if(data.swots){
+  //         setSwotsData(data.swots);
+  //       }
+  //     } catch(error) {
+  //       console.log('Error fetching swots data:', error);
+  //     }
+  //   }
+  //   fetchSwotsData();
+  // }, [comparisonId]);
+
+  // console.log("COMPARISON SwotsData:", swotsData)
   function toTitleCase(str) {
     if (str) {
     return str.split(' ').map(function (word) {
@@ -104,6 +121,7 @@ const Comparison = () => {
 
   const title = Object.values(companyNames).join(" v ");
   console.log(title)
+
 
   return (
     <Container fluid>
@@ -134,15 +152,18 @@ const Comparison = () => {
 
       <Row className="mx-5">
         <ComparisonTable
-          title="Company Profile"
-          companyNames={companyNames}
+          title={"Company Profile"}
           companies={data.features}
+          companyNames={companyNames}
+          doTypingEffect={doTypingEffect
+          }
+        />
+        <ComparisonTable
+          title={"Swot Analysis"}
+          swots={data.swots}
+          companyNames={companyNames}
           doTypingEffect={doTypingEffect}
         />
-        {/*<SwotAnalysisTable
-          title="Swot Analysis"
-          companies={data.swots}
-        /> */}
       </Row>
     </Container>
   );
