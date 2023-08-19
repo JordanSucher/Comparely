@@ -10,6 +10,8 @@ const ComparisonTable = ({
   doTypingEffect,
   swots,
 }) => {
+  console.log("recieved swots:", swots);
+
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
@@ -48,17 +50,6 @@ const ComparisonTable = ({
     }
   }, [companies]);
 
-  function toTitleCase(str) {
-    if (str) {
-      return str
-        .split(" ")
-        .map(function (word) {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        })
-        .join(" ");
-    }
-  }
-
   const getFirstTwoSentences = (text) => {
     // Split by sentences and grab first 2
     // also, strip the source citing
@@ -71,62 +62,54 @@ const ComparisonTable = ({
     // Take the first three
   };
 
-  let swotTable = null;
+  let swotTable = (
+    <Table striped bordered hover>
+      <thead>
+        <tr>
+          <th></th>
+          {swots &&
+            swots.map((swot) => (
+              <th key={swot.companyId} style={{ width: calculatedWidth }}>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{companyNames[swot.companyId]}</span>
+                  <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    onClick={() => toggleColumns(swot.companyId)}
+                  >
+                    Hide
+                  </Button>
+                </div>
+              </th>
+            ))}
+        </tr>
+      </thead>
 
-  if (swots) {
-    swotTable = (
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th></th>
-            {swots &&
-              swots.map((swot) => (
-                <th key={swot.companyId} style={{ width: calculatedWidth }}>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span>{companyNames[swot.companyId]}</span>
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={() => toggleColumns(swot.companyId)}
-                    >
-                      Hide
-                    </Button>
-                  </div>
-                </th>
-              ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          <>
-            {headers &&
-              headers.map((header) => (
-                <tr key={header}>
-                  <td>{header}</td>
-                  {swots &&
-                    swots.map((swot) => {
-                      console.log("Mapping swot:", swot);
-                      const swotItem = swot.swot.find(
-                        (item) => item.key === header
-                      );
-                      console.log("Mapped swotItem:", swotItem);
-
-                      return (
-                        <TypingEffectCell
-                          key={`${swot.companyId}-${header}`}
-                          hidden={!showColumns[swot.companyId]}
-                          doTypingEffect={doTypingEffect}
-                          fullText={getFirstTwoSentences(swotItem?.value)}
-                        />
-                      );
-                    })}
-                </tr>
-              ))}
-          </>
-        </tbody>
-      </Table>
-    );
-  }
+      <tbody>
+        {headers &&
+          swots &&
+          swots.length > 0 &&
+          headers.map((header) => (
+            <tr key={header}>
+              <td>{header}</td>
+              {swots.map((swotItem) => {
+                const swotValue = swotItem.swot.find(
+                  (item) => item.key === header
+                );
+                return (
+                  <TypingEffectCell
+                    key={`${swotItem.companyId}-${header}`}
+                    hidden={!showColumns[swotItem.companyId]}
+                    doTypingEffect={doTypingEffect}
+                    fullText={getFirstTwoSentences(swotValue?.value)}
+                  />
+                );
+              })}
+            </tr>
+          ))}
+      </tbody>
+    </Table>
+  );
 
   let companyProfile = (
     <Table striped bordered hover>

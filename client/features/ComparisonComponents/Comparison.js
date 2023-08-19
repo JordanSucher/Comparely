@@ -15,19 +15,22 @@ const Comparison = () => {
 
   const [companyIds, setCompanyIds] = useState([]);
   const [companyNames, setCompanyNames] = useState({});
-  const [swotsData, setSwotsData] = useState({});
+  const [swotsData, setSwotsData] = useState([]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   let { comparisonId } = useParams();
 
-
   const getData = async () => {
     try {
       console.log("comparisonId", comparisonId);
       const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
-      if (data.text) setData(JSON.parse(data.text));
+      if (data.text) {
+        const parsedData = JSON.parse(data.text);
+        setData(parsedData);
+        setSwotsData(parsedData.swots);
+      }
     } catch (error) {
       console.log(`Error fetching data:`, error);
     }
@@ -57,7 +60,7 @@ const Comparison = () => {
 
     getData();
   }, []);
-  console.log(data);
+  console.log("GETDATA swots", swotsData)
 
   useEffect(() => {
     // Create an async function
@@ -85,43 +88,28 @@ const Comparison = () => {
 
       // Update the state
       setCompanyNames(newCompanyNames);
-      console.log(newCompanyNames)
+      console.log(newCompanyNames);
     };
 
     // Call the async function
     if (data.features) {
       fetchCompanyNames();
     }
-
   }, [data.features]);
 
-  // SEPERATE CALL FOR SWOT DATA
-  // useEffect(() => {
-  //   const fetchSwotsData = async () => {
-  //     try{
-  //       const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
-  //       if(data.swots){
-  //         setSwotsData(data.swots);
-  //       }
-  //     } catch(error) {
-  //       console.log('Error fetching swots data:', error);
-  //     }
-  //   }
-  //   fetchSwotsData();
-  // }, [comparisonId]);
-
-  // console.log("COMPARISON SwotsData:", swotsData)
   function toTitleCase(str) {
     if (str) {
-    return str.split(' ').map(function (word) {
-      return (word.charAt(0).toUpperCase() + word.slice(1));
-    }).join(' ');
-  }
+      return str
+        .split(" ")
+        .map(function (word) {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(" ");
+    }
   }
 
+  // Get the proper title for comparison
   const title = Object.values(companyNames).join(" v ");
-  console.log(title)
-
 
   return (
     <Container fluid>
@@ -135,9 +123,7 @@ const Comparison = () => {
       </Offcanvas>
 
       <Row className="my-5">
-        <h1 className="text-center">
-          {title}
-        </h1>
+        <h1 className="text-center">{title}</h1>
       </Row>
       <Button
         className="border-0"
@@ -155,12 +141,11 @@ const Comparison = () => {
           title={"Company Profile"}
           companies={data.features}
           companyNames={companyNames}
-          doTypingEffect={doTypingEffect
-          }
+          doTypingEffect={doTypingEffect}
         />
         <ComparisonTable
           title={"Swot Analysis"}
-          swots={data.swots}
+          swots={swotsData}
           companyNames={companyNames}
           doTypingEffect={doTypingEffect}
         />
