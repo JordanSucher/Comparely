@@ -15,7 +15,6 @@ const ComparisonTable = ({
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
-  // const [companyNames, setCompanyNames] = useState({});
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
@@ -161,14 +160,24 @@ const ComparisonTable = ({
   );
 
   console.log("COMPARISON TABLE SWOTS:", swots);
-  console.log("swotTable:", swotTable);
+
+  function tableRender(x) {
+    if (x !== undefined) {
+      if (title === "Swot Analysis") {
+        return swotTable;
+      } else if (title === "Company Profile") {
+        return companyProfile;
+      }
+    }
+    console.log("NO TABLE RENDER");
+    return null;
+  }
 
   return (
     <>
       <div id="company-profile">
         <h4>{title}</h4>
-        {title === "Company Profile" ? companyProfile : null}
-        {title === "Swot Analysis" ? swotTable : null}
+        {tableRender(true)}
       </div>
     </>
   );

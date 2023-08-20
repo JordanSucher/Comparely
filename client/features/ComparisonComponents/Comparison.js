@@ -15,6 +15,7 @@ const Comparison = () => {
 
   const [companyIds, setCompanyIds] = useState([]);
   const [companyNames, setCompanyNames] = useState({});
+  const [swotNames, setSwotNames] = useState({});
   const [swotsData, setSwotsData] = useState([]);
 
   const handleClose = () => setShow(false);
@@ -29,7 +30,7 @@ const Comparison = () => {
       if (data.text) {
         const parsedData = JSON.parse(data.text);
         setData(parsedData);
-        setSwotsData(parsedData.swots);
+        // setSwotsData(parsedData.swots);
       }
     } catch (error) {
       console.log(`Error fetching data:`, error);
@@ -97,6 +98,41 @@ const Comparison = () => {
     }
   }, [data.features]);
 
+  useEffect(() => {
+    // Create an async function
+    const fetchSwotNames = async () => {
+      // Create an array to store all promises
+      const promises = data.swots.map(async (obj) => {
+        if (!companyNames[obj.companyId]) {
+          const { data } = await axios.get("/api/companies/" + obj.companyId);
+          return { id: obj.companyId, name: data.name };
+        }
+        return null; // If the company name already exists, return null
+      });
+
+      // Resolve all promises
+      const results = await Promise.all(promises);
+
+      // Create a new object based on the previous companyNames and the fetched results
+      const newSwotNames = { ...companyNames };
+      results.forEach((result) => {
+        if (result) {
+          // Check if the result isn't null
+          newSwotNames[result.id] = toTitleCase(result.name);
+        }
+      });
+
+      // Update the state
+      setSwotNames(newSwotNames);
+      console.log(newSwotNames);
+    };
+
+    // Call the async function
+    if (data.swots) {
+      fetchSwotNames();
+    }
+  }, [data.swots]);
+
   function toTitleCase(str) {
     if (str) {
       return str
@@ -145,8 +181,8 @@ const Comparison = () => {
         />
         <ComparisonTable
           title={"Swot Analysis"}
-          swots={swotsData}
-          companyNames={companyNames}
+          swots={data.swots}
+          companyNames={swotNames}
           doTypingEffect={doTypingEffect}
         />
       </Row>
