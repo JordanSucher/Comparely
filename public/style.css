@@ -99,8 +99,13 @@ body{
 
 /* End LP */
 
-/* Table styling */
+/* Comparison styling */
 
+#comparison-title{
+  margin-left: 60px;
+  margin-top: 10px;
+  font-size: 60px;
+}
 
 
 .table-header{
@@ -128,6 +133,7 @@ body{
 
 
 table{
+  margin-top: 15px;
   border-collapse: separate !important;
   border-spacing: 5px !important;
 }
