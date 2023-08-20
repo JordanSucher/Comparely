@@ -6,10 +6,17 @@
   scroll-margin-top: 80px; /* Adjust to the height of your header */
 }
 
+html{
+  width: 100vw !important;
+  overflow-x: hidden
+}
+
+
 body{
   padding-top: 80px;
   background-color: rgb(227, 137, 137) !important;
-  color: white !important
+  color: white !important;
+  width: 100vw !important
 }
 
 .container{
@@ -44,6 +51,10 @@ body{
   padding-right:10px;
 }
 
+/* NAVBAR */
+
+
+
 .navbar{
   position: fixed !important;
   width: 100%;
@@ -55,6 +66,10 @@ body{
   font-weight: 800;
 }
 
+.dropdown-menu{
+  position: static;
+}
+
 .navbar i{
   color: black;
 }
@@ -64,6 +79,8 @@ body{
   margin-right: 10px;
 }
 
+
+/* END NAVBAR */
 
 /* Landing Page Styling */
 
@@ -242,8 +259,8 @@ tr td:first-of-type{
 
 .hidden-co-remove{
   position: relative;
-  bottom: 15px;
-  left: 57px;
+  bottom: 5px;
+  left: 55px;
 }
 
 .hidden-company:hover{
