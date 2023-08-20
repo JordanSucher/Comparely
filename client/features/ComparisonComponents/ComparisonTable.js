@@ -4,6 +4,8 @@ import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
 import { copyTableAsCSV } from "../helperFunctions";
 
+
+
 const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => {
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
@@ -153,9 +155,10 @@ const getFirstTwoSentences = (text) => {
             <tr>
               <th ></th>
               {companies && companies.map((company) => {
+                
                 if (showColumns[company.companyId]) {
                 return (
-                <th key={company.companyId} style={{ width: calculatedWidth }}>
+                <th key={company.companyId} style={{ minWidth: calculatedWidth }}>
                   <div className="d-flex justify-content-center align-items-center">
                     <span>{toTitleCase(companyNames[company.companyId])}</span>
                     <Button
@@ -181,25 +184,34 @@ const getFirstTwoSentences = (text) => {
             {headers && headers.map((header) => (
               <tr key={header}>
                 <td>{header}</td>
-                {companies && companies.map((company) => (
+                {companies && companies.map((company) => {
+                  
+                  if (company.features.find((feature) => feature.key === header)?.value && company.features.find((feature) => feature.key === header)?.value.length > 0) {
+                  return (
                           <TypingEffectCell
                           key={`${company.companyId}-${header}`}
                           hidden={!showColumns[company.companyId]}
                           doTypingEffect={doTypingEffect}
                           fullText={getFirstTwoSentences(company.features.find((feature) => feature.key === header)?.value)}
                         />
-                
-                ))}
+                  ) }
+                  else {
+                    return (
+                      <td className="loading-cell"></td>
+                    )
+                  }
+                  }  
+                  )}
               </tr>
             ))}
 
-              <tr>
+             { companies && companies[0] && companies[0].features && companies[0].features.length > 0 && <tr>
                 <td>
                   <form onSubmit={handleSubmit}>
                   <input name="featureName" type="text" placeholder="Add feature" ></input>
                   </form>
                 </td>
-              </tr>
+              </tr> }
 
           </tbody>
 

@@ -108,6 +108,23 @@ body{
   margin-bottom: -20px;
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-cell {
+  background: linear-gradient(90deg, rgba(188, 119, 208, 0.986) 25%, rgba(221, 146, 241, 0.986) 50%, rgba(188, 119, 208, 0.986) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  /* If you want the shimmer effect to go from left to right, then use this */
+  animation-direction: reverse;
+}
+
 
 .table-header{
   display: inline;
