@@ -103,8 +103,9 @@ body{
 
 #comparison-title{
   margin-left: 60px;
-  margin-top: 10px;
+  margin-top: 50px;
   font-size: 60px;
+  margin-bottom: -20px;
 }
 
 
@@ -133,6 +134,7 @@ body{
 
 
 table{
+  table-layout: fixed;
   margin-top: 15px;
   border-collapse: separate !important;
   border-spacing: 5px !important;
@@ -189,10 +191,15 @@ td{
   border: 0.5px solid black !important;
 }
 
+tr th:first-of-type{
+  max-width: 150px !important;
+}
+
 tr td:first-of-type{
   font-weight: 800;
   font-size: 14px;
   background-color: rgb(67, 67, 67) !important;
+  max-width: 150px !important;
   color: white !important
 }
 
@@ -202,6 +209,7 @@ tr td:first-of-type{
 
 #hidden-companies button{
   margin: 5px;
+  margin-top: 30px;
   background-color: rgb(67, 67, 67);
 }
 

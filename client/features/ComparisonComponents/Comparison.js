@@ -65,7 +65,7 @@ const Comparison = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <Row className="my-5">
+      <Row className="my-1">
         <h1 id="comparison-title" className="text-left">Your Company vs The World</h1>
       </Row>
         <Button
