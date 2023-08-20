@@ -80,7 +80,7 @@ const Comparison = () => {
         </Button>
 
       <Row className="mx-5">
-        <ComparisonTable title="Company Profile" companies={data.features} doTypingEffect={doTypingEffect} />
+        <ComparisonTable title="Company Profile" comparisonId={comparisonId} companies={data.features} doTypingEffect={doTypingEffect} />
         {/*<SwotAnalysisTable
           title="Swot Analysis"
           companies={data.swots}

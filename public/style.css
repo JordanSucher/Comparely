@@ -132,6 +132,22 @@ table{
   border-spacing: 5px !important;
 }
 
+table input{
+  color: white !important;
+  background-color: rgb(89, 89, 89) ;
+  border: none !important;
+  padding: 3px 5px 3px 5px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  outline: none !important
+}
+
+table input:active{
+  border: none !important;
+  outline: none !important
+}
+
 table, thead, tbody, tr, th, td{
   border-radius: 15px;
   border: none !important

@@ -4,7 +4,7 @@ import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
 import { copyTableAsCSV } from "../helperFunctions";
 
-const ComparisonTable = ({ title, companies, doTypingEffect }) => {
+const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => {
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
   const [companyIds, setCompanyIds] = useState([]);
@@ -18,8 +18,25 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
         [companyName]: !showColumns[companyName],
       });
     }
-    
   };
+
+  const handleSubmit = async (e) => {
+    // prevent default
+    e.preventDefault();
+
+    // get vars ready
+    let companies = companyIds
+    let featureName = e.target.featureName.value;
+    e.target.featureName.value = "";
+    
+    // call server
+    await axios.post('/api/comparisons/features', {
+      comparisonId: comparisonId,
+      companies: companies,
+      featureName: featureName
+    })
+
+  }
 
   useEffect(() => {
     const initialShowColumns = {};
@@ -175,6 +192,15 @@ const getFirstTwoSentences = (text) => {
                 ))}
               </tr>
             ))}
+
+              <tr>
+                <td>
+                  <form onSubmit={handleSubmit}>
+                  <input name="featureName" type="text" placeholder="Add feature" ></input>
+                  </form>
+                </td>
+              </tr>
+
           </tbody>
 
 
