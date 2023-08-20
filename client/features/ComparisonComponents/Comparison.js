@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import TableOfContents from "./TableOfContents";
-import SwotAnalysisTable from "./SwotAnalysisTable";
 import { Container, Row, Col, Offcanvas, Button } from "react-bootstrap";
 import axios from "axios";
 import ComparisonTable from "./ComparisonTable";
