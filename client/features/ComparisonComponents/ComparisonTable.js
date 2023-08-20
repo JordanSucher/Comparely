@@ -11,6 +11,7 @@ const ComparisonTable = ({
   swots,
 }) => {
   console.log("recieved swots:", swots);
+  console.log("received companies:", companies);
 
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState([]);
@@ -27,6 +28,7 @@ const ComparisonTable = ({
   useEffect(() => {
     const initialShowColumns = {};
     const tempCompanyIds = [];
+
 
     if (companies && companies[0] && companies[0].features) {
       setHeaders(companies[0].features.map((feature) => feature.key));
@@ -49,6 +51,37 @@ const ComparisonTable = ({
     }
   }, [companies]);
 
+  // //SWOT HEADERS
+  useEffect(() => {
+    const initialShowColumns = {};
+    const tempCompanyIds = [];
+    // Check if swots and swots[0].swot exist before proceeding
+    if (swots && swots[0] && swots[0].swot) {
+      // Set headers based on keys in the first swot object
+      setHeaders(swots[0].swot.map((key) => key.key));
+    }
+
+    if (swots) {
+      // Initialize showColumns and companyIds arrays
+      swots.forEach((swot) => {
+        initialShowColumns[swot.companyId] = true;
+        tempCompanyIds.push(swot.companyId);
+      });
+
+      // Set showColumns and companyIds state
+      setShowColumns(initialShowColumns);
+      setCompanyIds(tempCompanyIds);
+
+      if (swots) {
+        // Calculate the width for columns
+        let calculatedWidth = `${100 / (swots.length || 1)}%`;
+        setCalculatedWidth(calculatedWidth);
+        console.log(calculatedWidth);
+      }
+    }
+  }, [swots]);
+
+//
   const getFirstTwoSentences = (text) => {
     // Split by sentences and grab first 2
     // also, strip the source citing
@@ -67,14 +100,14 @@ const ComparisonTable = ({
         <tr>
           <th></th>
           {swots &&
-            swots.map((swot) => (
-              <th key={swot.companyId} style={{ width: calculatedWidth }}>
+            swots.map((swotItem) => (
+              <th key={swotItem.companyId} style={{ width: calculatedWidth }}>
                 <div className="d-flex justify-content-between align-items-center">
-                  <span>{companyNames[swot.companyId]}</span>
+                  <span>{companyNames[swotItem.companyId]}</span>
                   <Button
                     variant="outline-secondary"
                     size="sm"
-                    onClick={() => toggleColumns(swot.companyId)}
+                    onClick={() => toggleColumns(swotItem.companyId)}
                   >
                     Hide
                   </Button>
@@ -85,27 +118,25 @@ const ComparisonTable = ({
       </thead>
 
       <tbody>
-        {headers &&
-          swots &&
-          swots.length > 0 &&
-          headers.map((header) => (
-            <tr key={header}>
-              <td>{header}</td>
-              {swots.map((swotItem) => {
-                const swotValue = swotItem.swot.find(
-                  (item) => item.key === header
-                );
-                return (
+        <>
+          {headers &&
+            swots &&
+            headers.map((header) => (
+              <tr key={header}>
+                <td>{header}</td>
+                {swots.map((swotItem) => (
                   <TypingEffectCell
-                    key={`${swotItem.companyId}-${header}`}
-                    hidden={!showColumns[swotItem.companyId]}
+                    key={`${swots.companyId}-${header}`}
+                    hidden={!showColumns[swots.companyId]}
                     doTypingEffect={doTypingEffect}
-                    fullText={getFirstTwoSentences(swotValue?.value)}
+                    fullText={getFirstTwoSentences(
+                      swotItem.swot.find((item) => item.key === header)?.value
+                    )}
                   />
-                );
-              })}
-            </tr>
-          ))}
+                ))}
+              </tr>
+            ))}
+        </>
       </tbody>
     </Table>
   );
