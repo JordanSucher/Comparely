@@ -4,10 +4,10 @@ import { Container, Row, Offcanvas, Button } from "react-bootstrap";
 import ComparisonTable from "./ComparisonTable";
 import { CaretRight } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
-import { getData } from "./comparisonSlice";
+import { fetchData } from "./comparisonSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-const Comparison = () => {
+const ReduxComparison = () => {
   const dispatch = useDispatch();
   //This is tentative functions to access DB
   const [show, setShow] = useState(false);
@@ -17,12 +17,12 @@ const Comparison = () => {
   const handleShow = () => setShow(true);
 
   let { comparisonId } = useParams();
-  const data = useSelector((state) => state.comparison.text);
 
   useEffect(() => {
-    dispatch(getData())
+    dispatch(fetchData(comparisonId))
   },[])
 
+  const data = useSelector((state) => state.text);
   console.log("received data:", data)
 
 
@@ -39,7 +39,7 @@ const Comparison = () => {
         // Log the progress & refresh data
         console.log(sseData.progress);
         setDoTypingEffect(true);
-        getData();
+        dispatch(fetchData(comparisonId));
       }
     };
 
@@ -79,12 +79,7 @@ const Comparison = () => {
       </Button>
 
       <Row className="mx-5">
-        <ComparisonTable
-          title={"Company Profile"}
-          companies={data.features}
-          companyNames={companyNames}
-          doTypingEffect={doTypingEffect}
-        />
+
       </Row>
     </Container>
   );

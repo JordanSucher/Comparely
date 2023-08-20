@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
-export const getData = createAsyncThunk("comparison/getData", async () => {
+export const fetchData = createAsyncThunk("comparison/fetchData", async (comparisonId) => {
   try {
     const { data } = await axios.get(`/api/comparisons/${comparisonId}`);
 
@@ -20,7 +21,7 @@ export const comparisonSlice = createSlice({
   },
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getData.fulfilled, (state, action) => {
+    builder.addCase(fetchData.fulfilled, (state, action) => {
       state.text = action.payload;
     })
   }
