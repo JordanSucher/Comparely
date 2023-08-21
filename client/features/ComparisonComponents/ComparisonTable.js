@@ -8,7 +8,7 @@ import { copyTableAsCSV } from "../helperFunctions";
 
 const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => {
   const [showColumns, setShowColumns] = useState({});
-  const [headers, setHeaders] = useState([]);
+  const [headers, setHeaders] = useState(['Feature One', 'Feature Two', 'Feature Three']);
   const [companyIds, setCompanyIds] = useState([]);
   const [companyNames, setCompanyNames] = useState({});
   const [calculatedWidth, setCalculatedWidth] = useState(0);
@@ -44,7 +44,7 @@ const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => 
     const initialShowColumns = {};
     const tempCompanyIds = [];
 
-    if (companies && companies[0] && companies[0].features) {
+    if (companies && companies[0] && companies[0].features && companies[0].features.length > 0) {
       setHeaders(companies[0].features.map((feature) => feature.key));
     }
 
