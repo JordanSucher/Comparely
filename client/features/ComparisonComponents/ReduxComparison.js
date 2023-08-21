@@ -12,7 +12,7 @@ const ReduxComparison = () => {
   const dispatch = useDispatch();
 
   const [show, setShow] = useState(false);
-  // const [doTypingEffect, setDoTypingEffect] = useState(false);
+  const [doTypingEffect, setDoTypingEffect] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -33,11 +33,38 @@ const ReduxComparison = () => {
 
   useEffect(() => {
     if (data && swots.length > 0) {
-      dispatch(fetchCompanyNames(swots));
+      dispatch(fetchCompanyNames(companyProfiles));
     }
-  }, [dispatch, data, swots]);
+  }, [dispatch, data, companyProfiles]);
 
   console.log("Company names", companyNames);
+
+  //DATA STREAMING
+  useEffect(() => {
+    // Initialize SSE connection
+    const evtSource = new EventSource(
+      `/api/comparisons/${comparisonId}/progress`
+    );
+
+    evtSource.onmessage = function (event) {
+      const sseData = JSON.parse(event.data);
+      console.log(sseData);
+      if (sseData.progress) {
+        // Log the progress & refresh data
+        console.log(sseData.progress);
+        setDoTypingEffect(true);
+        fetchData();
+      }
+    };
+
+    evtSource.onerror = function (err) {
+      console.error("EventSource failed:", err);
+      evtSource.close();
+    };
+
+    fetchData();
+  }, []);
+
 
   return (
     <Container fluid>
@@ -65,7 +92,12 @@ const ReduxComparison = () => {
       </Button>
 
       <Row className="mx-5">
-
+        <ReduxComparisonTable
+          title="Company Profile"
+          tableData={companyProfiles}
+          companyNames={companyNames}
+          doTypingEffect={doTypingEffect}
+        />
       </Row>
     </Container>
   );

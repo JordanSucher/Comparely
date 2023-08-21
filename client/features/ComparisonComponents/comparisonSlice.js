@@ -76,6 +76,7 @@ export const comparisonSlice = createSlice({
     swots: [],
     aricles: [],
     companyNames: {},
+    headers: [],
   },
   reducers: {},
   extraReducers: (builder) => {

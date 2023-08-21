@@ -104,10 +104,10 @@ router.post("/receive-data", async (req, res, next) => {
     companies.forEach((company) => {
       let companyFeatureObj = {
         companyId: company.id,
-        features: [],
+        data: [],
       }
       features.forEach((feature) => {
-        companyFeatureObj.features.push({
+        companyFeatureObj.data.push({
           key: feature,
           value: null,
         })
@@ -433,9 +433,9 @@ const doQueries = async (companies) => {
         return { key: swot.key, value: swot.value };
       })
 
-      featuresArray.push({ companyId: company.id, features: features });
-      swotsArray.push({ companyId: company.id, swot: swot });
-      articlesArray.push({ companyId: company.id, articles: articles });
+      featuresArray.push({ companyId: company.id, data: features });
+      swotsArray.push({ companyId: company.id, data: swot });
+      articlesArray.push({ companyId: company.id, data: articles });
     } catch (err) {
       console.log(err);
     }
