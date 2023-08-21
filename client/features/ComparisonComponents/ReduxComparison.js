@@ -6,6 +6,7 @@ import { CaretRight } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
 import { fetchData } from "./comparisonSlice";
 import { useDispatch, useSelector } from "react-redux";
+import ReduxComparisonTable from "./ReduxComparisonTable";
 
 const ReduxComparison = () => {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const ReduxComparison = () => {
     dispatch(fetchData(comparisonId))
   },[])
 
-  const data = useSelector((state) => state.text);
+  const data = useSelector((state) => state.comparison.text);
   console.log("received data:", data)
 
 
@@ -79,7 +80,6 @@ const ReduxComparison = () => {
       </Button>
 
       <Row className="mx-5">
-
       </Row>
     </Container>
   );
