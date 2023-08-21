@@ -539,10 +539,9 @@ const getPPheaders = async () => {
             }
         });
 
-        await page.setViewport({
-            width: 1200,
-            height: 1900,
-        });
+        await page.setViewport({ width: 1366, height: 768 });
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
         await page.goto('https://www.perplexity.ai/');
 
