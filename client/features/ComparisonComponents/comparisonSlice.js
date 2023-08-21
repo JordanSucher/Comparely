@@ -23,22 +23,51 @@ export const fetchData = createAsyncThunk(
   }
 );
 
+export const fetchCompanyNames = createAsyncThunk("comparison/fetchCompanyNames", async () => {
+  const companyNames = {};
+
+  const promises = dataItems.map(async (obj) => {
+    if (!companyNames[obj.companyId]) {
+      const { data } = await axios.get(`/api/companies/${obj.companyId}`);
+      return { id: obj.companyId, name: data.name };
+    }
+    return null;
+  });
+
+  const results = await Promise.all(promises);
+
+  results.forEach((result) => {
+    if (result) {
+      companyNames[result.id] = toTitleCase(result.name);
+    }
+  });
+  return { companyNames, dataType };
+});
+
+
 export const comparisonSlice = createSlice({
   name: "comparison",
   initialState: {
     id: null,
     text: {},
+    companyProfiles: [],
     swots: [],
     aricles: [],
+    companyNames: {},
   },
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
 
       state.text = action.payload;
+      state.companyProfiles = action.payload.text.features;
       state.swots = action.payload.text.swots;
       state.articles = action.payload.text.articles;
     });
+    builder.addCase(fetchCompanyNames.fulfilled, (state, action) => {
+      const { companyNames, dataType } = action.payload;
+      state.companyNames[dataType] = companyNames;
+    })
   },
 });
 

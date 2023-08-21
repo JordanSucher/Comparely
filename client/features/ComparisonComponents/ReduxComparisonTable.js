@@ -5,8 +5,10 @@ import TypingEffectCell from "./TypingEffectCell";
 const ReduxComparisonTable = ({
   title,
   companies,
+  companyNames
 }) => {
   console.log("received companies:", companies);
+  console.log("recieved companyNames:", companyNames);
 
 
   function tableRender(x) {
