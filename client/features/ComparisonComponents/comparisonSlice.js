@@ -29,17 +29,15 @@ export const comparisonSlice = createSlice({
     id: null,
     text: {},
     swots: [],
+    aricles: [],
   },
   reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
-      console.log("State beforeupdate:", state);
-      console.log("Action payload:", action.payload);
 
       state.text = action.payload;
       state.swots = action.payload.text.swots;
-      console.log("State after update:", state);
-      console.log("state.swots:", state.swots);
+      state.articles = action.payload.text.articles;
     });
   },
 });
