@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const TypingEffectCell = ({ fullText, doTypingEffect }) => {
+const TypingEffectCell = ({ fullText, doTypingEffect, hidden }) => {
   const [displayedText, setDisplayedText] = useState("");
-  
+
   useEffect(() => {
     let words
     if (fullText) { 
@@ -28,7 +28,9 @@ const TypingEffectCell = ({ fullText, doTypingEffect }) => {
 
   if (doTypingEffect) {
     return <td>{displayedText}</td>;
-  } else {
+  } else if (hidden){
+    return ""}
+    else {
     return <td>{fullText}</td>
   }
   

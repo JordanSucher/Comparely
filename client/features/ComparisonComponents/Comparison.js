@@ -76,7 +76,7 @@ const Comparison = () => {
           onClick={handleShow}
           onMouseOver={handleShow}
         >
-          <CaretRight size={20} />
+          <i class="fa-solid fa-bars"></i>
         </Button>
 
       <Row className="mx-5">

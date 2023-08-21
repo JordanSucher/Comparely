@@ -2,6 +2,10 @@
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
+[id] { /* This will apply to any element with an ID, adjust as necessary for your use case */
+  scroll-margin-top: 80px; /* Adjust to the height of your header */
+}
+
 body{
   padding-top: 80px;
   background-color: rgb(227, 137, 137) !important;
@@ -9,7 +13,7 @@ body{
 }
 
 .container{
-  font-size: 12px;
+  font-size: 14px;
   max-width: 2000px !important;
 }
 
@@ -24,7 +28,8 @@ body{
   padding: 0;
 }
 
-#expand-button svg{
+#expand-button *{
+  font-size: 30px;
   height: 20px;
   width: 20px;
 }
@@ -50,21 +55,22 @@ body{
   font-weight: 800;
 }
 
+.navbar i{
+  color: black;
+}
+
 .fa-magnifying-glass{
   font-size: 20px;
   margin-right: 10px;
 }
 
-th:first-of-type {
-  width: 20% !important
-}
 
 /* Landing Page Styling */
 
 #landing-page-top {
-  width: 60%;
+  width: 70%;
   margin: 0 auto;
-  margin-top: 150px;
+  margin-top: 180px;
 }
 
 #landing-page-top button{
@@ -81,15 +87,126 @@ th:first-of-type {
 
 #landing-page-top h1{
   font-size: 70px;
-  margin-bottom: 20px;
+  line-height: 65px;
+  margin-bottom: 30px;
 }
 
 
 #landing-page-top h3{
   font-size: 24px;
+  line-height: 20px;
 }
 
 /* End LP */
+
+/* Table styling */
+
+
+
+.table-header{
+  display: inline;
+  margin-right: 6px;
+}
+
+.copy-icon{
+  position: relative;
+  bottom: 3px;
+  left: 1px;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.copy-icon:hover{
+  color: lightgray;
+  cursor: pointer;
+}
+
+.copy-icon:active{
+  color: lightgreen;
+  cursor: pointer;
+}
+
+
+table{
+  border-collapse: separate !important;
+  border-spacing: 5px !important;
+}
+
+table, thead, tbody, tr, th, td{
+  border-radius: 15px;
+  border: none !important
+}
+
+th:first-of-type {
+  width: 20% !important;
+  background-color: transparent !important;
+}
+
+
+th, td{
+  /* margin: 5px !important; */
+  padding: 8px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+
+
+th button{
+  margin-left: 10px;
+}
+
+th{
+  background-color: rgb(67, 67, 67) !important;
+  color: white !important;
+}
+
+td{
+  background-color: rgba(188, 119, 208, 0.986) !important;
+  color: white !important;
+  border: 0.5px solid black !important;
+}
+
+tr td:first-of-type{
+  font-weight: 800;
+  font-size: 14px;
+  background-color: rgb(67, 67, 67) !important;
+  color: white !important
+}
+
+#hidden-companies{
+  margin-bottom: 20px;
+}
+
+#hidden-companies button{
+  margin: 5px;
+  background-color: rgb(67, 67, 67);
+}
+
+#hidden-companies-header{
+  margin-bottom: 10px;
+}
+
+.hidden-co-icon{
+  height: 50px !important;
+  width: 50px !important;
+  border-radius: 50px !important;
+}
+
+.hidden-co-remove{
+  position: relative;
+  bottom: 15px;
+  left: 57px;
+}
+
+.hidden-company:hover{
+  cursor: pointer;
+  height: fit-content;
+  width: fit-content;
+}
+
+
+/* End table styling */
 
 
 /* h1, p, body{

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
+import { copyTableAsCSV } from "../helperFunctions";
 
 const ComparisonTable = ({ title, companies, doTypingEffect }) => {
   const [showColumns, setShowColumns] = useState({});
@@ -11,10 +12,13 @@ const ComparisonTable = ({ title, companies, doTypingEffect }) => {
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
-    setShowColumns((prevShowColumns) => ({
-      ...prevShowColumns,
-      [companyName]: !prevShowColumns[companyName],
-    }));
+    if(Object.values(showColumns).filter(v=>v==true).length > 1 || !showColumns[companyName]) {
+      setShowColumns({
+        ...showColumns,
+        [companyName]: !showColumns[companyName],
+      });
+    }
+    
   };
 
   useEffect(() => {
@@ -99,15 +103,43 @@ const getFirstTwoSentences = (text) => {
 
   return (
     <>
+
+      <div id="hidden-companies">
+        {/* { Object.values(showColumns).includes(false) ? 
+           <h4 id="hidden-companies-header">Hidden Companies</h4> : ""
+        } */}
+
+        {companies && companies.map((company) => {
+          if(showColumns[company.companyId]) {
+            return ""
+          } else if (companyNames[company.companyId]){
+            return (
+              <div className="hidden-company" onClick={()=>toggleColumns(company.companyId)}> 
+              <i className="fa-solid fa-circle-xmark hidden-co-remove" style={{color: "#e8e8e8"}}></i>
+              <Button className="hidden-co-icon">
+                {companyNames[company.companyId].slice(0,1).toUpperCase()}
+              </Button>
+              </div>
+            )
+          }
+          
+          })}
+      </div>
+
       <div id="company-profile">
-        <h4>{title}</h4>
-        <Table striped bordered hover>
+        <span>
+          <h4 className="table-header">{title}</h4>
+          <i className="fa-solid fa-copy copy-icon" onClick={()=>copyTableAsCSV("#comparison-table")}></i>
+        </span>
+        <Table striped bordered hover id="comparison-table">
           <thead>
             <tr>
               <th ></th>
-              {companies && companies.map((company) => (
+              {companies && companies.map((company) => {
+                if (showColumns[company.companyId]) {
+                return (
                 <th key={company.companyId} style={{ width: calculatedWidth }}>
-                  <div className="d-flex justify-content-between align-items-center">
+                  <div className="d-flex justify-content-center align-items-center">
                     <span>{toTitleCase(companyNames[company.companyId])}</span>
                     <Button
                       variant="outline-secondary"
@@ -118,7 +150,13 @@ const getFirstTwoSentences = (text) => {
                     </Button>
                   </div>
                 </th>
-              ))}
+              )}
+
+              else {
+                return ""
+              }
+              
+              })}
             </tr>
           </thead>
 

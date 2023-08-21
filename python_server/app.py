@@ -289,7 +289,7 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 chat_completion1 = openai.ChatCompletion.create(
                     model="gpt-4", 
                     messages=[
-                        {"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Combine any that are redundant, and remove company names from feature names. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}
+                        {"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Keep features in the same order. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}
                     ]
                 )
 
@@ -297,7 +297,7 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 chat_completion2 = openai.ChatCompletion.create(
                     model="gpt-4", 
                     messages=[
-                        {"role": "user", "content": f"remove or combine features that seem duplicative or similar.  {chat_completion1.choices[0].message.content}"}
+                        {"role": "user", "content": f"remove or combine features that seem duplicative or similar. Remove company names from feature names. Remove any that arent feature names, eg 'key features' or 'use cases'. Keep features in the same order.  {chat_completion1.choices[0].message.content}"}
                     ]
                 )
 
