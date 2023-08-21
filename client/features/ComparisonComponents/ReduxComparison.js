@@ -98,6 +98,13 @@ const ReduxComparison = () => {
           companyNames={companyNames}
           doTypingEffect={doTypingEffect}
         />
+        <ReduxComparisonTable
+          title="Swot Analysis"
+          tableData={swots}
+          companyNames={companyNames}
+          doTypingEffect={doTypingEffect}
+        />
+      
       </Row>
     </Container>
   );

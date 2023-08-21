@@ -58,20 +58,6 @@ const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }
     }
   }
 
-
-
-  // function tableRender(x) {
-  //   if (x !== undefined) {
-  //     if (title === "Swot Analysis") {
-  //       return swotTable;
-  //     } else if (title === "Company Profile") {
-  //       return companyProfile;
-  //     }
-  //   }
-  //   console.log("NO TABLE RENDER");
-  //   return null;
-  // }
-
   console.log("headers:", headers);
   console.log("showColumns:", showColumns);
   console.log("get first two sentences:", getFirstTwoSentences);
