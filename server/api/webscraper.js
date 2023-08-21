@@ -522,13 +522,13 @@ const getPPheaders = async () => {
 
     try {
         browser = await puppeteer.connect({
-            browserWSEndpoint: 'ws://chrome-sghx:10000/devtools/browser/default',
+            browserWSEndpoint: 'ws://chrome-sghx:10000/',
         });
 
         const page = await browser.newPage();
 
         // Set default timeout for navigation
-        page.setDefaultNavigationTimeout(180000); // 60 seconds
+        page.setDefaultNavigationTimeout(180000); // 180 seconds
 
         // Attach to the 'request' event to log all network requests
         page.on('request', async request => {
