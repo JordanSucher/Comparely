@@ -6,10 +6,17 @@
   scroll-margin-top: 80px; /* Adjust to the height of your header */
 }
 
+html{
+  width: 100vw !important;
+  overflow-x: hidden
+}
+
+
 body{
   padding-top: 80px;
   background-color: rgb(227, 137, 137) !important;
-  color: white !important
+  color: white !important;
+  width: 100vw !important
 }
 
 .container{
@@ -44,6 +51,10 @@ body{
   padding-right:10px;
 }
 
+/* NAVBAR */
+
+
+
 .navbar{
   position: fixed !important;
   width: 100%;
@@ -55,6 +66,10 @@ body{
   font-weight: 800;
 }
 
+.dropdown-menu{
+  position: static;
+}
+
 .navbar i{
   color: black;
 }
@@ -64,6 +79,8 @@ body{
   margin-right: 10px;
 }
 
+
+/* END NAVBAR */
 
 /* Landing Page Styling */
 
@@ -99,8 +116,31 @@ body{
 
 /* End LP */
 
-/* Table styling */
+/* Comparison styling */
 
+#comparison-title{
+  margin-left: 60px;
+  margin-top: 50px;
+  font-size: 60px;
+  margin-bottom: -20px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-cell {
+  background: linear-gradient(90deg, rgba(188, 119, 208, 0.986) 25%, rgba(221, 146, 241, 0.986) 50%, rgba(188, 119, 208, 0.986) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  /* If you want the shimmer effect to go from left to right, then use this */
+  animation-direction: reverse;
+}
 
 
 .table-header{
@@ -128,8 +168,26 @@ body{
 
 
 table{
+  table-layout: fixed;
+  margin-top: 15px;
   border-collapse: separate !important;
   border-spacing: 5px !important;
+}
+
+table input{
+  color: white !important;
+  background-color: rgb(89, 89, 89) ;
+  border: none !important;
+  padding: 3px 5px 3px 5px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  outline: none !important
+}
+
+table input:active{
+  border: none !important;
+  outline: none !important
 }
 
 table, thead, tbody, tr, th, td{
@@ -167,10 +225,15 @@ td{
   border: 0.5px solid black !important;
 }
 
+tr th:first-of-type{
+  max-width: 150px !important;
+}
+
 tr td:first-of-type{
   font-weight: 800;
   font-size: 14px;
   background-color: rgb(67, 67, 67) !important;
+  max-width: 150px !important;
   color: white !important
 }
 
@@ -180,6 +243,7 @@ tr td:first-of-type{
 
 #hidden-companies button{
   margin: 5px;
+  margin-top: 30px;
   background-color: rgb(67, 67, 67);
 }
 
@@ -195,8 +259,8 @@ tr td:first-of-type{
 
 .hidden-co-remove{
   position: relative;
-  bottom: 15px;
-  left: 57px;
+  bottom: 5px;
+  left: 55px;
 }
 
 .hidden-company:hover{

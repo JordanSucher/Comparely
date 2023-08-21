@@ -35,13 +35,10 @@ const Header = () => {
           <Nav className="me-auto"></Nav>
           <Nav>
             <Nav.Link href="/compare">Compare</Nav.Link>
-            <NavDropdown title="More" id="basic-nav-dropdown">
-              <NavDropdown.Item href="/account">Account</NavDropdown.Item>
-              <Dropdown.Divider />
-                <NavDropdown.Item onClick={logoutAndRedirectHome}>
+            <Nav.Link href="/account">Account</Nav.Link>
+            <Nav.Link onClick={logoutAndRedirectHome}>
                   Log Out
-                </NavDropdown.Item>
-            </NavDropdown>
+            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
@@ -58,7 +55,7 @@ const Header = () => {
           <Nav className="me-auto"></Nav>
           <Nav>
             <Nav.Link href="/compare">Compare</Nav.Link>
-            <Nav.Link href="/create-account">Create Account</Nav.Link>
+            <Nav.Link href="/create-account">Login</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>

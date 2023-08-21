@@ -65,8 +65,8 @@ const Comparison = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <Row className="my-5">
-        <h1 className="text-center">Your Company vs The World</h1>
+      <Row className="my-1">
+        <h1 id="comparison-title" className="text-left">Your Company vs The World</h1>
       </Row>
         <Button
           className="border-0"
@@ -80,7 +80,7 @@ const Comparison = () => {
         </Button>
 
       <Row className="mx-5">
-        <ComparisonTable title="Company Profile" companies={data.features} doTypingEffect={doTypingEffect} />
+        <ComparisonTable title="Feature Comparison" comparisonId={comparisonId} companies={data.features} doTypingEffect={doTypingEffect} />
         {/*<SwotAnalysisTable
           title="Swot Analysis"
           companies={data.swots}
