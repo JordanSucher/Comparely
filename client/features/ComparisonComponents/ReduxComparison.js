@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import TableOfContents from "./TableOfContents";
 import { Container, Row, Offcanvas, Button } from "react-bootstrap";
-import ComparisonTable from "./ComparisonTable";
 import { CaretRight } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
-import { fetchCompanyNames, fetchData } from "./comparisonSlice";
+import { fetchCompanyNames, fetchData, toggleTypingEffect } from "./comparisonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ReduxComparisonTable from "./ReduxComparisonTable";
 import { initializeSSE } from "./sseUtils";
@@ -13,7 +12,6 @@ const ReduxComparison = () => {
   const dispatch = useDispatch();
 
   const [show, setShow] = useState(false);
-  const [doTypingEffect, setDoTypingEffect] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -21,11 +19,14 @@ const ReduxComparison = () => {
   let { comparisonId } = useParams();
 
 
+  const doTypingEffect = useSelector((state) => state.comparison.typingEffect);
   const data = useSelector((state) => state.comparison.text);
   const swots = useSelector((state) => state.comparison.swots);
   const articles = useSelector((state) => state.comparison.articles);
   const companyProfiles = useSelector((state) => state.comparison.companyProfiles);
   const companyNames = useSelector((state) => state.comparison.companyNames);
+
+  const handleToggleTypingEffect = () => dispatch(toggleTypingEffect());
 
   useEffect(() => {
     dispatch(fetchData(comparisonId))
@@ -40,7 +41,7 @@ const ReduxComparison = () => {
 
   console.log("Company names", companyNames);
 
-  //DATA STREAMING
+  //DATA STREAMING & see sseUtils for initalizeSSE definition
   useEffect(() => {
     initializeSSE(comparisonId);
     fetchData();

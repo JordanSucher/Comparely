@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
@@ -76,9 +76,13 @@ export const comparisonSlice = createSlice({
     swots: [],
     aricles: [],
     companyNames: {},
-    headers: [],
+    typingEffect: false,
   },
-  reducers: {},
+  reducers: {
+    toggleTypingEffect: (state) => {
+      state.typingEffect = !state.typingEffect;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchData.fulfilled, (state, action) => {
 
@@ -91,8 +95,10 @@ export const comparisonSlice = createSlice({
       const { companyNames } = action.payload;
       console.log("payload:", companyNames)
       state.companyNames = companyNames;
-    })
+    });
   },
 });
+
+export const { toggleTypingEffect } = comparisonSlice.actions;
 
 export default comparisonSlice.reducer;

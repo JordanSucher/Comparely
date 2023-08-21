@@ -1,10 +1,12 @@
 // sseUtils.js
+import { useDispatch } from "react-redux";
+import { toggleTypingEffect } from "./comparisonSlice";
 
 export function initializeSSE(comparisonId) {
   const evtSource = new EventSource(`/api/comparisons/${comparisonId}/progress`);
 
   const onDataReceived = () => {
-    setDoTypingEffect(true);
+    dispatch(toggleTypingEffect());
   };
 
   const onError = () => {
