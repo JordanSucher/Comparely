@@ -520,50 +520,66 @@ const getPPheaders = async () => {
     let browser
 
 
-    try{ 
+    try {
         browser = await puppeteer.connect({
-                browserWSEndpoint: 'ws://chrome-sghx:10000/devtools/browser/default',
-            });
-            
-    
+            browserWSEndpoint: 'ws://chrome-sghx:10000/devtools/browser/default',
+        });
+
         const page = await browser.newPage();
 
-        // attach to the 'request' event to log all network requests
+        // Set default timeout for navigation
+        page.setDefaultNavigationTimeout(180000); // 60 seconds
+
+        // Attach to the 'request' event to log all network requests
         page.on('request', async request => {
-        let url = request.url()
-        if (url.includes('/api/auth/signin/email')) {
-            PPheaders = request.headers()
-            PPcookies = await page.cookies()
-        }
+            let url = request.url();
+            if (url.includes('/api/auth/signin/email')) {
+                PPheaders = request.headers();
+                PPcookies = await page.cookies();
+            }
         });
 
         await page.setViewport({
             width: 1200,
             height: 1900,
         });
+
         await page.goto('https://www.perplexity.ai/');
+
         await page.waitForSelector(".ml-md > button");
         await page.click(".ml-md > button");
+
+        const [response] = await Promise.all([
+            page.waitForNavigation(), 
+            page.click('div.border-t.mt-md button') 
+        ]);
+
         await page.waitForSelector(".max-w-sm input");
         await page.click(".max-w-sm input");
-        await page.type(".max-w-sm input", 'a@a.com', {delay: 100});
-        await page.click('div.border-t.mt-md button');
-        // add a short sleep
+        await page.type(".max-w-sm input", 'a@a.com', { delay: 100 });
+        
+        // Short sleep
         await new Promise(resolve => setTimeout(resolve, 3000));
+
         await browser.close();
 
-        let PPcookiesObj = {}
-        PPcookies.forEach(cookie => {
-            PPcookiesObj[cookie.name] = cookie.value
-        })
+        // Process the cookies into an object
+        let PPcookiesObj = {};
+        if (PPcookies) {
+            PPcookies.forEach(cookie => {
+                PPcookiesObj[cookie.name] = cookie.value;
+            });
+        }
 
-        console.log("PPCookies", PPcookiesObj)
-        console.log("PPHeaders", PPheaders)
+        console.log("PPCookies", PPcookiesObj);
+        console.log("PPHeaders", PPheaders);
 
-        return { PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookies) }
+        return { PPheaders: JSON.stringify(PPheaders || {}), PPcookies: JSON.stringify(PPcookiesObj) };
 
-    } catch (err) {
-        console.log(err)
+    } catch (error) {
+        console.error("Error executing puppeteer code:", error);
+        // You can throw the error if you want your application to be informed of the failure
+        throw error;
     }
 
 
