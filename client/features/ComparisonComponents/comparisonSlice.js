@@ -2,6 +2,17 @@ import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 
+
+export const getFirstTwoSentences = (text) => {
+  // Split by sentences and grab first 2
+  // also, strip the source citing
+  if (text) {
+    let strippedText = text.replace(/\[\d+\]/g, "");
+    const sentences = strippedText.match(/[^.!?]+[.!?]/g);
+    return sentences?.slice(0, 2).join(" ") || "";
+  }
+  // Take the first three
+};
 function toTitleCase(str) {
   if (str) {
     return str

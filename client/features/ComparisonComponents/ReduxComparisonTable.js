@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import TypingEffectCell from "./TypingEffectCell";
+import { useSelector } from "react-redux";
+import { getFirstTwoSentences } from "./comparisonSlice";
 
 const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }) => {
   console.log("received tableData:", tableData);
@@ -9,18 +11,6 @@ const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }
   const [showColumns, setShowColumns] = useState({});
   const [companyIds, setCompanyIds] = useState([]);
   const [calculatedWidth, setCalculatedWidth] = useState(0);
-
-  const getFirstTwoSentences = (text) => {
-    // Split by sentences and grab first 2
-    // also, strip the source citing
-    if (text) {
-      let strippedText = text.replace(/\[\d+\]/g, "");
-      const sentences = strippedText.match(/[^.!?]+[.!?]/g);
-      return sentences?.slice(0, 2).join(" ") || "";
-    }
-
-    // Take the first three
-  };
 
 
   useEffect(() => {
