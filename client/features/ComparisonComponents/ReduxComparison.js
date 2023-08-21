@@ -7,6 +7,7 @@ import { useParams } from "react-router-dom";
 import { fetchCompanyNames, fetchData } from "./comparisonSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ReduxComparisonTable from "./ReduxComparisonTable";
+import { initializeSSE } from "./sseUtils";
 
 const ReduxComparison = () => {
   const dispatch = useDispatch();
@@ -41,29 +42,9 @@ const ReduxComparison = () => {
 
   //DATA STREAMING
   useEffect(() => {
-    // Initialize SSE connection
-    const evtSource = new EventSource(
-      `/api/comparisons/${comparisonId}/progress`
-    );
-
-    evtSource.onmessage = function (event) {
-      const sseData = JSON.parse(event.data);
-      console.log(sseData);
-      if (sseData.progress) {
-        // Log the progress & refresh data
-        console.log(sseData.progress);
-        setDoTypingEffect(true);
-        fetchData();
-      }
-    };
-
-    evtSource.onerror = function (err) {
-      console.error("EventSource failed:", err);
-      evtSource.close();
-    };
-
+    initializeSSE(comparisonId);
     fetchData();
-  }, []);
+  }, [comparisonId]);
 
 
   return (
@@ -104,7 +85,7 @@ const ReduxComparison = () => {
           companyNames={companyNames}
           doTypingEffect={doTypingEffect}
         />
-      
+
       </Row>
     </Container>
   );
