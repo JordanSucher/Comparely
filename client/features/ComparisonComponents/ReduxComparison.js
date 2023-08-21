@@ -12,51 +12,32 @@ const ReduxComparison = () => {
   const dispatch = useDispatch();
 
   const [show, setShow] = useState(false);
-  const [doTypingEffect, setDoTypingEffect] = useState(false);
+  // const [doTypingEffect, setDoTypingEffect] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   let { comparisonId } = useParams();
 
-  useEffect(() => {
-    dispatch(fetchData(comparisonId))
-    dispatch(fetchCompanyNames({ dataItems: data.features, dataType: 'features' }));
-  },[])
 
   const data = useSelector((state) => state.comparison.text);
   const swots = useSelector((state) => state.comparison.swots);
   const articles = useSelector((state) => state.comparison.articles);
   const companyProfiles = useSelector((state) => state.comparison.companyProfiles);
-  const companyNames = useSelector((state) => state.comparison.companyNames.features);
-  console.log("companyNames", companyNames);
+  const companyNames = useSelector((state) => state.comparison.companyNames);
 
   useEffect(() => {
-    // Initialize SSE connection
-    const evtSource = new EventSource(
-      `/api/comparisons/${comparisonId}/progress`
-    );
+    dispatch(fetchData(comparisonId))
+  },[dispatch, comparisonId]);
+  console.log("Initial State", data);
 
-    evtSource.onmessage = function (event) {
-      const sseData = JSON.parse(event.data);
-      console.log(sseData);
-      if (sseData.progress) {
-        // Log the progress & refresh data
-        console.log(sseData.progress);
-        setDoTypingEffect(true);
-        dispatch(fetchData(comparisonId));
-      }
-    };
+  useEffect(() => {
+    if (data && swots.length > 0) {
+      dispatch(fetchCompanyNames(swots));
+    }
+  }, [dispatch, data, swots]);
 
-    evtSource.onerror = function (err) {
-      console.error("EventSource failed:", err);
-      evtSource.close();
-    };
-
-  }, []);
-
-
-
+  console.log("Company names", companyNames);
 
   return (
     <Container fluid>
@@ -84,11 +65,7 @@ const ReduxComparison = () => {
       </Button>
 
       <Row className="mx-5">
-        <ReduxComparisonTable
-          title={"Company Profile"}
-          companies={companyProfiles}
-          companyNames={companyNames}
-        />
+
       </Row>
     </Container>
   );
