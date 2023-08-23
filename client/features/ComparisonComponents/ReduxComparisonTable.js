@@ -4,7 +4,12 @@ import TypingEffectCell from "./TypingEffectCell";
 import { useSelector } from "react-redux";
 import { getFirstTwoSentences } from "./comparisonSlice";
 
-const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }) => {
+const ReduxComparisonTable = ({
+  title,
+  tableData,
+  companyNames,
+  doTypingEffect,
+}) => {
   console.log("received tableData:", tableData);
   console.log("recieved companyNames:", companyNames);
   const [headers, setHeaders] = useState([]);
@@ -12,19 +17,17 @@ const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }
   const [companyIds, setCompanyIds] = useState([]);
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
-
   useEffect(() => {
     initializeTableData(tableData);
-  }, [tableData])
+  }, [tableData]);
 
   const initializeTableData = (tableData) => {
-    if(!tableData) {
+    if (!tableData) {
       return;
     }
 
     const initialShowColumns = {};
     const tempCompanyIds = [];
-
 
     if (tableData && tableData[0] && tableData[0].data) {
       setHeaders(tableData[0].data.map((dataRow) => dataRow.key));
@@ -41,12 +44,12 @@ const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }
 
     setCalculatedWidth(`100%`);
 
-    if(tableData.length > 0) {
-      const calculatedWidth = `${100/tableData.length}%`;
+    if (tableData.length > 0) {
+      const calculatedWidth = `${100 / tableData.length}%`;
       setCalculatedWidth(calculatedWidth);
-      console.log(calculatedWidth)
+      console.log(calculatedWidth);
     }
-  }
+  };
 
   console.log("headers:", headers);
   console.log("showColumns:", showColumns);
@@ -92,7 +95,6 @@ const ReduxComparisonTable = ({ title, tableData, companyNames, doTypingEffect }
               ))}
             </>
           </tbody>
-
         </Table>
       </div>
     </>
