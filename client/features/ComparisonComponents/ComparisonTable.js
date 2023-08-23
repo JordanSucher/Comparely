@@ -2,37 +2,52 @@ import React, { useState, useEffect } from "react";
 import { Table, Button } from "react-bootstrap";
 import axios from "axios";
 import TypingEffectCell from "./TypingEffectCell";
+import { copyTableAsCSV } from "../helperFunctions";
 
-const ComparisonTable = ({
-  title,
-  companies,
-  companyNames,
-  doTypingEffect,
-  swots,
-}) => {
-  console.log("recieved swots:", swots);
-  console.log("received companies:", companies);
 
+
+const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => {
   const [showColumns, setShowColumns] = useState({});
-  const [headers, setHeaders] = useState([]);
+  const [headers, setHeaders] = useState(['Feature One', 'Feature Two', 'Feature Three']);
   const [companyIds, setCompanyIds] = useState([]);
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
-    setShowColumns((prevShowColumns) => ({
-      ...prevShowColumns,
-      [companyName]: !prevShowColumns[companyName],
-    }));
+    if(Object.values(showColumns).filter(v=>v==true).length > 1 || !showColumns[companyName]) {
+      setShowColumns({
+        ...showColumns,
+        [companyName]: !showColumns[companyName],
+      });
+    }
   };
+
+  const handleSubmit = async (e) => {
+    // prevent default
+    e.preventDefault();
+
+    // get vars ready
+    let companies = companyIds
+    let featureName = e.target.featureName.value;
+    e.target.featureName.value = "";
+    
+    // call server
+    await axios.post('/api/comparisons/features', {
+      comparisonId: comparisonId,
+      companies: companies,
+      featureName: featureName
+    })
+
+  }
 
   useEffect(() => {
     const initialShowColumns = {};
     const tempCompanyIds = [];
 
 
-    if (companies && companies[0] && companies[0].features) {
+    if (companies && companies[0] && companies[0].features && companies[0].features.length > 0) {
       setHeaders(companies[0].features.map((feature) => feature.key));
     }
+
 
     if (companies) {
       companies.forEach((company) => {
@@ -45,7 +60,7 @@ const ComparisonTable = ({
     setCompanyIds(tempCompanyIds);
 
     if (companies) {
-      let calculatedWidth = `${100 / (companies.length || 1)}%`;
+      let calculatedWidth = `${80 / (companies.length || 1)}%`
       setCalculatedWidth(calculatedWidth);
       console.log(calculatedWidth);
     }
@@ -81,134 +96,118 @@ const ComparisonTable = ({
     }
   }, [swots]);
 
-//
-  const getFirstTwoSentences = (text) => {
-    // Split by sentences and grab first 2
-    // also, strip the source citing
-    if (text) {
-      let strippedText = text.replace(/\[\d+\]/g, "");
-      const sentences = strippedText.match(/[^.!?]+[.!?]/g);
-      return sentences?.slice(0, 2).join(" ") || "";
-    }
-
-    // Take the first three
+const getFirstTwoSentences = (text) => {
+  // Split by sentences and grab first 2
+  // also, strip the source citing
+  if(text) {
+    let strippedText = text.replace(/\[\d+\]/g, '');
+    const sentences = strippedText.match(/[^.!?]+[.!?]/g)
+    return sentences?.slice(0, 1).join(' ') || '';
   };
-
-  let swotTable = (
-    <Table striped bordered hover>
-      <thead>
-        <tr>
-          <th></th>
-          {swots &&
-            swots.map((swotItem) => (
-              <th key={swotItem.companyId} style={{ width: calculatedWidth }}>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>{companyNames[swotItem.companyId]}</span>
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    onClick={() => toggleColumns(swotItem.companyId)}
-                  >
-                    Hide
-                  </Button>
-                </div>
-              </th>
-            ))}
-        </tr>
-      </thead>
-
-      <tbody>
-        <>
-          {headers &&
-            swots &&
-            headers.map((header) => (
-              <tr key={header}>
-                <td>{header}</td>
-                {swots.map((swotItem) => (
-                  <TypingEffectCell
-                    key={`${swots.companyId}-${header}`}
-                    hidden={!showColumns[swots.companyId]}
-                    doTypingEffect={doTypingEffect}
-                    fullText={getFirstTwoSentences(
-                      swotItem.swot.find((item) => item.key === header)?.value
-                    )}
-                  />
-                ))}
-              </tr>
-            ))}
-        </>
-      </tbody>
-    </Table>
-  );
-
-  let companyProfile = (
-    <Table striped bordered hover>
-      <thead>
-        <tr>
-          <th></th>
-          {companies &&
-            companies.map((company) => (
-              <th key={company.companyId} style={{ width: calculatedWidth }}>
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>{companyNames[company.companyId]}</span>
-                  <Button
-                    variant="outline-secondary"
-                    size="sm"
-                    onClick={() => toggleColumns(company.companyId)}
-                  >
-                    Hide
-                  </Button>
-                </div>
-              </th>
-            ))}
-        </tr>
-      </thead>
-
-      <tbody>
-        <>
-          {headers &&
-            headers.map((header) => (
-              <tr key={header}>
-                <td>{header}</td>
-                {companies &&
-                  companies.map((company) => (
-                    <TypingEffectCell
-                      key={`${company.companyId}-${header}`}
-                      hidden={!showColumns[company.companyId]}
-                      doTypingEffect={doTypingEffect}
-                      fullText={getFirstTwoSentences(
-                        company.features.find(
-                          (feature) => feature.key === header
-                        )?.value
-                      )}
-                    />
-                  ))}
-              </tr>
-            ))}
-        </>
-      </tbody>
-    </Table>
-  );
-
-  console.log("COMPARISON TABLE SWOTS:", swots);
-
-  function tableRender(x) {
-    if (x !== undefined) {
-      if (title === "Swot Analysis") {
-        return swotTable;
-      } else if (title === "Company Profile") {
-        return companyProfile;
-      }
-    }
-    console.log("NO TABLE RENDER");
-    return null;
-  }
+  
+  // Take the first three
+  
+};
 
   return (
     <>
+
+      <div id="hidden-companies">
+        {/* { Object.values(showColumns).includes(false) ? 
+           <h4 id="hidden-companies-header">Hidden Companies</h4> : ""
+        } */}
+
+        {companies && companies.map((company) => {
+          if(showColumns[company.companyId]) {
+            return ""
+          } else if (companyNames[company.companyId]){
+            return (
+              <div className="hidden-company" onClick={()=>toggleColumns(company.companyId)}> 
+              <i className="fa-solid fa-circle-xmark hidden-co-remove" style={{color: "#e8e8e8"}}></i>
+              <Button className="hidden-co-icon">
+                {companyNames[company.companyId].slice(0,1).toUpperCase()}
+              </Button>
+              </div>
+            )
+          }
+          
+          })}
+      </div>
+
       <div id="company-profile">
-        <h4>{title}</h4>
-        {tableRender(true)}
+        <span>
+          <h4 className="table-header">{title}</h4>
+          <i className="fa-solid fa-copy copy-icon" onClick={()=>copyTableAsCSV("#comparison-table")}></i>
+        </span>
+        <Table striped bordered hover id="comparison-table">
+          <thead>
+            <tr>
+              <th ></th>
+              {companies && companies.map((company) => {
+                
+                if (showColumns[company.companyId]) {
+                return (
+                <th key={company.companyId} style={{ minWidth: calculatedWidth }}>
+                  <div className="d-flex justify-content-center align-items-center">
+                    <span>{toTitleCase(companyNames[company.companyId])}</span>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      onClick={() => toggleColumns(company.companyId)}
+                    >
+                      Hide
+                    </Button>
+                  </div>
+                </th>
+              )}
+
+              else {
+                return ""
+              }
+              
+              })}
+            </tr>
+          </thead>
+
+      <tbody>
+        <>
+          {headers &&
+            headers.map((header) => (
+              <tr key={header}>
+                <td>{header}</td>
+                {companies && companies.map((company) => {
+                  
+                  if (company.features.find((feature) => feature.key === header)?.value && company.features.find((feature) => feature.key === header)?.value.length > 0) {
+                  return (
+                          <TypingEffectCell
+                          key={`${company.companyId}-${header}`}
+                          hidden={!showColumns[company.companyId]}
+                          doTypingEffect={doTypingEffect}
+                          fullText={getFirstTwoSentences(company.features.find((feature) => feature.key === header)?.value)}
+                        />
+                  ) }
+                  else {
+                    return (
+                      <td className="loading-cell"></td>
+                    )
+                  }
+                  }  
+                  )}
+              </tr>
+            ))}
+
+             { companies && companies[0] && companies[0].features && companies[0].features.length > 0 && <tr>
+                <td>
+                  <form onSubmit={handleSubmit}>
+                  <input name="featureName" type="text" placeholder="Add feature" ></input>
+                  </form>
+                </td>
+              </tr> }
+
+          </tbody>
+
+
+        </Table>
       </div>
     </>
   );

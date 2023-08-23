@@ -18,7 +18,7 @@ def getFeaturesFromPerplexity(companyName, PPheaders, PPcookies):
         headerObj = json.loads(PPheaders)
         cookieObj = json.loads(PPcookies)
         perplexity_cli = perplexity.Client(headerObj, cookieObj)
-        result = perplexity_cli.search(f'Please create a detailed list of the features that {companyName} offers', mode='concise', focus='internet')
+        result = perplexity_cli.search(f'what are the most important features that {companyName} offers?', mode='concise', focus='internet')
         return result["text"]["answer"]
     except Exception as e:
         print (e)

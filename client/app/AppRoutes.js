@@ -5,6 +5,7 @@ import AuthForm from "../features/Account/AuthForm";
 import { me } from "./store";
 import { Container } from "react-bootstrap";
 import Home from "../features/Home/Home";
+import LandingPage from "../features/Home/LandingPage"
 import AccountDetails from "../features/Account/AccountDetails";
 // import Comparison from "../features/ComparisonComponents/Comparison";
 import ReduxComparison from "../features/ComparisonComponents/ReduxComparison";

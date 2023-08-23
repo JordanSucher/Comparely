@@ -12,6 +12,9 @@ import asyncio
 import os
 from dotenv import load_dotenv
 import requests
+from concurrent.futures import ThreadPoolExecutor
+
+executor = ThreadPoolExecutor(max_workers=1)
 
 
 # Load environment variables from .env file
@@ -267,6 +270,65 @@ async def generateAnalysis2(id, PPheaders, PPcookies):
 
     return True
 
+
+async def addFeatureToComparison(companies, comparisonId, featureName, PPheaders, PPcookies):
+    conn = await psycopg.AsyncConnection.connect(conninfo=os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
+
+    try:
+        async with conn:
+            async with conn.cursor() as cur:
+                 # Create a list to store all the data for batch insert
+                insert_data = []
+
+                def process_perplexity_query(companyName, feature, PPheaders, PPcookies):
+                    return perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+
+                # loop through companies and ask perplexity if each company has the provided feature
+                async def process_company_feature(id, feature):
+                    try:
+                        await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
+                        result = await cur.fetchone()
+                        companyName = result[0]
+                        
+                        loop = asyncio.get_event_loop()
+                        result = await loop.run_in_executor(executor, process_perplexity_query, companyName, feature, PPheaders, PPcookies)
+
+                        data_to_send = {
+                            "companyId": id,
+                            "comparisonId": comparisonId,
+                            "feature": feature,
+                            "result": result
+                        }
+
+                        response = requests.post("http://127.0.0.1:42069/api/receive-data", json=data_to_send)
+                        return (id, feature, result)
+
+                    except Exception as e:
+                        print(f"Error processing company {id} and feature {feature}:", e)
+
+                
+                tasks = [asyncio.create_task(process_company_feature(id, featureName)) for id in companies]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                insert_data = [r for r in results if r]
+
+                await cur.executemany(
+                    "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
+                    insert_data
+                )
+                
+                await conn.commit()  # Commit the transaction
+
+
+    except Exception as e:
+        # Handle or log the error as appropriate
+        print(e)
+        await conn.rollback()
+
+    finally:
+        await conn.close()
+        return True
+    
+
 async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
     # setup sql cursor
     conn = await psycopg.AsyncConnection.connect(conninfo=os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/vector_db"))
@@ -286,7 +348,7 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 chat_completion1 = openai.ChatCompletion.create(
                     model="gpt-4", 
                     messages=[
-                        {"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Combine any that are redundant, and remove company names from feature names. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}
+                        {"role": "user", "content": f"reply with a single list of features from this text. Include all features from all companies. Keep features in the same order. Respond in exactly this format with no other text [\"feature1name\", \"feature2name\"]      {json.dumps(result)}"}
                     ]
                 )
 
@@ -294,7 +356,7 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 chat_completion2 = openai.ChatCompletion.create(
                     model="gpt-4", 
                     messages=[
-                        {"role": "user", "content": f"remove or combine features that seem duplicative or similar.  {chat_completion1.choices[0].message.content}"}
+                        {"role": "user", "content": f"remove or combine features that seem duplicative or similar. Remove company names from feature names. Remove any that arent feature names, eg 'key features' or 'use cases'. Keep features in the same order.  {chat_completion1.choices[0].message.content}"}
                     ]
                 )
 
@@ -314,13 +376,18 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                 # Create a list to store all the data for batch insert
                 insert_data = []
 
+                def process_perplexity_query(companyName, feature, PPheaders, PPcookies):
+                    return perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+
                 # loop through companies and features and ask perplexity if each company has that feature
                 async def process_company_feature(id, feature):
                     try:
                         await cur.execute("SELECT name FROM companies WHERE id = %s", (id,))
                         result = await cur.fetchone()
                         companyName = result[0]
-                        result = perplexQueries.doesCompanyHaveFeature(companyName, feature, PPheaders, PPcookies)
+                        
+                        loop = asyncio.get_event_loop()
+                        result = await loop.run_in_executor(executor, process_perplexity_query, companyName, feature, PPheaders, PPcookies)
 
                         data_to_send = {
                             "companyId": id,
@@ -330,22 +397,22 @@ async def generateComparison(companyIds, PPheaders, PPcookies, comparisonId):
                         }
 
                         response = requests.post("http://127.0.0.1:42069/api/receive-data", json=data_to_send)
+                        return (id, feature, result)
 
-
-                        insert_data.append((id, feature, result))
                     except Exception as e:
                         print(f"Error processing company {id} and feature {feature}:", e)
 
-                tasks = [process_company_feature(id, feature) for id in companyIds for feature in mergedFeatureList]
 
-                # Run tasks in parallel
-                await asyncio.gather(*tasks)
+                
+                tasks = [asyncio.create_task(process_company_feature(id, feature)) for id in companyIds for feature in mergedFeatureList]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                insert_data = [r for r in results if r]
 
-                # Batch insert data into the database
                 await cur.executemany(
                     "INSERT INTO company_comparison_points (company_id, key, value, \"createdAt\", \"updatedAt\") VALUES (%s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)",
                     insert_data
                 )
+
                 await conn.commit()  # Commit the transaction
                 
     except Exception as e:
@@ -388,9 +455,22 @@ async def compare():
     await generateComparison(companyIds, PPheaders, PPcookies, comparisonId)
     # now, can take what we generated and create a comparison.
    
-    
-
     # then, respond with success
+    return jsonify({"message": "Success!"}), 200
+
+@app.route('/api/py/comparisons/features', methods=['POST'])
+async def compareFeature():
+    # get comparisonId and featureName from body
+    data = request.json
+    companies = data['companies']
+    PPheaders = data['PPheaders']
+    PPcookies = data['PPcookies']
+    comparisonId = data['comparisonId']
+    featureName = data['featureName']
+
+    # get the current comparison text
+    await addFeatureToComparison(companies, comparisonId, featureName, PPheaders, PPcookies)
+
     return jsonify({"message": "Success!"}), 200
 
 

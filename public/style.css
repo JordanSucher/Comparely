@@ -2,12 +2,25 @@
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
+[id] { /* This will apply to any element with an ID, adjust as necessary for your use case */
+  scroll-margin-top: 80px; /* Adjust to the height of your header */
+}
+
+html{
+  width: 100vw !important;
+  overflow-x: hidden
+}
+
+
 body{
-  padding-top: 40px;
+  padding-top: 80px;
+  background-color: rgb(227, 137, 137) !important;
+  color: white !important;
+  width: 100vw !important
 }
 
 .container{
-  font-size: 12px;
+  font-size: 14px;
   max-width: 2000px !important;
 }
 
@@ -22,7 +35,8 @@ body{
   padding: 0;
 }
 
-#expand-button svg{
+#expand-button *{
+  font-size: 30px;
   height: 20px;
   width: 20px;
 }
@@ -37,21 +51,227 @@ body{
   padding-right:10px;
 }
 
+/* NAVBAR */
+
+
+
 .navbar{
   position: fixed !important;
   width: 100%;
   top: 0;
   left:0;
-  background-color: rgb(255, 178, 178) !important;
+  background-color: white !important;
   padding: 10px !important;
   font-size: 25px !important;
   font-weight: 800;
+}
+
+.dropdown-menu{
+  position: static;
+}
+
+.navbar i{
+  color: black;
 }
 
 .fa-magnifying-glass{
   font-size: 20px;
   margin-right: 10px;
 }
+
+
+/* END NAVBAR */
+
+/* Landing Page Styling */
+
+#landing-page-top {
+  width: 70%;
+  margin: 0 auto;
+  margin-top: 180px;
+}
+
+#landing-page-top button{
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  border-radius: 10px;
+  padding: 5px 20px 5px 20px;
+  background-color: black;
+  border: none
+
+}
+
+#landing-page-top h1{
+  font-size: 70px;
+  line-height: 65px;
+  margin-bottom: 30px;
+}
+
+
+#landing-page-top h3{
+  font-size: 24px;
+  line-height: 20px;
+}
+
+/* End LP */
+
+/* Comparison styling */
+
+#comparison-title{
+  margin-left: 60px;
+  margin-top: 50px;
+  font-size: 60px;
+  margin-bottom: -20px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-cell {
+  background: linear-gradient(90deg, rgba(188, 119, 208, 0.986) 25%, rgba(221, 146, 241, 0.986) 50%, rgba(188, 119, 208, 0.986) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  /* If you want the shimmer effect to go from left to right, then use this */
+  animation-direction: reverse;
+}
+
+
+.table-header{
+  display: inline;
+  margin-right: 6px;
+}
+
+.copy-icon{
+  position: relative;
+  bottom: 3px;
+  left: 1px;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.copy-icon:hover{
+  color: lightgray;
+  cursor: pointer;
+}
+
+.copy-icon:active{
+  color: lightgreen;
+  cursor: pointer;
+}
+
+
+table{
+  table-layout: fixed;
+  margin-top: 15px;
+  border-collapse: separate !important;
+  border-spacing: 5px !important;
+}
+
+table input{
+  color: white !important;
+  background-color: rgb(89, 89, 89) ;
+  border: none !important;
+  padding: 3px 5px 3px 5px;
+  border-radius: 10px;
+  text-align: center;
+  width: 100%;
+  outline: none !important
+}
+
+table input:active{
+  border: none !important;
+  outline: none !important
+}
+
+table, thead, tbody, tr, th, td{
+  border-radius: 15px;
+  border: none !important
+}
+
+th:first-of-type {
+  width: 20% !important;
+  background-color: transparent !important;
+}
+
+
+th, td{
+  /* margin: 5px !important; */
+  padding: 8px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+
+
+th button{
+  margin-left: 10px;
+}
+
+th{
+  background-color: rgb(67, 67, 67) !important;
+  color: white !important;
+}
+
+td{
+  background-color: rgba(188, 119, 208, 0.986) !important;
+  color: white !important;
+  border: 0.5px solid black !important;
+}
+
+tr th:first-of-type{
+  max-width: 150px !important;
+}
+
+tr td:first-of-type{
+  font-weight: 800;
+  font-size: 14px;
+  background-color: rgb(67, 67, 67) !important;
+  max-width: 150px !important;
+  color: white !important
+}
+
+#hidden-companies{
+  margin-bottom: 20px;
+}
+
+#hidden-companies button{
+  margin: 5px;
+  margin-top: 30px;
+  background-color: rgb(67, 67, 67);
+}
+
+#hidden-companies-header{
+  margin-bottom: 10px;
+}
+
+.hidden-co-icon{
+  height: 50px !important;
+  width: 50px !important;
+  border-radius: 50px !important;
+}
+
+.hidden-co-remove{
+  position: relative;
+  bottom: 5px;
+  left: 55px;
+}
+
+.hidden-company:hover{
+  cursor: pointer;
+  height: fit-content;
+  width: fit-content;
+}
+
+
+/* End table styling */
+
 
 /* h1, p, body{
   margin: 0;

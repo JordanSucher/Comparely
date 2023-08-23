@@ -514,91 +514,108 @@ const getContent = async (company) => {
 
 const getPPheaders = async () => {
 
-    let PPcookies = {
-        'next-auth.csrf-token': 'c76a21346fe9eb227b0a322a2447c2d347050670380ac883f6b699cdccd63bf1%7C75d2b74fc8065cf1f61009c158c3083f02284af788207fbca4bfd6c7f64eb105',
-        '_ga': 'GA1.1.98564218.1692308837',
-        '__Secure-next-auth.callback-url': 'https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F',
-        'cf_clearance': '5zoT674_RkAOhGmYzcvWvRVPa7_lh4UVWFPWOp13C2w-1692308859-0-1-1716f03a.fa72632b.4017afda-160.0.0',
-        'g_state': '{"i_p":1692651424424,"i_l":2}',
-        '__cflb': '02DiuDyvFMmK5p9jVbWbam6CcSLCt41hZZGVhSttqShZW',
-        '_ga_SH9PRBQG23': 'GS1.1.1692565021.3.1.1692565074.0.0.0',
-        'cf_chl_2': '60b7dcd6bd5fdd0',
-        'AWSALB': 'bh2uEqd+m7+RR8muoE4v4Li8hRMMBP6TUrm9dgU0eXxKmGTB9VsEECG5IlgSYXu40L3MOLHkBrzuYOMD1KABWw7x2HFlEJHny+kO2i85FMoOFkMO7d7xoD412/7w',
-        'AWSALBCORS': 'bh2uEqd+m7+RR8muoE4v4Li8hRMMBP6TUrm9dgU0eXxKmGTB9VsEECG5IlgSYXu40L3MOLHkBrzuYOMD1KABWw7x2HFlEJHny+kO2i85FMoOFkMO7d7xoD412/7w',
-    }
+    let PPheaders
+    let PPcookies
 
-    let PPheaders = {
-        'authority': 'www.perplexity.ai',
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'accept-language': 'en-US,en;q=0.9',
-        'cache-control': 'max-age=0',
-        'content-type': 'application/x-www-form-urlencoded',
-        'cookie': 'next-auth.csrf-token=c76a21346fe9eb227b0a322a2447c2d347050670380ac883f6b699cdccd63bf1%7C75d2b74fc8065cf1f61009c158c3083f02284af788207fbca4bfd6c7f64eb105; _ga=GA1.1.98564218.1692308837; __Secure-next-auth.callback-url=https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F; cf_clearance=5zoT674_RkAOhGmYzcvWvRVPa7_lh4UVWFPWOp13C2w-1692308859-0-1-1716f03a.fa72632b.4017afda-160.0.0; g_state={"i_p":1692651424424,"i_l":2}; __cflb=02DiuDyvFMmK5p9jVbWbam6CcSLCt41hZZGVhSttqShZW; _ga_SH9PRBQG23=GS1.1.1692565021.3.1.1692565074.0.0.0; cf_chl_2=60b7dcd6bd5fdd0; AWSALB=bh2uEqd+m7+RR8muoE4v4Li8hRMMBP6TUrm9dgU0eXxKmGTB9VsEECG5IlgSYXu40L3MOLHkBrzuYOMD1KABWw7x2HFlEJHny+kO2i85FMoOFkMO7d7xoD412/7w; AWSALBCORS=bh2uEqd+m7+RR8muoE4v4Li8hRMMBP6TUrm9dgU0eXxKmGTB9VsEECG5IlgSYXu40L3MOLHkBrzuYOMD1KABWw7x2HFlEJHny+kO2i85FMoOFkMO7d7xoD412/7w',
-        'origin': 'https://www.perplexity.ai',
-        'referer': 'https://www.perplexity.ai/api/auth/verify-request?provider=email&type=email&__cf_chl_tk=sETJlyujdne.bjsa_r0TvkW1pSFp.AZGrVqBVc1UTdM-1692565075-0-gaNycGzNDeU',
-        'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
-        'sec-fetch-dest': 'document',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-user': '?1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-    }
-
-    
     let browser
 
-    // // const browser = await puppeteer.launch({headless: "new"});
-    // if (process.env.BROWSERLESS_TOKEN) {
-    //     console.log ("Using Browserless")
-    //     browser = await puppeteer.connect({ browserWSEndpoint: 'wss://chrome.browserless.io?token=' + process.env.BROWSERLESS_TOKEN });
-    // } else {
-    //     console.log("Using puppeteer default browser")
-    //     browser = await puppeteer.launch({ headless: "new" }); // you might want to replace "new" with true or false based on your needs.
+
+    try {
+        browser = await puppeteer.connect({
+            browserWSEndpoint: 'ws://chrome-sghx:10000/',
+        });
+
+        const page = await browser.newPage();
+
+        // Set default timeout for navigation
+        page.setDefaultNavigationTimeout(180000); // 180 seconds
+
+        // Attach to the 'request' event to log all network requests
+        page.on('request', async request => {
+            let url = request.url();
+            if (url.includes('/api/auth/signin/email')) {
+                PPheaders = request.headers();
+                PPcookies = await page.cookies();
+            }
+        });
+
+        await page.setViewport({ width: 1366, height: 768 });
+
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+
+        await page.goto('https://www.perplexity.ai/');
+
+        await page.waitForSelector(".ml-md > button");
+        await page.click(".ml-md > button");
+
+        const [response] = await Promise.all([
+            page.waitForNavigation(), 
+            page.click('div.border-t.mt-md button') 
+        ]);
+
+        await page.waitForSelector(".max-w-sm input");
+        await page.click(".max-w-sm input");
+        await page.type(".max-w-sm input", 'a@a.com', { delay: 100 });
+        
+        // Short sleep
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        await browser.close();
+
+        // Process the cookies into an object
+        let PPcookiesObj = {};
+        if (PPcookies) {
+            PPcookies.forEach(cookie => {
+                PPcookiesObj[cookie.name] = cookie.value;
+            });
+        }
+
+        console.log("PPCookies", PPcookiesObj);
+        console.log("PPHeaders", PPheaders);
+
+        return { PPheaders: JSON.stringify(PPheaders || {}), PPcookies: JSON.stringify(PPcookiesObj) };
+
+    } catch (error) {
+        console.error("Error executing puppeteer code:", error);
+        // You can throw the error if you want your application to be informed of the failure
+        throw error;
+    }
+
+
+    // let PPcookies = {
+    //     'next-auth.csrf-token': 'b9415cf1289ff2792e4ed5531d6f54efbd082afa31101c9b1c43c6693fcae861%7C0b59be5f22677cd9fc026c6ada2b5a3207e874d317f15db85cd65a24373e60df',
+    //     '_ga': 'GA1.1.823462033.1692419653',
+    //     '__Secure-next-auth.callback-url': 'https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F',
+    //     'cf_clearance': 'oc5nh96Il47pLm6Z2koDyhVQDOL.ihj5L2nZ75t5KrE-1692632692-0-1-ab43f26c.26e88ab2.fc42ad8c-160.0.0',
+    //     'mp_6f4de78898d87a1c8d7b7c5bd8b97049_mixpanel': '%7B%22distinct_id%22%3A%20%2218a0c127c12446-075881395c2938-1a525634-1ce26a-18a0c127c131ed6%22%2C%22%24device_id%22%3A%20%2218a0c127c12446-075881395c2938-1a525634-1ce26a-18a0c127c131ed6%22%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%7D',
+    //     '_ga_SH9PRBQG23': 'GS1.1.1692632697.2.0.1692632697.0.0.0',
+    //     'g_state': '{"i_p":1692639907280,"i_l":1}',
+    //     '__cflb': '02DiuDyvFMmK5p9jVbWbam6CcSLCt41haqsvf8tp1v7wA',
+    //     'AWSALB': 'e6aEjq1H/8zfXJAx4rChsr4cYABnH9ZMpxpuDM0DfipiNd24iM8vkDo4KPKDOn14vIJkIyWRG+WkGerA9Je9HpXf/vB6PIckbUyEuEy2TnSccfnJ5Oqxv1JjNQbY',
+    //     'AWSALBCORS': 'e6aEjq1H/8zfXJAx4rChsr4cYABnH9ZMpxpuDM0DfipiNd24iM8vkDo4KPKDOn14vIJkIyWRG+WkGerA9Je9HpXf/vB6PIckbUyEuEy2TnSccfnJ5Oqxv1JjNQbY',
+    //     }
+
+    // let PPheaders = {
+    //     'authority': 'www.perplexity.ai',
+    //     'accept': '*/*',
+    //     'accept-language': 'en-US,en;q=0.9',
+    //     'baggage': 'sentry-environment=production,sentry-release=8NRvyDQaWnSOF35YJZN3i,sentry-public_key=bb45aa7ca2dc43b6a7b6518e7c91e13d,sentry-trace_id=bfc062daee124617b1e0f205f4d98f1d',
+    //     'content-type': 'application/x-www-form-urlencoded',
+    //     'cookie': 'next-auth.csrf-token=b9415cf1289ff2792e4ed5531d6f54efbd082afa31101c9b1c43c6693fcae861%7C0b59be5f22677cd9fc026c6ada2b5a3207e874d317f15db85cd65a24373e60df; _ga=GA1.1.823462033.1692419653; __Secure-next-auth.callback-url=https%3A%2F%2Fwww.perplexity.ai%2Fapi%2Fauth%2Fsignin-callback%3Fredirect%3Dhttps%253A%252F%252Fwww.perplexity.ai%252F; cf_clearance=oc5nh96Il47pLm6Z2koDyhVQDOL.ihj5L2nZ75t5KrE-1692632692-0-1-ab43f26c.26e88ab2.fc42ad8c-160.0.0; mp_6f4de78898d87a1c8d7b7c5bd8b97049_mixpanel=%7B%22distinct_id%22%3A%20%2218a0c127c12446-075881395c2938-1a525634-1ce26a-18a0c127c131ed6%22%2C%22%24device_id%22%3A%20%2218a0c127c12446-075881395c2938-1a525634-1ce26a-18a0c127c131ed6%22%2C%22%24initial_referrer%22%3A%20%22%24direct%22%2C%22%24initial_referring_domain%22%3A%20%22%24direct%22%7D; _ga_SH9PRBQG23=GS1.1.1692632697.2.0.1692632697.0.0.0; g_state={"i_p":1692639907280,"i_l":1}; __cflb=02DiuDyvFMmK5p9jVbWbam6CcSLCt41haqsvf8tp1v7wA; AWSALB=e6aEjq1H/8zfXJAx4rChsr4cYABnH9ZMpxpuDM0DfipiNd24iM8vkDo4KPKDOn14vIJkIyWRG+WkGerA9Je9HpXf/vB6PIckbUyEuEy2TnSccfnJ5Oqxv1JjNQbY; AWSALBCORS=e6aEjq1H/8zfXJAx4rChsr4cYABnH9ZMpxpuDM0DfipiNd24iM8vkDo4KPKDOn14vIJkIyWRG+WkGerA9Je9HpXf/vB6PIckbUyEuEy2TnSccfnJ5Oqxv1JjNQbY',
+    //     'origin': 'https://www.perplexity.ai',
+    //     'referer': 'https://www.perplexity.ai/',
+    //     'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
+    //     'sec-ch-ua-mobile': '?0',
+    //     'sec-ch-ua-platform': '"macOS"',
+    //     'sec-fetch-dest': 'empty',
+    //     'sec-fetch-mode': 'cors',
+    //     'sec-fetch-site': 'same-origin',
+    //     'sentry-trace': 'bfc062daee124617b1e0f205f4d98f1d-8bf82199de4765fa-0',
+    //     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+    
     // }
 
-    // browser = await puppeteer.launch({ headless: "new", args: [
-    //     '--proxy-server=http=143.244.182.101:80',
-    //   ]});
 
-
-    // const page = await browser.newPage();
-
-    // // attach to the 'request' event to log all network requests
-    // page.on('request', async request => {
-    //   let url = request.url()
-    //   if (url.includes('/api/auth/signin/email')) {
-    //     PPheaders = request.headers()
-    //     PPcookies = await page.cookies()
-    //   }
-    // });
-
-    // await page.setViewport({
-    //     width: 1200,
-    //     height: 1900,
-    //   });
-    // await page.goto('https://www.perplexity.ai/');
-    // await page.waitForSelector(".ml-md > button");
-    // await page.click(".ml-md > button");
-    // await page.waitForSelector(".max-w-sm input");
-    // await page.click(".max-w-sm input");
-    // await page.type(".max-w-sm input", 'a@a.com', {delay: 100});
-    // await page.click('div.border-t.mt-md button');
-    // // add a short sleep
-    // await new Promise(resolve => setTimeout(resolve, 3000));
-    // await browser.close();
-
-    // let PPcookiesObj = {}
-    // PPcookies.forEach(cookie => {
-    //     PPcookiesObj[cookie.name] = cookie.value
-    // })
-
-    // console.log("PPCookies", PPcookiesObj)
-    // console.log("PPHeaders", PPheaders)
-
-    return { PPheaders: JSON.stringify(PPheaders), PPcookies: JSON.stringify(PPcookies) }
 }
 
 module.exports = {

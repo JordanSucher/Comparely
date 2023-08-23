@@ -157,33 +157,26 @@ const Comparison = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <Row className="my-5">
-        <h1 className="text-center">{title}</h1>
+      <Row className="my-1">
+        <h1 id="comparison-title" className="text-left">Your Company vs The World</h1>
       </Row>
-      <Button
-        className="border-0"
-        id="expand-button"
-        variant="outline-dark"
-        size="md"
-        onClick={handleShow}
-        onMouseOver={handleShow}
-      >
-        <CaretRight size={20} />
-      </Button>
+        <Button
+          className="border-0"
+          id="expand-button"
+          variant="outline-dark"
+          size="md"
+          onClick={handleShow}
+          onMouseOver={handleShow}
+        >
+          <i class="fa-solid fa-bars"></i>
+        </Button>
 
       <Row className="mx-5">
-        <ComparisonTable
-          title={"Company Profile"}
-          companies={data.features}
-          companyNames={companyNames}
-          doTypingEffect={doTypingEffect}
-        />
-        <ComparisonTable
-          title={"Swot Analysis"}
-          swots={data.swots}
-          companyNames={swotNames}
-          doTypingEffect={doTypingEffect}
-        />
+        <ComparisonTable title="Feature Comparison" comparisonId={comparisonId} companies={data.features} doTypingEffect={doTypingEffect} />
+        {/*<SwotAnalysisTable
+          title="Swot Analysis"
+          companies={data.swots}
+        /> */}
       </Row>
     </Container>
   );

@@ -147,6 +147,7 @@ router.post("/receive-data", async (req, res, next) => {
 
     let text = comparison.text;
     let comparisonObj = JSON.parse(text)
+    let foundFeatureInComparison = false
 
     // update comparisonObj by adding result
     comparisonObj.features.forEach(feature => {
@@ -154,10 +155,21 @@ router.post("/receive-data", async (req, res, next) => {
         feature.features.forEach(feature => {
           if (feature.key === featureName) {
             feature.value = result
+            foundFeatureInComparison = true
           }
         })
       }
     })
+
+    // if the feature was not found in the comparison, add it.
+    if (!foundFeatureInComparison) {
+      comparisonObj.features.forEach(feature => {
+        feature.features.push({
+          key: featureName,
+          value: result
+        })
+      })
+    }
 
     // update comparison
     await Comparison.update({
@@ -177,17 +189,73 @@ router.post("/receive-data", async (req, res, next) => {
         } else {
           console.log(`No client found for ID ${comparisonId}`);
       }
-
   }
-
-
-
-
 })
 
-
-
 // END DATA STREAMING STUFF
+
+
+
+router.post("/comparisons/features", async (req, res, next) => {
+  try {
+
+    // immediately respond so as to not hold anything up
+    res.send(true)
+
+    // get vars
+    let comparisonId = req.body.comparisonId;
+    let featureName = req.body.featureName;
+    let companies = req.body.companies
+
+    // update comparison in DB to have featureName
+    let comparison = await Comparison.findOne({
+      where: {
+        id: comparisonId
+      }
+    })
+
+    let text = comparison.text;
+    text = JSON.parse(text)
+
+    text.features.forEach(featureObj => {
+      featureObj.features.push({
+        key: featureName,
+        value: null
+      })
+    })
+
+    text = JSON.stringify(text)
+
+    await Comparison.update({
+      text: text
+    }, {
+      where: {
+        id: comparisonId
+      }
+    })
+  
+    //get perplexity headers / cookies
+    let { PPheaders, PPcookies } = await getPPheaders();
+    
+
+    // pass along to python server
+
+    let result = await axios.post("http://127.0.0.1:8080/api/py/comparisons/features", {
+      comparisonId: comparisonId,
+      companies: companies,
+      PPcookies: PPcookies,
+      PPheaders: PPheaders,
+      featureName: featureName,
+    });
+
+    // python server does the perplexity queries, inserts into the DB, and passes back to receive-data endpoint.
+        
+
+  } catch (err) {
+    next(err);
+  }
+})
+
 
 router.post("/comparisons", async (req, res, next) => {
   try {
