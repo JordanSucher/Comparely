@@ -7,7 +7,8 @@ import { Container } from "react-bootstrap";
 import Home from "../features/Home/Home";
 import LandingPage from "../features/Home/LandingPage"
 import AccountDetails from "../features/Account/AccountDetails";
-import Comparison from "../features/ComparisonComponents/Comparison";
+// import Comparison from "../features/ComparisonComponents/Comparison";
+import ReduxComparison from "../features/ComparisonComponents/ReduxComparison";
 
 const AppRoutes = () => {
   const isLoggedIn = useSelector((state) => !!state.auth.me.id);
@@ -19,18 +20,16 @@ const AppRoutes = () => {
 
   const loggedInRoutes = (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/compare" element = {<Home/>} />
-      <Route path="/compare/:comparisonId" element={<Comparison />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/compare/:comparisonId" element={<ReduxComparison />} />
       <Route path="/account" element={<AccountDetails/>} />
     </Routes>
   );
 
   const guestRoutes = (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/compare" element = {<Home/>} />
-      <Route path="/compare/:comparisonId" element={<Comparison />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/compare/:comparisonId" element={<ReduxComparison />} />
       <Route path="/create-account" element={<AuthForm />} />
     </Routes>
   );

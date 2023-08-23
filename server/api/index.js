@@ -53,7 +53,7 @@ router.get("/comparisons/:comparisonId/progress", (req, res) => {
   res.setHeader("Connection", "keep-alive");
   res.flushHeaders();
 
-  
+
   // Add this client to the sseClients map
   console.log("Adding SSE client for ID", req.params.comparisonId);
   sseClients.set(String(req.params.comparisonId), res);
@@ -76,7 +76,7 @@ router.post("/receive-data", async (req, res, next) => {
   let comparisonId = data.comparisonId
 
   let featureName = data.feature
-  let result = data.result 
+  let result = data.result
   let companyId = data.companyId
 
   if (features && Array.isArray(features)) {
@@ -104,10 +104,10 @@ router.post("/receive-data", async (req, res, next) => {
     companies.forEach((company) => {
       let companyFeatureObj = {
         companyId: company.id,
-        features: [],
+        data: [],
       }
       features.forEach((feature) => {
-        companyFeatureObj.features.push({
+        companyFeatureObj.data.push({
           key: feature,
           value: null,
         })
@@ -125,7 +125,7 @@ router.post("/receive-data", async (req, res, next) => {
 
 
     let clientRes = sseClients.get(String(comparisonId));
-   
+
       if (clientRes) {
           console.log(`Sending message: ${JSON.stringify(features)} to ID ${comparisonId}`);
           clientRes.write(`data: {"progress": ${JSON.stringify(JSON.stringify(features))}}\n\n`);
@@ -157,7 +157,7 @@ router.post("/receive-data", async (req, res, next) => {
             feature.value = result
             foundFeatureInComparison = true
           }
-        }) 
+        })
       }
     })
 
@@ -182,7 +182,7 @@ router.post("/receive-data", async (req, res, next) => {
 
     // trigger SSE to refresh data
     let clientRes = sseClients.get(String(comparisonId));
-   
+
       if (clientRes) {
           console.log(`Sending message to ID ${comparisonId}`);
           clientRes.write(`data: {"progress": "Received ${featureName} for ${companyId}"}\n\n`);
@@ -315,10 +315,10 @@ router.post("/comparisons", async (req, res, next) => {
     // fn for sending server-side events to client
     const sendSSEUpdate = (id, message) => {
       console.log(`Attempting to send SSE message for ID ${id}`);
-      
+
       const clientRes = sseClients.get(String(id));
 
-      
+
       if (clientRes) {
           console.log(`Sending message: ${JSON.stringify(message)} to ID ${id}`);
           clientRes.write(`data: ${JSON.stringify(message)}\n\n`);
@@ -497,9 +497,13 @@ const doQueries = async (companies) => {
         return { key: feature.key, value: feature.value };
       });
 
-      featuresArray.push({ companyId: company.id, features: features });
-      swotsArray.push({ companyId: company.id, swot: swot[0].value });
-      articlesArray.push({ companyId: company.id, articles: articles });
+      swot = swot.map((swot) => {
+        return { key: swot.key, value: swot.value };
+      })
+
+      featuresArray.push({ companyId: company.id, data: features });
+      swotsArray.push({ companyId: company.id, data: swot });
+      articlesArray.push({ companyId: company.id, data: articles });
     } catch (err) {
       console.log(err);
     }
@@ -558,7 +562,7 @@ const doQueries = async (companies) => {
       console.error("Error while fetching SWOTs:", error);
     });
 
-    
+
   result = {
     features: featuresArray,
     swots: swotsArray,

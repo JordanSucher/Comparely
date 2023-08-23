@@ -10,7 +10,6 @@ const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => 
   const [showColumns, setShowColumns] = useState({});
   const [headers, setHeaders] = useState(['Feature One', 'Feature Two', 'Feature Three']);
   const [companyIds, setCompanyIds] = useState([]);
-  const [companyNames, setCompanyNames] = useState({});
   const [calculatedWidth, setCalculatedWidth] = useState(0);
 
   const toggleColumns = (companyName) => {
@@ -44,9 +43,11 @@ const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => 
     const initialShowColumns = {};
     const tempCompanyIds = [];
 
+
     if (companies && companies[0] && companies[0].features && companies[0].features.length > 0) {
       setHeaders(companies[0].features.map((feature) => feature.key));
     }
+
 
     if (companies) {
       companies.forEach((company) => {
@@ -63,49 +64,37 @@ const ComparisonTable = ({ title, companies, doTypingEffect, comparisonId }) => 
       setCalculatedWidth(calculatedWidth);
       console.log(calculatedWidth);
     }
-    
-
   }, [companies]);
 
+  // //SWOT HEADERS
   useEffect(() => {
-    // Create an async function
-    const fetchCompanyNames = async () => {
-        // Create an array to store all promises
-        const promises = companyIds.map(async companyId => {
-            if (!companyNames[companyId]) {
-                const { data } = await axios.get("/api/companies/" + companyId);
-                return { id: companyId, name: data.name };
-            }
-            return null;  // If the company name already exists, return null
-        });
+    const initialShowColumns = {};
+    const tempCompanyIds = [];
+    // Check if swots and swots[0].swot exist before proceeding
+    if (swots && swots[0] && swots[0].swot) {
+      // Set headers based on keys in the first swot object
+      setHeaders(swots[0].swot.map((key) => key.key));
+    }
 
-        // Resolve all promises
-        const results = await Promise.all(promises);
+    if (swots) {
+      // Initialize showColumns and companyIds arrays
+      swots.forEach((swot) => {
+        initialShowColumns[swot.companyId] = true;
+        tempCompanyIds.push(swot.companyId);
+      });
 
-        // Create a new object based on the previous companyNames and the fetched results
-        const newCompanyNames = { ...companyNames };
-        results.forEach(result => {
-            if (result) { // Check if the result isn't null
-                newCompanyNames[result.id] = result.name;
-            }
-        });
+      // Set showColumns and companyIds state
+      setShowColumns(initialShowColumns);
+      setCompanyIds(tempCompanyIds);
 
-        // Update the state
-        setCompanyNames(newCompanyNames);
-    };
-
-    // Call the async function
-    fetchCompanyNames();
-
-}, [companyIds]);
-
-function toTitleCase(str) {
-  if (str) {
-  return str.split(' ').map(function (word) {
-    return (word.charAt(0).toUpperCase() + word.slice(1));
-  }).join(' ');
-}
-}
+      if (swots) {
+        // Calculate the width for columns
+        let calculatedWidth = `${100 / (swots.length || 1)}%`;
+        setCalculatedWidth(calculatedWidth);
+        console.log(calculatedWidth);
+      }
+    }
+  }, [swots]);
 
 const getFirstTwoSentences = (text) => {
   // Split by sentences and grab first 2
@@ -180,8 +169,10 @@ const getFirstTwoSentences = (text) => {
             </tr>
           </thead>
 
-          <tbody>
-            {headers && headers.map((header) => (
+      <tbody>
+        <>
+          {headers &&
+            headers.map((header) => (
               <tr key={header}>
                 <td>{header}</td>
                 {companies && companies.map((company) => {

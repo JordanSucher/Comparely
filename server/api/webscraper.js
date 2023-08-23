@@ -1,8 +1,8 @@
 const axios = require('axios')
 const { Op } = require('sequelize');
 const cheerio = require('cheerio')
-const puppeteer = require("puppeteer-extra"); 
-const pluginStealth = require("puppeteer-extra-plugin-stealth"); 
+const puppeteer = require("puppeteer-extra");
+const pluginStealth = require("puppeteer-extra-plugin-stealth");
 const hash = require('hash-it');
 const Sitemapper = require('sitemapper');
 const fs = require('fs')
@@ -11,7 +11,7 @@ const { models: CompanyData } = require('../db')
 const { Configuration, OpenAIApi } = require("openai");
 const { models: { User, Company, CompanyComparisonPoint, CompanyDataRaw } } = require('../db')
 
-puppeteer.use(pluginStealth()); 
+puppeteer.use(pluginStealth());
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
