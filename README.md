@@ -10,3 +10,7 @@ Comparely is a proof of concept exploring how automation & AI might be used to g
 
 The idea: pull data on a recurring basis, synthesize it with LLMs, and automatically notify stakeholders of anything important. This poc implements a basic feature comparison, but the potential to provide deeper insights is there.
 
+- Built with js, python, perplexity, gpt4
+- Data streamed to front-end via server-side-events
+- Automated emails with emailjet
+
